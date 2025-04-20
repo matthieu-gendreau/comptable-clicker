@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useGameState } from "@/context/GameStateContext";
 import { Button } from "@/components/ui/button";
-import { Info, X } from "lucide-react";
+import { PackageOpen, CheckCircle2 } from "lucide-react";
 import { motion } from "framer-motion";
 import {
   Card,
@@ -10,7 +10,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 const Upgrades: React.FC = () => {
   const { state, dispatch } = useGameState();
@@ -27,35 +28,53 @@ const Upgrades: React.FC = () => {
     (upgrade) => upgrade.purchased
   );
 
-  if (availableUpgrades.length === 0 && purchasedUpgrades.length === 0) {
-    return null;
-  }
+  const EmptyState = () => (
+    <div className="flex flex-col items-center justify-center py-12 text-center">
+      <PackageOpen className="w-12 h-12 mb-4 text-muted-foreground" />
+      <h3 className="text-lg font-medium">Pas d'améliorations disponibles</h3>
+      <p className="text-sm text-muted-foreground mt-2">
+        Continuez à jouer pour débloquer de nouvelles améliorations !
+      </p>
+    </div>
+  );
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Améliorations</CardTitle>
-        <CardDescription>
-          Améliorez votre productivité !
-        </CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Améliorations</CardTitle>
+            <CardDescription>
+              Améliorez votre productivité !
+            </CardDescription>
+          </div>
+          <Badge variant="secondary">
+            {purchasedUpgrades.length} / {state.upgrades.length}
+          </Badge>
+        </div>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          {state.upgrades
-            .filter((upgrade) => upgrade.unlocked && !upgrade.purchased)
-            .map((upgrade) => (
-              <div
-                key={upgrade.id}
-                className="flex items-center justify-between p-2 border rounded-lg"
-              >
-                <div>
-                  <p className="font-medium">{upgrade.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {upgrade.description}
-                  </p>
-                </div>
-                <Tooltip>
-                  <TooltipTrigger asChild>
+        <div className="space-y-6">
+          {/* Améliorations disponibles */}
+          <div>
+            <h3 className="font-medium mb-4">Disponibles</h3>
+            {availableUpgrades.length === 0 ? (
+              <EmptyState />
+            ) : (
+              <div className="space-y-4">
+                {availableUpgrades.map((upgrade) => (
+                  <motion.div
+                    key={upgrade.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/5"
+                  >
+                    <div>
+                      <p className="font-medium">{upgrade.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {upgrade.description}
+                      </p>
+                    </div>
                     <Button
                       variant={state.entries >= upgrade.cost ? "default" : "outline"}
                       onClick={() =>
@@ -68,13 +87,39 @@ const Upgrades: React.FC = () => {
                     >
                       {formatEntries(upgrade.cost)} écritures
                     </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    {upgrade.description}
-                  </TooltipContent>
-                </Tooltip>
+                  </motion.div>
+                ))}
               </div>
-            ))}
+            )}
+          </div>
+
+          {/* Séparateur */}
+          {purchasedUpgrades.length > 0 && (
+            <Separator className="my-6" />
+          )}
+
+          {/* Améliorations achetées */}
+          {purchasedUpgrades.length > 0 && (
+            <div>
+              <h3 className="font-medium mb-4">Améliorations achetées</h3>
+              <div className="space-y-4">
+                {purchasedUpgrades.map((upgrade) => (
+                  <motion.div
+                    key={upgrade.id}
+                    className="flex items-start gap-3 p-4 border rounded-lg bg-accent/5"
+                  >
+                    <CheckCircle2 className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium">{upgrade.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {upgrade.description}
+                      </p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
