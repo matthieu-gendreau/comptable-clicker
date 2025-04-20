@@ -234,15 +234,6 @@ export const initialFamousAccountants: FamousAccountant[] = [
 
 export const initialUpgrades: Upgrade[] = [
   {
-    id: "stats_unlock",
-    name: "Tableau de bord",
-    description: "Débloque l'accès aux statistiques détaillées de votre cabinet",
-    cost: 1000,
-    unlocked: true,
-    purchased: false,
-    effect: (state) => state,
-  },
-  {
     id: "better_calculator",
     name: "Calculatrice Connectée",
     description: "Double votre puissance de clic. La calculette rejoint enfin le 21ème siècle !",
@@ -253,6 +244,20 @@ export const initialUpgrades: Upgrade[] = [
       ...state,
       entriesPerClick: state.entriesPerClick * 2,
     }),
+  },
+  {
+    id: "stats_unlock",
+    name: "Tableau de bord",
+    description: "Débloque l'accès aux statistiques détaillées de votre cabinet",
+    cost: 5000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "generator",
+      id: "ocr_scanner",
+      count: 5,
+    },
+    effect: (state) => state,
   },
   {
     id: "ocr_boost",

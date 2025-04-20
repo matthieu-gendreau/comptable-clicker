@@ -67,6 +67,8 @@ const GameTabs: React.FC = () => {
     },
   ];
 
+  const unlockedTabs = tabs.filter(tab => tab.unlocked);
+
   const handleReset = () => {
     if (window.confirm("Êtes-vous sûr de vouloir réinitialiser votre progression ? Cette action est irréversible.")) {
       dispatch({ type: "RESET_GAME" });
@@ -77,17 +79,13 @@ const GameTabs: React.FC = () => {
     <Tabs defaultValue="main" className="w-full">
       <div className="flex items-center justify-between mb-6">
         <TabsList>
-          {tabs.map((tab) => (
+          {unlockedTabs.map((tab) => (
             <TabsTrigger
               key={tab.id}
               value={tab.id}
-              disabled={!tab.unlocked}
               className="relative"
             >
               {tab.label}
-              {!tab.unlocked && (
-                <Lock className="w-3 h-3 ml-2 opacity-50" />
-              )}
             </TabsTrigger>
           ))}
         </TabsList>
@@ -101,7 +99,7 @@ const GameTabs: React.FC = () => {
         </Button>
       </div>
 
-      {tabs.map((tab) => (
+      {unlockedTabs.map((tab) => (
         <TabsContent
           key={tab.id}
           value={tab.id}
