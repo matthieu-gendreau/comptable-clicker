@@ -92,6 +92,33 @@ export type FamousAccountant = {
   lastUsed?: number;
 };
 
+export type FiscalSeason = {
+  id: string;
+  name: string;
+  description: string;
+  multiplier: number;
+  active: boolean;
+};
+
+export type FiscalObjective = {
+  id: string;
+  name: string;
+  description: string;
+  requirement: number;
+  completed: boolean;
+  reward: number;
+};
+
+export type FiscalSpecialization = {
+  id: string;
+  name: string;
+  description: string;
+  cost: number;
+  purchased: boolean;
+  multiplier: number;
+  type: "production" | "click" | "global" | "bonus";
+};
+
 export type GameState = {
   entries: number;
   totalEntries: number;
@@ -101,9 +128,17 @@ export type GameState = {
   generators: Generator[];
   upgrades: Upgrade[];
   achievements: Achievement[];
+  debugMode: boolean;
+  gameStartedAt: number;
+  lastTickAt: number;
+  lastSavedAt: number;
   prestige: {
     points: number;
     multiplier: number;
+    totalResets: number;
+    currentSeason: FiscalSeason;
+    objectives: FiscalObjective[];
+    specializations: FiscalSpecialization[];
     upgrades: Prestige[];
   };
   talents: {
@@ -112,10 +147,6 @@ export type GameState = {
   };
   miniGames: MiniGame[];
   famousAccountants: FamousAccountant[];
-  gameStartedAt: number;
-  lastSavedAt: number;
-  lastTickAt: number;
-  debugMode: boolean;
 };
 
 export type GameAction =
@@ -123,6 +154,9 @@ export type GameAction =
   | { type: "BUY_GENERATOR"; id: string }
   | { type: "BUY_UPGRADE"; id: string }
   | { type: "PRESTIGE" }
+  | { type: "BUY_SPECIALIZATION"; id: string }
+  | { type: "COMPLETE_OBJECTIVE"; id: string }
+  | { type: "CHANGE_SEASON"; id: string }
   | { type: "BUY_PRESTIGE_UPGRADE"; id: string }
   | { type: "UPGRADE_TALENT"; id: string }
   | { type: "START_MINIGAME"; id: string }

@@ -1,6 +1,8 @@
+import React from "react";
 import { useGameState } from "@/context/GameStateContext";
 import { calculatePrestigePoints } from "@/reducers/gameReducer";
-import { Button } from "@/components/ui/button";
+import { formatEntries } from "@/utils/formatters";
+import { fiscalSeasons } from "@/data/gameInitialState";
 import {
   Card,
   CardContent,
@@ -8,111 +10,222 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Separator } from "@/components/ui/separator";
+import {
+  Trophy,
+  Star,
+  TrendingUp,
+  Calendar,
+  GraduationCap,
+} from "lucide-react";
 
-export const Prestige = () => {
+export const Prestige: React.FC = () => {
   const { state, dispatch } = useGameState();
-  const possiblePrestigePoints = calculatePrestigePoints(state.totalEntries);
-  const canPrestige = possiblePrestigePoints > state.prestige.points;
 
-  const handlePrestige = () => {
-    if (!canPrestige) return;
-    dispatch({ type: "PRESTIGE" });
-  };
+  const potentialPoints = calculatePrestigePoints(
+    state.totalEntries,
+    state.prestige.objectives
+  );
+  const newPoints = Math.max(0, potentialPoints - state.prestige.points);
 
-  const formatNumber = (num: number) => {
-    return new Intl.NumberFormat("fr-FR").format(num);
-  };
+  const nextObjective = state.prestige.objectives.find(
+    (obj) => !obj.completed
+  );
+
+  const progress = nextObjective
+    ? (state.totalEntries / nextObjective.requirement) * 100
+    : 100;
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>Prestige</CardTitle>
-            <CardDescription>
-              Recommencez avec des bonus permanents !
-            </CardDescription>
-          </div>
-          <Badge variant="outline" className="text-lg">
-            {formatNumber(state.prestige.points)} points
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Points de prestige et action */}
+      <Card>
+        <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium">Points de prestige actuels</p>
-              <p className="text-2xl font-bold">{formatNumber(state.prestige.points)}</p>
+              <CardTitle>Points d'Expertise Fiscale</CardTitle>
+              <CardDescription>
+                Réinitialisez votre progression pour gagner des points d'expertise
+              </CardDescription>
             </div>
-            <div>
-              <p className="text-sm font-medium">Points après prestige</p>
-              <p className="text-2xl font-bold">{formatNumber(possiblePrestigePoints)}</p>
-            </div>
+            <Badge variant="secondary" className="text-xl">
+              {state.prestige.points} PEF
+            </Badge>
           </div>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium">Multiplicateur actuel</p>
-              <p className="text-xl font-semibold">×{state.prestige.multiplier.toFixed(2)}</p>
-            </div>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  size="lg"
-                  variant={canPrestige ? "default" : "outline"}
-                  onClick={handlePrestige}
-                  disabled={!canPrestige}
-                >
-                  Prestige {canPrestige ? `(+${possiblePrestigePoints - state.prestige.points})` : ""}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                {canPrestige
-                  ? "Recommencez avec des bonus permanents !"
-                  : `Il vous faut ${formatNumber(1e6)} écritures totales pour votre premier point de prestige`}
-              </TooltipContent>
-            </Tooltip>
-          </div>
-
-          <div className="space-y-2">
-            <p className="text-sm font-medium">Améliorations de prestige</p>
-            {state.prestige.upgrades.map((upgrade) => (
-              <div
-                key={upgrade.id}
-                className="flex items-center justify-between p-2 border rounded-lg"
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-medium">Points disponibles</p>
+                <p className="text-2xl font-bold">+{newPoints} PEF</p>
+              </div>
+              <Button
+                size="lg"
+                onClick={() => dispatch({ type: "PRESTIGE" })}
+                disabled={newPoints === 0}
               >
-                <div>
-                  <p className="font-medium">{upgrade.name}</p>
+                Clôturer la saison
+              </Button>
+            </div>
+
+            {nextObjective && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span>Prochain objectif : {nextObjective.name}</span>
+                  <span>
+                    {formatEntries(state.totalEntries)} /{" "}
+                    {formatEntries(nextObjective.requirement)}
+                  </span>
+                </div>
+                <Progress value={progress} />
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Objectifs */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Trophy className="w-5 h-5" />
+            <CardTitle>Objectifs de la saison</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {state.prestige.objectives.map((objective) => (
+              <div
+                key={objective.id}
+                className="flex items-center gap-4 p-4 border rounded-lg"
+              >
+                <div
+                  className={`p-2 rounded-full ${
+                    objective.completed
+                      ? "bg-green-500/10 text-green-500"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  <Star className="w-4 h-4" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium">{objective.name}</p>
                   <p className="text-sm text-muted-foreground">
-                    {upgrade.description}
+                    {objective.description}
                   </p>
                 </div>
-                <Button
-                  variant={upgrade.purchased ? "outline" : "default"}
-                  disabled={
-                    upgrade.purchased ||
-                    !upgrade.unlocked ||
-                    state.prestige.points < upgrade.cost
-                  }
-                  onClick={() =>
-                    dispatch({
-                      type: "BUY_PRESTIGE_UPGRADE",
-                      id: upgrade.id,
-                    })
-                  }
-                >
-                  {upgrade.purchased
-                    ? "Acheté"
-                    : `${formatNumber(upgrade.cost)} points`}
-                </Button>
+                <Badge variant={objective.completed ? "default" : "outline"}>
+                  +{objective.reward} PEF
+                </Badge>
               </div>
             ))}
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+
+      {/* Spécialisations */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <GraduationCap className="w-5 h-5" />
+            <CardTitle>Spécialisations</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {state.prestige.specializations.map((spec) => (
+              <div
+                key={spec.id}
+                className="flex items-center gap-4 p-4 border rounded-lg"
+              >
+                <div
+                  className={`p-2 rounded-full ${
+                    spec.purchased
+                      ? "bg-primary/10 text-primary"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  <TrendingUp className="w-4 h-4" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium">{spec.name}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {spec.description}
+                  </p>
+                </div>
+                {spec.purchased ? (
+                  <Badge>Acquis</Badge>
+                ) : (
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      dispatch({
+                        type: "BUY_SPECIALIZATION",
+                        id: spec.id,
+                      })
+                    }
+                    disabled={state.prestige.points < spec.cost}
+                  >
+                    {spec.cost} PEF
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Saison fiscale */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Calendar className="w-5 h-5" />
+            <CardTitle>Saison fiscale en cours</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="p-4 border rounded-lg bg-accent/5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium">
+                    {state.prestige.currentSeason.name}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {state.prestige.currentSeason.description}
+                  </p>
+                </div>
+                <Badge variant="secondary">
+                  ×{state.prestige.currentSeason.multiplier} PEF
+                </Badge>
+              </div>
+            </div>
+            <Separator />
+            <div className="grid grid-cols-2 gap-2">
+              {fiscalSeasons
+                .filter((season) => !season.active)
+                .map((season) => (
+                  <Button
+                    key={season.id}
+                    variant="outline"
+                    className="w-full"
+                    onClick={() =>
+                      dispatch({ type: "CHANGE_SEASON", id: season.id })
+                    }
+                  >
+                    {season.name}
+                  </Button>
+                ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
-}; 
+};
+
+export default Prestige; 

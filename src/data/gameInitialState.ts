@@ -1,4 +1,4 @@
-import { Generator, Upgrade, Achievement, GameState, Prestige, TalentTree, MiniGame, FamousAccountant } from "@/types/game";
+import { Generator, Upgrade, Achievement, GameState, Prestige, TalentTree, MiniGame, FamousAccountant, FiscalSeason, FiscalObjective, FiscalSpecialization } from "@/types/game";
 
 export const initialGenerators: Generator[] = [
   {
@@ -440,6 +440,128 @@ export const initialAchievements: Achievement[] = [
   }
 ];
 
+export const fiscalSeasons: FiscalSeason[] = [
+  {
+    id: "normal",
+    name: "Période normale",
+    description: "Période fiscale standard",
+    multiplier: 1,
+    active: true,
+  },
+  {
+    id: "tva",
+    name: "Période TVA",
+    description: "La période des déclarations de TVA bat son plein !",
+    multiplier: 1.5,
+    active: false,
+  },
+  {
+    id: "cloture",
+    name: "Clôture annuelle",
+    description: "C'est l'heure de la clôture des comptes !",
+    multiplier: 2,
+    active: false,
+  },
+  {
+    id: "fiscal",
+    name: "Période fiscale",
+    description: "La période des déclarations fiscales est arrivée !",
+    multiplier: 3,
+    active: false,
+  },
+];
+
+export const fiscalObjectives: FiscalObjective[] = [
+  {
+    id: "apprenti",
+    name: "Premier pas en comptabilité",
+    description: "Atteignez 1,000 écritures totales",
+    requirement: 1000,
+    completed: false,
+    reward: 1,
+  },
+  {
+    id: "junior",
+    name: "Maîtrise des écritures de base",
+    description: "Atteignez 5,000 écritures totales",
+    requirement: 5000,
+    completed: false,
+    reward: 1,
+  },
+  {
+    id: "confirme",
+    name: "Expert en saisie comptable",
+    description: "Atteignez 20,000 écritures totales",
+    requirement: 20000,
+    completed: false,
+    reward: 1,
+  },
+  {
+    id: "senior",
+    name: "Maître des écritures complexes",
+    description: "Atteignez 50,000 écritures totales",
+    requirement: 50000,
+    completed: false,
+    reward: 1,
+  },
+  {
+    id: "expert",
+    name: "Gourou de la comptabilité",
+    description: "Atteignez 100,000 écritures totales",
+    requirement: 100000,
+    completed: false,
+    reward: 1,
+  },
+];
+
+export const fiscalSpecializations: FiscalSpecialization[] = [
+  {
+    id: "tva",
+    name: "Expert TVA",
+    description: "Votre maîtrise de la TVA augmente la production automatique de 50%",
+    cost: 3,
+    purchased: false,
+    multiplier: 1.5,
+    type: "production",
+  },
+  {
+    id: "bilan",
+    name: "Expert Bilan",
+    description: "Votre expertise en bilan double les gains par clic",
+    cost: 5,
+    purchased: false,
+    multiplier: 2,
+    type: "click",
+  },
+  {
+    id: "liasse",
+    name: "Expert Liasse Fiscale",
+    description: "Votre maîtrise des liasses fiscales triple tous les gains",
+    cost: 10,
+    purchased: false,
+    multiplier: 3,
+    type: "global",
+  },
+  {
+    id: "audit",
+    name: "Expert Audit",
+    description: "Vos compétences en audit augmentent tous les bonus de 20%",
+    cost: 7,
+    purchased: false,
+    multiplier: 1.2,
+    type: "bonus",
+  },
+  {
+    id: "conseil",
+    name: "Expert Conseil",
+    description: "Votre expertise en conseil débloque des bonus spéciaux",
+    cost: 15,
+    purchased: false,
+    multiplier: 1.1,
+    type: "bonus",
+  },
+];
+
 export const initialGameState: GameState = {
   entries: 0,
   totalEntries: 0,
@@ -456,6 +578,10 @@ export const initialGameState: GameState = {
   prestige: {
     points: 0,
     multiplier: 1,
+    totalResets: 0,
+    currentSeason: fiscalSeasons[0],
+    objectives: fiscalObjectives,
+    specializations: fiscalSpecializations,
     upgrades: initialPrestigeUpgrades
   },
   talents: {

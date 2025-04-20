@@ -1,6 +1,6 @@
-import { GameState, GameAction } from "@/types/game";
+import { GameState, GameAction, FiscalObjective, FiscalSeason, FiscalSpecialization } from "@/types/game";
 import { toast } from "sonner";
-import { initialGameState } from "@/data/gameInitialState";
+import { initialGameState, fiscalSeasons } from "@/data/gameInitialState";
 
 export const calculateGeneratorCost = (baseCost: number, count: number): number => {
   return Math.floor(baseCost * Math.pow(1.15, count));
@@ -27,9 +27,47 @@ export const checkAchievements = (state: GameState, newState: Partial<GameState>
   });
 };
 
-// Nouvelles fonctions utilitaires
-export const calculatePrestigePoints = (totalEntries: number): number => {
-  return Math.floor(Math.sqrt(totalEntries / 1e6));
+// Nouvelle formule de calcul des points de prestige
+export const calculatePrestigePoints = (totalEntries: number, objectives: GameState["prestige"]["objectives"]): number => {
+  // Points de base
+  const basePoints = Math.floor(Math.sqrt(totalEntries / 1e4));
+  
+  // Points bonus des objectifs
+  const objectivePoints = objectives
+    .filter(obj => obj.completed)
+    .reduce((total, obj) => total + obj.reward, 0);
+  
+  return basePoints + objectivePoints;
+};
+
+// Calcul du multiplicateur total
+const calculateTotalMultiplier = (state: GameState): number => {
+  const seasonMultiplier = state.prestige.currentSeason.multiplier;
+  
+  // Multiplicateur des spécialisations
+  const specializationMultiplier = state.prestige.specializations
+    .filter(spec => spec.purchased)
+    .reduce((total, spec) => {
+      if (spec.type === "global") return total * spec.multiplier;
+      if (spec.type === "bonus") return total * spec.multiplier;
+      return total;
+    }, 1);
+  
+  return seasonMultiplier * specializationMultiplier;
+};
+
+// Vérification des objectifs
+const checkObjectives = (state: GameState): FiscalObjective[] => {
+  return state.prestige.objectives.map(objective => {
+    if (objective.completed) return objective;
+    if (state.totalEntries >= objective.requirement) {
+      toast.success(`🎯 Objectif atteint : ${objective.name}`, {
+        description: `+${objective.reward} Point d'Expertise Fiscale !`,
+      });
+      return { ...objective, completed: true };
+    }
+    return objective;
+  });
 };
 
 const calculatePrestigeMultiplier = (prestigeUpgrades: GameState["prestige"]["upgrades"]): number => {
@@ -204,31 +242,85 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
     }
 
     case "PRESTIGE": {
-      const prestigePoints = calculatePrestigePoints(state.totalEntries);
-      if (prestigePoints <= state.prestige.points) return state;
+      const potentialPoints = calculatePrestigePoints(state.totalEntries, state.prestige.objectives);
+      if (potentialPoints <= state.prestige.points) return state;
 
-      toast.success("🌟 Prestige !", {
-        description: `Vous gagnez ${prestigePoints - state.prestige.points} points de prestige !`,
-      });
-
-      return {
+      const baseState = {
         ...initialGameState,
         prestige: {
           ...state.prestige,
-          points: prestigePoints,
-          upgrades: state.prestige.upgrades.map(u => {
-            if (!u.unlocked && prestigePoints >= u.cost) {
-              return { ...u, unlocked: true };
-            }
-            return u;
-          })
+          points: potentialPoints,
+          totalResets: state.prestige.totalResets + 1,
+          specializations: state.prestige.specializations,
+          objectives: state.prestige.objectives.map(obj => ({ ...obj, completed: false })),
         },
-        talents: state.talents,
-        miniGames: state.miniGames,
-        famousAccountants: state.famousAccountants,
-        gameStartedAt: state.gameStartedAt,
-        lastTickAt: Date.now(),
-        lastSavedAt: Date.now(),
+        achievements: state.achievements,
+      };
+
+      toast.success("🌟 Prestige effectué !", {
+        description: `Vous avez gagné ${potentialPoints - state.prestige.points} Points d'Expertise Fiscale !`,
+      });
+
+      return baseState;
+    }
+
+    case "BUY_SPECIALIZATION": {
+      const specialization = state.prestige.specializations.find(
+        spec => spec.id === action.id
+      );
+      if (!specialization || specialization.purchased || state.prestige.points < specialization.cost) {
+        return state;
+      }
+
+      const updatedSpecializations = state.prestige.specializations.map(spec =>
+        spec.id === action.id ? { ...spec, purchased: true } : spec
+      );
+
+      toast.success(`🎓 Spécialisation débloquée : ${specialization.name}`, {
+        description: specialization.description,
+      });
+
+      return {
+        ...state,
+        prestige: {
+          ...state.prestige,
+          points: state.prestige.points - specialization.cost,
+          specializations: updatedSpecializations,
+        },
+      };
+    }
+
+    case "COMPLETE_OBJECTIVE": {
+      const objective = state.prestige.objectives.find(
+        obj => obj.id === action.id
+      );
+      if (!objective || objective.completed || state.totalEntries < objective.requirement) {
+        return state;
+      }
+
+      const updatedObjectives = state.prestige.objectives.map(obj =>
+        obj.id === action.id ? { ...obj, completed: true } : obj
+      );
+
+      return {
+        ...state,
+        prestige: {
+          ...state.prestige,
+          objectives: updatedObjectives,
+        },
+      };
+    }
+
+    case "CHANGE_SEASON": {
+      const newSeason = fiscalSeasons.find(season => season.id === action.id);
+      if (!newSeason) return state;
+
+      return {
+        ...state,
+        prestige: {
+          ...state.prestige,
+          currentSeason: newSeason,
+        },
       };
     }
 
