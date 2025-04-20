@@ -13,6 +13,20 @@ export const calculateEntriesPerSecond = (generators: GameState["generators"]): 
   );
 };
 
+export const checkAchievements = (state: GameState, newState: Partial<GameState>) => {
+  return state.achievements.map((achievement) => {
+    if (achievement.unlocked) return achievement;
+    const testState = { ...state, ...newState };
+    if (achievement.condition(testState)) {
+      toast.success(`🏆 Trophée débloqué : ${achievement.name}`, {
+        description: achievement.description,
+      });
+      return { ...achievement, unlocked: true };
+    }
+    return achievement;
+  });
+};
+
 export const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
     case "CLICK": {
@@ -20,11 +34,20 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       const clickGain = state.entriesPerClick * clickMultiplier;
       const newEntries = state.entries + clickGain;
       const newTotalEntries = state.totalEntries + clickGain;
+      const newClickCount = state.clickCount + 1;
+
+      const updatedAchievements = checkAchievements(state, {
+        entries: newEntries,
+        totalEntries: newTotalEntries,
+        clickCount: newClickCount,
+      });
+
       return {
         ...state,
         entries: newEntries,
         totalEntries: newTotalEntries,
-        clickCount: state.clickCount + 1,
+        clickCount: newClickCount,
+        achievements: updatedAchievements,
       };
     }
 
@@ -66,12 +89,19 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         return upgrade;
       });
 
+      const updatedAchievements = checkAchievements(state, {
+        entries: state.entries - cost,
+        generators: updatedGenerators,
+        entriesPerSecond,
+      });
+
       return {
         ...state,
         entries: state.entries - cost,
         generators: updatedGenerators,
         entriesPerSecond,
         upgrades: updatedUpgrades,
+        achievements: updatedAchievements,
       };
     }
 
@@ -92,9 +122,12 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         ),
       });
 
+      const updatedAchievements = checkAchievements(state, updatedState);
+
       return {
         ...updatedState,
         entriesPerSecond: calculateEntriesPerSecond(updatedState.generators),
+        achievements: updatedAchievements,
       };
     }
 
@@ -103,12 +136,9 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       const speedMultiplier = state.debugMode ? 10 : 1;
       const earnedEntries = state.entriesPerSecond * deltaTime * speedMultiplier;
       
-      const updatedAchievements = state.achievements.map((achievement) => {
-        if (achievement.unlocked) return achievement;
-        if (achievement.condition({ ...state, entries: state.entries + earnedEntries, totalEntries: state.totalEntries + earnedEntries })) {
-          return { ...achievement, unlocked: true };
-        }
-        return achievement;
+      const updatedAchievements = checkAchievements(state, {
+        entries: state.entries + earnedEntries,
+        totalEntries: state.totalEntries + earnedEntries,
       });
 
       return {
