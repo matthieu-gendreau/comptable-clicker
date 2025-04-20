@@ -296,25 +296,13 @@ export const initialFamousAccountants: FamousAccountant[] = [
 ];
 
 export const initialUpgrades: Upgrade[] = [
-  // Améliorations de base (clics)
+  // EARLY GAME - Améliorations de clic de base
   {
-    id: "faster_typing",
-    name: "Cours de Frappe",
-    description: "Double votre vitesse de saisie. Adieu la méthode deux doigts !",
+    id: "typing_101",
+    name: "La Dactylographie pour les Nuls",
+    description: "Enfin vous utilisez plus de deux doigts ! Gains de clic +50%",
     cost: 50,
     unlocked: true,
-    purchased: false,
-    effect: (state) => ({
-      ...state,
-      entriesPerClick: state.entriesPerClick * 2
-    })
-  },
-  {
-    id: "ergonomic_keyboard",
-    name: "Clavier Ergonomique",
-    description: "Un clavier adapté à la saisie intensive. Vos poignets vous remercient !",
-    cost: 200,
-    unlocked: false,
     purchased: false,
     effect: (state) => ({
       ...state,
@@ -322,24 +310,41 @@ export const initialUpgrades: Upgrade[] = [
     })
   },
   {
-    id: "shortcut_mastery",
-    name: "Maîtrise des Raccourcis",
-    description: "CTRL+C, CTRL+V comme un pro ! Augmente les gains de clic de 75%",
-    cost: 1000,
+    id: "coffee_basics",
+    name: "Machine à Café Basique",
+    description: "Le carburant de base du comptable. Gains de clic +25%",
+    cost: 100,
+    unlocked: true,
+    purchased: false,
+    effect: (state) => ({
+      ...state,
+      entriesPerClick: state.entriesPerClick * 1.25
+    })
+  },
+  {
+    id: "excel_basics",
+    name: "Excel pour les Débutants",
+    description: "Vous découvrez CTRL+C CTRL+V. Révolutionnaire ! Gains de clic +75%",
+    cost: 250,
     unlocked: false,
     purchased: false,
+    requirement: {
+      type: "clickCount",
+      id: "click_count_100",
+      count: 100
+    },
     effect: (state) => ({
       ...state,
       entriesPerClick: state.entriesPerClick * 1.75
     })
   },
 
-  // Améliorations Stagiaire
+  // EARLY-MID GAME - Améliorations des premiers collaborateurs
   {
     id: "intern_coffee",
-    name: "Machine à Café",
-    description: "Les stagiaires sont plus efficaces avec de la caféine. Production +50%",
-    cost: 150,
+    name: "Café des Stagiaires",
+    description: "Du café premium pour les stagiaires. Leur productivité augmente de 50% !",
+    cost: 500,
     unlocked: false,
     purchased: false,
     requirement: {
@@ -355,31 +360,10 @@ export const initialUpgrades: Upgrade[] = [
     })
   },
   {
-    id: "intern_mentoring",
-    name: "Programme de Mentorat",
-    description: "Un stagiaire bien formé en vaut deux ! Production +100%",
-    cost: 500,
-    unlocked: false,
-    purchased: false,
-    requirement: {
-      type: "generator",
-      id: "intern_colleague",
-      count: 5
-    },
-    effect: (state) => ({
-      ...state,
-      generators: state.generators.map(g =>
-        g.id === "intern_colleague" ? { ...g, baseOutput: g.baseOutput * 2 } : g
-      )
-    })
-  },
-
-  // Améliorations Calculatrice
-  {
-    id: "calculator_memory",
-    name: "Touches Mémoire",
-    description: "Utilisation des touches M+, M-, MRC. Production +75%",
-    cost: 300,
+    id: "admin_desk",
+    name: "Bureau Ergonomique",
+    description: "Un vrai bureau pour l'assistant administratif. Production +75%",
+    cost: 1000,
     unlocked: false,
     purchased: false,
     requirement: {
@@ -394,191 +378,32 @@ export const initialUpgrades: Upgrade[] = [
       )
     })
   },
-  {
-    id: "calculator_ribbon",
-    name: "Ruban Sans Fin",
-    description: "Plus besoin de changer le rouleau ! Production +100%",
-    cost: 1000,
-    unlocked: false,
-    purchased: false,
-    requirement: {
-      type: "generator",
-      id: "basic_calculator",
-      count: 5
-    },
-    effect: (state) => ({
-      ...state,
-      generators: state.generators.map(g =>
-        g.id === "basic_calculator" ? { ...g, baseOutput: g.baseOutput * 2 } : g
-      )
-    })
-  },
 
-  // Améliorations Excel
+  // MID GAME - Améliorations globales
   {
-    id: "excel_formulas",
-    name: "Formules Avancées",
-    description: "RECHERCHEV comme un champion ! Production +100%",
-    cost: 2000,
+    id: "office_plants",
+    name: "Plantes Vertes",
+    description: "Des plantes pour égayer le bureau. Production globale +10%",
+    cost: 2500,
     unlocked: false,
     purchased: false,
     requirement: {
-      type: "generator",
-      id: "excel_sheets",
-      count: 3
+      type: "totalEntries",
+      id: "total_entries_5k",
+      count: 5000
     },
     effect: (state) => ({
       ...state,
-      generators: state.generators.map(g =>
-        g.id === "excel_sheets" ? { ...g, baseOutput: g.baseOutput * 2 } : g
-      )
+      generators: state.generators.map(g => ({
+        ...g,
+        baseOutput: g.baseOutput * 1.1
+      }))
     })
   },
   {
-    id: "excel_macros",
-    name: "Macros VBA",
-    description: "Automatisation poussée avec VBA. Production +150% et bonus global +5%",
-    cost: 5000,
-    unlocked: false,
-    purchased: false,
-    requirement: {
-      type: "generator",
-      id: "excel_sheets",
-      count: 5
-    },
-    effect: (state) => ({
-      ...state,
-      generators: state.generators.map(g =>
-        g.id === "excel_sheets" 
-          ? { ...g, baseOutput: g.baseOutput * 2.5, effects: { ...g.effects, boost: (g.effects?.boost || 1) + 0.05 } }
-          : g
-      )
-    })
-  },
-
-  // Améliorations Logiciel Comptable
-  {
-    id: "software_templates",
-    name: "Modèles d'Écritures",
-    description: "Écritures récurrentes pré-enregistrées. Production +100%",
-    cost: 10000,
-    unlocked: false,
-    purchased: false,
-    requirement: {
-      type: "generator",
-      id: "accounting_software",
-      count: 2
-    },
-    effect: (state) => ({
-      ...state,
-      generators: state.generators.map(g =>
-        g.id === "accounting_software" ? { ...g, baseOutput: g.baseOutput * 2 } : g
-      )
-    }),
-    pennylaneFeature: {
-      title: "Modèles Intelligents",
-      description: "Pennylane apprend de vos habitudes pour suggérer les bonnes écritures",
-      shown: false
-    }
-  },
-  {
-    id: "software_api",
-    name: "API Connectée",
-    description: "Connexion avec vos autres outils. Production +200%",
-    cost: 25000,
-    unlocked: false,
-    purchased: false,
-    requirement: {
-      type: "generator",
-      id: "accounting_software",
-      count: 5
-    },
-    effect: (state) => ({
-      ...state,
-      generators: state.generators.map(g =>
-        g.id === "accounting_software" ? { ...g, baseOutput: g.baseOutput * 3 } : g
-      )
-    }),
-    pennylaneFeature: {
-      title: "API Ouverte",
-      description: "Pennylane s'intègre avec tout votre écosystème logiciel",
-      shown: false
-    }
-  },
-
-  // Améliorations Comptable Junior
-  {
-    id: "junior_training",
-    name: "Formation Continue",
-    description: "Formations régulières pour vos juniors. Production +100% et bonus formation +10%",
-    cost: 50000,
-    unlocked: false,
-    purchased: false,
-    requirement: {
-      type: "generator",
-      id: "junior_accountant",
-      count: 3
-    },
-    effect: (state) => ({
-      ...state,
-      generators: state.generators.map(g =>
-        g.id === "junior_accountant" 
-          ? { ...g, baseOutput: g.baseOutput * 2, effects: { ...g.effects, training: (g.effects?.training || 0) + 0.1 } }
-          : g
-      )
-    })
-  },
-  {
-    id: "junior_specialization",
-    name: "Spécialisation Sectorielle",
-    description: "Chaque junior se spécialise dans un secteur. Production +150%",
-    cost: 100000,
-    unlocked: false,
-    purchased: false,
-    requirement: {
-      type: "generator",
-      id: "junior_accountant",
-      count: 5
-    },
-    effect: (state) => ({
-      ...state,
-      generators: state.generators.map(g =>
-        g.id === "junior_accountant" ? { ...g, baseOutput: g.baseOutput * 2.5 } : g
-      )
-    })
-  },
-
-  // Améliorations OCR
-  {
-    id: "ocr_ai",
-    name: "IA Avancée",
-    description: "Reconnaissance plus précise avec l'IA. Production +150%",
-    cost: 150000,
-    unlocked: false,
-    purchased: false,
-    requirement: {
-      type: "generator",
-      id: "ocr_system",
-      count: 2
-    },
-    effect: (state) => ({
-      ...state,
-      generators: state.generators.map(g =>
-        g.id === "ocr_system" ? { ...g, baseOutput: g.baseOutput * 2.5 } : g
-      )
-    }),
-    pennylaneFeature: {
-      title: "IA de Pointe",
-      description: "L'IA de Pennylane comprend même les documents manuscrits",
-      shown: false
-    }
-  },
-
-  // Améliorations globales
-  {
-    id: "office_coffee",
-    name: "Café de Qualité",
-    description: "Du vrai café en grains. Tout le monde est plus efficace ! Production globale +10%",
+    id: "casual_friday",
+    name: "Vendredi Décontracté",
+    description: "Le bonheur d'enlever sa cravate. Production globale +15%",
     cost: 5000,
     unlocked: false,
     purchased: false,
@@ -591,14 +416,33 @@ export const initialUpgrades: Upgrade[] = [
       ...state,
       generators: state.generators.map(g => ({
         ...g,
-        baseOutput: g.baseOutput * 1.1
+        baseOutput: g.baseOutput * 1.15
       }))
     })
   },
+
+  // MID-LATE GAME - Améliorations fun
   {
-    id: "team_building",
-    name: "Team Building",
-    description: "Une équipe soudée est plus efficace. Production globale +25%",
+    id: "rubber_duck",
+    name: "Canard en Plastique",
+    description: "Pour débugger vos écritures. Gains de clic +100% (mais pourquoi ?)",
+    cost: 10000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "totalEntries",
+      id: "total_entries_20k",
+      count: 20000
+    },
+    effect: (state) => ({
+      ...state,
+      entriesPerClick: state.entriesPerClick * 2
+    })
+  },
+  {
+    id: "office_cat",
+    name: "Chat Comptable",
+    description: "Il dort sur les dossiers importants. Production globale +25% par mignonnerie",
     cost: 25000,
     unlocked: false,
     purchased: false,
@@ -615,10 +459,12 @@ export const initialUpgrades: Upgrade[] = [
       }))
     })
   },
+
+  // LATE GAME - Améliorations avancées
   {
-    id: "office_renovation",
-    name: "Rénovation des Bureaux",
-    description: "Un environnement agréable booste la productivité. Production globale +50%",
+    id: "quantum_calculator",
+    name: "Calculatrice Quantique",
+    description: "Calcule dans plusieurs dimensions fiscales. Production globale +50%",
     cost: 100000,
     unlocked: false,
     purchased: false,
@@ -635,48 +481,481 @@ export const initialUpgrades: Upgrade[] = [
       }))
     })
   },
-
-  // Améliorations combo
   {
-    id: "combo_training",
-    name: "Formation Concentration",
-    description: "Gardez votre concentration plus longtemps. Durée du combo +1 seconde",
-    cost: 1000,
+    id: "time_machine",
+    name: "Machine à Remonter le Temps",
+    description: "Pour corriger les erreurs d'écriture du passé. Production globale +100%",
+    cost: 500000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "totalEntries",
+      id: "total_entries_1m",
+      count: 1000000
+    },
+    effect: (state) => ({
+      ...state,
+      generators: state.generators.map(g => ({
+        ...g,
+        baseOutput: g.baseOutput * 2
+      }))
+    })
+  },
+
+  // COSMETIC - Améliorations visuelles
+  {
+    id: "rgb_keyboard",
+    name: "Clavier RGB Gaming",
+    description: "Parce que même les comptables peuvent être gamers. Style +100%",
+    cost: 15000,
     unlocked: false,
     purchased: false,
     requirement: {
       type: "clickCount",
-      id: "click_count_100",
-      count: 100
+      id: "click_count_5k",
+      count: 5000
     },
-    effect: (state) => ({
-      ...state,
-      combo: {
-        ...state.combo,
-        comboTimeWindow: state.combo.comboTimeWindow + 1000
-      }
-    })
+    effect: (state) => state // Effet purement cosmétique
   },
   {
-    id: "combo_mastery",
-    name: "Maîtrise du Rythme",
-    description: "Vos combos sont plus puissants. Multiplicateur maximum +0.5",
+    id: "golden_calculator",
+    name: "Calculatrice en Or",
+    description: "Totalement inutile mais tellement classe. Prestige +100%",
+    cost: 50000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "totalEntries",
+      id: "total_entries_100k",
+      count: 100000
+    },
+    effect: (state) => state // Effet purement cosmétique
+  },
+
+  // COMBO - Améliorations de combo
+  {
+    id: "combo_training",
+    name: "Formation Combo",
+    description: "Gardez votre concentration plus longtemps. Durée du combo +2 secondes",
     cost: 5000,
     unlocked: false,
     purchased: false,
     requirement: {
       type: "clickCount",
-      id: "click_count_500",
-      count: 500
+      id: "click_count_1k",
+      count: 1000
     },
     effect: (state) => ({
       ...state,
       combo: {
         ...state.combo,
-        maxMultiplier: state.combo.maxMultiplier + 0.5
+        comboTimeWindow: state.combo.comboTimeWindow + 2000
       }
     })
-  }
+  },
+  {
+    id: "combo_master",
+    name: "Maître du Combo",
+    description: "Vos combos sont plus puissants. Multiplicateur maximum +1",
+    cost: 20000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "clickCount",
+      id: "click_count_5k",
+      count: 5000
+    },
+    effect: (state) => ({
+      ...state,
+      combo: {
+        ...state.combo,
+        maxMultiplier: state.combo.maxMultiplier + 1
+      }
+    })
+  },
+
+  // EASTER EGGS - Améliorations secrètes
+  {
+    id: "coffee_overflow",
+    name: "Overdose de Café",
+    description: "Vous vibrez tellement que vous écrivez deux fois plus vite. Gains de clic +100%",
+    cost: 99999,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "clickCount",
+      id: "click_count_10k",
+      count: 10000
+    },
+    effect: (state) => ({
+      ...state,
+      entriesPerClick: state.entriesPerClick * 2
+    })
+  },
+  {
+    id: "comic_sans",
+    name: "Police Comic Sans",
+    description: "L'ultime péché du design. Tout le monde est horrifié mais travaille 50% plus vite",
+    cost: 123456,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "totalEntries",
+      id: "total_entries_500k",
+      count: 500000
+    },
+    effect: (state) => ({
+      ...state,
+      generators: state.generators.map(g => ({
+        ...g,
+        baseOutput: g.baseOutput * 1.5
+      }))
+    })
+  },
+
+  // EXCEL IMPROVEMENTS
+  {
+    id: "excel_formulas",
+    name: "Formules Avancées",
+    description: "Maîtrisez les formules les plus complexes d'Excel. Production +100%",
+    cost: 75000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "totalEntries",
+      id: "total_entries_150k",
+      count: 150000
+    },
+    effect: (state) => ({
+      ...state,
+      generators: state.generators.map(g => ({
+        ...g,
+        baseOutput: g.baseOutput * 2
+      }))
+    })
+  },
+  {
+    id: "vba_macros",
+    name: "Macros VBA",
+    description: "Automatisez vos tâches Excel. Production +150% et bonus global +5%",
+    cost: 150000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "totalEntries",
+      id: "total_entries_300k",
+      count: 300000
+    },
+    effect: (state) => ({
+      ...state,
+      generators: state.generators.map(g => ({
+        ...g,
+        baseOutput: g.baseOutput * 2.5
+      })),
+      prestige: {
+        ...state.prestige,
+        multiplier: state.prestige.multiplier * 1.05
+      }
+    })
+  },
+
+  // ACCOUNTING SOFTWARE IMPROVEMENTS
+  {
+    id: "smart_templates",
+    name: "Modèles d'Écriture Intelligents",
+    description: "Des modèles qui s'adaptent à vos besoins. Production +100%",
+    cost: 200000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "totalEntries",
+      id: "total_entries_400k",
+      count: 400000
+    },
+    effect: (state) => ({
+      ...state,
+      generators: state.generators.map(g => ({
+        ...g,
+        baseOutput: g.baseOutput * 2
+      }))
+    })
+  },
+  {
+    id: "connected_api",
+    name: "API Connectée",
+    description: "Connectez tous vos outils ensemble. Production +200%",
+    cost: 300000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "totalEntries",
+      id: "total_entries_600k",
+      count: 600000
+    },
+    effect: (state) => ({
+      ...state,
+      generators: state.generators.map(g => ({
+        ...g,
+        baseOutput: g.baseOutput * 3
+      }))
+    })
+  },
+
+  // JUNIOR ACCOUNTING IMPROVEMENTS
+  {
+    id: "continuous_training",
+    name: "Formation Continue",
+    description: "Formez-vous en continu. Production +100% et bonus de formation +10%",
+    cost: 400000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "totalEntries",
+      id: "total_entries_800k",
+      count: 800000
+    },
+    effect: (state) => ({
+      ...state,
+      generators: state.generators.map(g => ({
+        ...g,
+        baseOutput: g.baseOutput * 2,
+        effects: g.effects ? {
+          ...g.effects,
+          training: (g.effects.training || 0) + 0.1
+        } : { training: 0.1 }
+      }))
+    })
+  },
+  {
+    id: "sector_specialization",
+    name: "Spécialisation Sectorielle",
+    description: "Devenez expert dans votre secteur. Production +150%",
+    cost: 500000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "totalEntries",
+      id: "total_entries_1m",
+      count: 1000000
+    },
+    effect: (state) => ({
+      ...state,
+      generators: state.generators.map(g => ({
+        ...g,
+        baseOutput: g.baseOutput * 2.5
+      }))
+    })
+  },
+
+  // OCR IMPROVEMENTS
+  {
+    id: "advanced_ai",
+    name: "IA Avancée",
+    description: "Une IA qui comprend même les tickets de caisse froissés. Production +150%",
+    cost: 750000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "totalEntries",
+      id: "total_entries_1.5m",
+      count: 1500000
+    },
+    effect: (state) => ({
+      ...state,
+      generators: state.generators.map(g => ({
+        ...g,
+        baseOutput: g.baseOutput * 2.5
+      }))
+    })
+  },
+
+  // GLOBAL IMPROVEMENTS
+  {
+    id: "quality_coffee",
+    name: "Café de Qualité",
+    description: "Du vrai café italien. Production globale +10%",
+    cost: 100000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "totalEntries",
+      id: "total_entries_200k",
+      count: 200000
+    },
+    effect: (state) => ({
+      ...state,
+      generators: state.generators.map(g => ({
+        ...g,
+        baseOutput: g.baseOutput * 1.1
+      }))
+    })
+  },
+  {
+    id: "team_building",
+    name: "Team Building",
+    description: "Escape game spécial comptabilité. Production globale +25%",
+    cost: 200000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "totalEntries",
+      id: "total_entries_400k",
+      count: 400000
+    },
+    effect: (state) => ({
+      ...state,
+      generators: state.generators.map(g => ({
+        ...g,
+        baseOutput: g.baseOutput * 1.25
+      }))
+    })
+  },
+  {
+    id: "office_renovation",
+    name: "Rénovation des Bureaux",
+    description: "Un environnement moderne et agréable. Production globale +50%",
+    cost: 400000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "totalEntries",
+      id: "total_entries_800k",
+      count: 800000
+    },
+    effect: (state) => ({
+      ...state,
+      generators: state.generators.map(g => ({
+        ...g,
+        baseOutput: g.baseOutput * 1.5
+      }))
+    })
+  },
+
+  // COMBO IMPROVEMENTS
+  {
+    id: "combo_duration",
+    name: "Durée du Combo",
+    description: "Gardez votre combo plus longtemps. +5 secondes de combo",
+    cost: 150000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "clickCount",
+      id: "click_count_15k",
+      count: 15000
+    },
+    effect: (state) => ({
+      ...state,
+      combo: {
+        ...state.combo,
+        comboTimeWindow: state.combo.comboTimeWindow + 5000
+      }
+    })
+  },
+  {
+    id: "combo_power",
+    name: "Puissance du Combo",
+    description: "Des combos plus puissants. Multiplicateur maximum +2",
+    cost: 300000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "clickCount",
+      id: "click_count_20k",
+      count: 20000
+    },
+    effect: (state) => ({
+      ...state,
+      combo: {
+        ...state.combo,
+        maxMultiplier: state.combo.maxMultiplier + 2
+      }
+    })
+  },
+
+  // FUN IMPROVEMENTS
+  {
+    id: "office_dog",
+    name: "Chien de Bureau",
+    description: "Il rapporte les documents. Production globale +30%",
+    cost: 250000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "totalEntries",
+      id: "total_entries_500k",
+      count: 500000
+    },
+    effect: (state) => ({
+      ...state,
+      generators: state.generators.map(g => ({
+        ...g,
+        baseOutput: g.baseOutput * 1.3
+      }))
+    })
+  },
+  {
+    id: "nap_room",
+    name: "Salle de Sieste",
+    description: "Pour des power naps efficaces. Production globale +40%",
+    cost: 500000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "totalEntries",
+      id: "total_entries_1m",
+      count: 1000000
+    },
+    effect: (state) => ({
+      ...state,
+      generators: state.generators.map(g => ({
+        ...g,
+        baseOutput: g.baseOutput * 1.4
+      }))
+    })
+  },
+
+  // PRESTIGE RELATED
+  {
+    id: "prestige_boost",
+    name: "Boost de Prestige",
+    description: "Augmente l'efficacité du prestige. Multiplicateur de prestige +20%",
+    cost: 1000000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "totalEntries",
+      id: "total_entries_2m",
+      count: 2000000
+    },
+    effect: (state) => ({
+      ...state,
+      prestige: {
+        ...state.prestige,
+        multiplier: state.prestige.multiplier * 1.2
+      }
+    })
+  },
+  {
+    id: "prestige_master",
+    name: "Maître du Prestige",
+    description: "Le summum du prestige. Multiplicateur de prestige +50%",
+    cost: 2000000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "totalEntries",
+      id: "total_entries_5m",
+      count: 5000000
+    },
+    effect: (state) => ({
+      ...state,
+      prestige: {
+        ...state.prestige,
+        multiplier: state.prestige.multiplier * 1.5
+      }
+    })
+  },
 ];
 
 export const initialAchievements: Achievement[] = [
