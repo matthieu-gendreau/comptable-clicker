@@ -258,10 +258,11 @@ export const initialMiniGames: MiniGame[] = [
 
 export const initialFamousAccountants: FamousAccountant[] = [
   {
-    id: "luca_pacioli",
-    name: "Luca Pacioli",
-    description: "Le père de la comptabilité en partie double. Son pouvoir double tous les gains pendant 30 secondes !",
+    id: "bilan_gates",
+    name: "Bilan Gates",
+    description: "Le génie du bilan comptable. Son pouvoir équilibre parfaitement vos comptes et double tous les gains pendant 30 secondes !",
     unlocked: true,
+    purchased: false,
     power: {
       type: "global",
       multiplier: 2,
@@ -270,10 +271,11 @@ export const initialFamousAccountants: FamousAccountant[] = [
     cooldown: 300
   },
   {
-    id: "count_dracula",
-    name: "Count Dracula",
-    description: "Expert en comptage nocturne. Triple la puissance de clic pendant 20 secondes !",
+    id: "jean_compta_van_damme",
+    name: "Jean-Compta Van Damme",
+    description: "\"Je suis fasciné par l'air. Si on enlève l'air du ciel, tous les oiseaux tomberaient par terre... Et les chiffres aussi.\" Triple la puissance de clic pendant 20 secondes !",
     unlocked: false,
+    purchased: false,
     power: {
       type: "click",
       multiplier: 3,
@@ -282,10 +284,11 @@ export const initialFamousAccountants: FamousAccountant[] = [
     cooldown: 240
   },
   {
-    id: "sherlock_holmes",
-    name: "Sherlock Holmes",
-    description: "Le détective des comptes. Quadruple la production des collaborateurs pendant 15 secondes !",
+    id: "debit_vador",
+    name: "Débit Vador",
+    description: "\"Luke, je suis ton débiteur.\" La force est avec lui pour quadrupler la production des collaborateurs pendant 15 secondes !",
     unlocked: false,
+    purchased: false,
     power: {
       type: "generator",
       multiplier: 4,

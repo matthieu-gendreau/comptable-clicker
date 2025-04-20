@@ -8,6 +8,8 @@ import Collaborators from "./Collaborators";
 import Upgrades from "./Upgrades";
 import Achievements from "./Achievements";
 import { Prestige } from "./Prestige";
+import FamousAccountants from "./FamousAccountants";
+import AccountantShop from "./AccountantShop";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { calculatePrestigePoints } from "@/reducers/gameReducer";
@@ -23,6 +25,12 @@ const GameTabs: React.FC = () => {
   // Vérifie si on peut faire un prestige
   const canPrestige = calculatePrestigePoints(state.totalEntries, state.prestige.objectives) > state.prestige.points;
 
+  // Vérifie si des comptables célèbres sont disponibles
+  const availableAccountants = state.famousAccountants.filter(a => a.unlocked && !a.purchased).length;
+  const purchasedAccountants = state.famousAccountants.filter(a => a.purchased).length;
+  const hasNewAccountants = availableAccountants > 0;
+  const hasPurchasedAccountants = purchasedAccountants > 0;
+
   const tabs = [
     {
       id: "main",
@@ -31,6 +39,7 @@ const GameTabs: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-6">
             <Clicker />
+            {hasPurchasedAccountants && <FamousAccountants />}
           </div>
           <div className="space-y-6 md:h-[calc(100vh-12rem)] md:overflow-y-auto md:sticky md:top-4">
             <Collaborators />
@@ -57,6 +66,25 @@ const GameTabs: React.FC = () => {
         </div>
       ),
       unlocked: state.entries >= 25,
+    },
+    {
+      id: "accountants",
+      label: (
+        <div className="flex items-center gap-2">
+          Cabinet de Recrutement
+          {availableAccountants > 0 && (
+            <Badge variant="secondary" className="h-5 px-1.5">
+              {availableAccountants}
+            </Badge>
+          )}
+        </div>
+      ),
+      content: (
+        <div className="max-w-4xl mx-auto">
+          <AccountantShop />
+        </div>
+      ),
+      unlocked: true,
     },
     {
       id: "stats",

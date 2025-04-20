@@ -88,6 +88,7 @@ export type FamousAccountant = {
   name: string;
   description: string;
   unlocked: boolean;
+  purchased: boolean;
   power: {
     type: "click" | "generator" | "global";
     multiplier: number;
@@ -193,6 +194,7 @@ export type GameAction =
   | { type: "START_MINIGAME"; id: string }
   | { type: "COMPLETE_MINIGAME"; id: string; score: number }
   | { type: "ACTIVATE_ACCOUNTANT"; id: string }
+  | { type: "PURCHASE_ACCOUNTANT"; id: string }
   | { type: "TICK"; timestamp: number }
   | { type: "LOAD_GAME"; state: GameState }
   | { type: "RESET_GAME" }

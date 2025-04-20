@@ -108,12 +108,12 @@ const checkFamousAccountantUnlock = (state: GameState): GameState["famousAccount
     
     // Conditions de déblocage des comptables célèbres
     switch (accountant.id) {
-      case "count_dracula":
+      case "jean_compta_van_damme":
         return {
           ...accountant,
           unlocked: state.clickCount >= 5000
         };
-      case "sherlock_holmes":
+      case "debit_vador":
         return {
           ...accountant,
           unlocked: state.totalEntries >= 1000000
@@ -174,6 +174,9 @@ export const calculateTrainingPoints = (state: GameState): number => {
 };
 
 export const calculateComboMultiplier = (state: GameState): number => {
+  // Only activate combo system after 10 total entries
+  if (state.totalEntries < 10) return 1;
+  
   if (!state.combo.active) return 1;
   
   const timeSinceLastClick = Date.now() - state.combo.lastClickTime;
@@ -550,7 +553,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       if (accountantIndex === -1) return state;
 
       const accountant = state.famousAccountants[accountantIndex];
-      if (!accountant.unlocked) return state;
+      if (!accountant.unlocked || !accountant.purchased) return state;
 
       const now = Date.now();
       if (accountant.lastUsed && now - accountant.lastUsed < accountant.cooldown * 1000) {
@@ -626,6 +629,21 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       });
 
       return updatedState;
+    }
+
+    case "PURCHASE_ACCOUNTANT": {
+      const accountantIndex = state.famousAccountants.findIndex(a => a.id === action.id);
+      if (accountantIndex === -1) return state;
+
+      const accountant = state.famousAccountants[accountantIndex];
+      if (!accountant.unlocked || accountant.purchased) return state;
+
+      return {
+        ...state,
+        famousAccountants: state.famousAccountants.map((a, i) =>
+          i === accountantIndex ? { ...a, purchased: true } : a
+        )
+      };
     }
 
     case "TICK": {
