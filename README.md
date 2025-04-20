@@ -1,73 +1,50 @@
-# Welcome to your Lovable project
+# Pennylane Clicker Game
 
-## Project info
+## Description
+Un jeu incrémental (clicker game) basé sur le thème de la comptabilité, servant d'outil marketing pour Pennylane (https://www.pennylane.com/fr).
 
-**URL**: https://lovable.dev/projects/891c7b28-fe18-4e4c-bafa-e6a28b749b16
+## Objectif
+Créer une expérience de jeu engageante qui :
+- Utilise la mécanique addictive des jeux "clicker"
+- Introduit progressivement les fonctionnalités de Pennylane
+- Éduque les joueurs sur les avantages de la comptabilité moderne
+- S'inspire des meilleurs jeux du genre (Universal Paperclips, Exponential Idle, Cookie Clicker)
 
-## How can I edit this code?
+## Thème
+- Basé sur la comptabilité et la gestion d'entreprise
+- Progression parallèle entre le jeu et la découverte des fonctionnalités Pennylane
+- Design moderne et professionnel reflétant l'image de marque Pennylane
 
-There are several ways of editing your application.
+## Inspirations
+- Universal Paperclips : Pour sa progression narrative et ses mécaniques d'automatisation
+- Exponential Idle : Pour ses mécaniques de croissance et formules mathématiques
+- Cookie Clicker : Pour ses mécaniques de base et son système d'achievements
 
-**Use Lovable**
+## Fonctionnalités clés à promouvoir
+- Automatisation de la comptabilité
+- Facturation intelligente
+- Gestion des notes de frais
+- Tableau de bord en temps réel
+- Intégration bancaire
+- Collaboration expert-comptable
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/891c7b28-fe18-4e4c-bafa-e6a28b749b16) and start prompting.
+## Technologies
+- Frontend : Next.js
+- Styling : Tailwind CSS
+- State Management : À définir
+- Backend : À définir si nécessaire
 
-Changes made via Lovable will be committed automatically to this repo.
+## Installation et développement
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+Prérequis :
+- Node.js & npm - [installation avec nvm recommandée](https://github.com/nvm-sh/nvm#installing-and-updating)
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Installation des dépendances
+npm install
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Lancement du serveur de développement
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/891c7b28-fe18-4e4c-bafa-e6a28b749b16) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Le serveur de développement sera accessible à l'adresse http://localhost:3000 avec rechargement automatique activé.
