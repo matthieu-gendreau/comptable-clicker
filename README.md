@@ -48,3 +48,5 @@ npm run dev
 ```
 
 Le serveur de développement sera accessible à l'adresse http://localhost:3000 avec rechargement automatique activé.
+
+Pour le MCP : npx -y @agentdeskai/browser-tools-server@1.2.0

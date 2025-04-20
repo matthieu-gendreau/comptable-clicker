@@ -1,7 +1,7 @@
 import { createContext, useContext, useReducer, useEffect, ReactNode } from "react";
-import { GameState, GameAction } from "@/types/game";
+import { GameState, GameAction, Achievement, Upgrade } from "@/types/game";
 import { gameReducer } from "@/reducers/gameReducer";
-import { initialGameState } from "@/data/gameInitialState";
+import { initialGameState, initialAchievements, initialUpgrades } from "@/data/gameInitialState";
 
 type GameStateContextType = {
   state: GameState;
@@ -28,7 +28,19 @@ export const GameStateProvider = ({ children }: { children: ReactNode }) => {
     if (savedState) {
       try {
         const parsedState = JSON.parse(savedState);
-        dispatch({ type: "LOAD_GAME", state: parsedState });
+        // Restore achievement conditions and upgrade effects from initial state
+        const restoredState = {
+          ...parsedState,
+          achievements: parsedState.achievements.map((achievement: Omit<Achievement, 'condition'>, index: number) => ({
+            ...achievement,
+            condition: initialAchievements[index].condition
+          })),
+          upgrades: parsedState.upgrades.map((upgrade: Omit<Upgrade, 'effect'>, index: number) => ({
+            ...upgrade,
+            effect: initialUpgrades[index].effect
+          }))
+        };
+        dispatch({ type: "LOAD_GAME", state: restoredState });
       } catch (error) {
         console.error("Erreur lors du chargement de la sauvegarde:", error);
       }
