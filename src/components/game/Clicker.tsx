@@ -1,13 +1,7 @@
 import React from "react";
 import { useGameState } from "@/context/GameStateContext";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { formatEntries } from "@/utils/formatters";
 import { Badge } from "@/components/ui/badge";
 
 const Clicker: React.FC = () => {
@@ -17,40 +11,32 @@ const Clicker: React.FC = () => {
     dispatch({ type: "CLICK" });
   };
 
-  const formatNumber = (num: number) => {
-    return new Intl.NumberFormat("fr-FR").format(num);
-  };
-
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>Écritures</CardTitle>
-            <CardDescription>
-              Cliquez pour créer des écritures !
-            </CardDescription>
-          </div>
-          <Badge variant="outline" className="text-lg">
-            {formatNumber(state.entriesPerClick)}/clic
-          </Badge>
+    <div className="flex flex-col gap-4 p-6 border rounded-lg">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Écritures</h2>
+          <p className="text-sm text-muted-foreground">
+            Cliquez pour créer des écritures !
+          </p>
         </div>
-      </CardHeader>
-      <CardContent>
-        <div className="flex flex-col items-center gap-4">
-          <div className="text-4xl font-bold">
-            {formatNumber(state.entries)}
-          </div>
-          <Button
-            size="lg"
-            className="w-full h-24 text-xl"
-            onClick={handleClick}
-          >
-            Créer une écriture
-          </Button>
+        <Badge variant="outline" className="text-lg">
+          {formatEntries(state.entriesPerClick)}/clic
+        </Badge>
+      </div>
+      <div className="flex flex-col items-center gap-4">
+        <div className="text-4xl font-bold">
+          {formatEntries(state.entries)}
         </div>
-      </CardContent>
-    </Card>
+        <Button
+          size="lg"
+          className="w-full h-24 text-xl"
+          onClick={handleClick}
+        >
+          Créer une écriture
+        </Button>
+      </div>
+    </div>
   );
 };
 
