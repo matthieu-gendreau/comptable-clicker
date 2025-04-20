@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,7 +62,17 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				pennylane: {
+					purple: '#9b87f5',
+					'dark-purple': '#7E69AB',
+					gray: '#8E9196',
+					'dark-gray': '#1A1F2C',
+					'light-gray': '#F1F0FB',
+					green: '#F2FCE2',
+					yellow: '#FEF7CD',
+					orange: '#F97316',
+				},
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -84,11 +95,27 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'coin-spin': {
+					'0%': { transform: 'rotateY(0deg)' },
+					'50%': { transform: 'rotateY(180deg)' },
+					'100%': { transform: 'rotateY(360deg)' }
+				},
+				'float-up': {
+					'0%': { transform: 'translateY(0px) scale(1)', opacity: '1' },
+					'100%': { transform: 'translateY(-40px) scale(1.2)', opacity: '0' }
+				},
+				'pulse-scale': {
+					'0%, 100%': { transform: 'scale(1)' },
+					'50%': { transform: 'scale(1.05)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'coin-spin': 'coin-spin 0.5s ease-out',
+				'float-up': 'float-up 1s forwards',
+				'pulse-scale': 'pulse-scale 2s infinite'
 			}
 		}
 	},
