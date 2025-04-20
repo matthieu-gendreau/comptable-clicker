@@ -16,8 +16,10 @@ export const calculateEntriesPerSecond = (generators: GameState["generators"]): 
 export const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
     case "CLICK": {
-      const newEntries = state.entries + state.entriesPerClick;
-      const newTotalEntries = state.totalEntries + state.entriesPerClick;
+      const clickMultiplier = state.debugMode ? 10 : 1;
+      const clickGain = state.entriesPerClick * clickMultiplier;
+      const newEntries = state.entries + clickGain;
+      const newTotalEntries = state.totalEntries + clickGain;
       return {
         ...state,
         entries: newEntries,
@@ -98,7 +100,8 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
 
     case "TICK": {
       const deltaTime = (action.timestamp - state.lastTickAt) / 1000;
-      const earnedEntries = state.entriesPerSecond * deltaTime;
+      const speedMultiplier = state.debugMode ? 10 : 1;
+      const earnedEntries = state.entriesPerSecond * deltaTime * speedMultiplier;
       
       const updatedAchievements = state.achievements.map((achievement) => {
         if (achievement.unlocked) return achievement;
@@ -155,6 +158,12 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       
       return state;
     }
+
+    case 'TOGGLE_DEBUG_MODE':
+      return {
+        ...state,
+        debugMode: !state.debugMode,
+      };
 
     default:
       return state;
