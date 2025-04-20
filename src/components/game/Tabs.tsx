@@ -84,7 +84,7 @@ const GameTabs: React.FC = () => {
           <AccountantShop />
         </div>
       ),
-      unlocked: true,
+      unlocked: state.cabinetUnlocked,
     },
     {
       id: "stats",

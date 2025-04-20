@@ -284,6 +284,33 @@ export const initialFamousAccountants: FamousAccountant[] = [
     cooldown: 240
   },
   {
+    id: "credit_suisse",
+    name: "Crédit Suisse",
+    description: "\"L'optimisation fiscale, c'est comme le fromage suisse : il faut savoir où sont les trous !\" Réduit le coût de tous les générateurs de 50% pendant 25 secondes !",
+    unlocked: false,
+    purchased: false,
+    power: {
+      type: "cost",
+      multiplier: 0.5,
+      duration: 25
+    },
+    cooldown: 280
+  },
+  {
+    id: "warren_buffeuille",
+    name: "Warren Buffeuille",
+    description: "\"Dans la comptabilité comme dans la cuisine, c'est dans les petits détails que se cache la réussite.\" Double la vitesse d'apparition des améliorations et augmente leur efficacité de 50% pendant 20 secondes !",
+    unlocked: false,
+    purchased: false,
+    power: {
+      type: "upgrade",
+      multiplier: 2,
+      duration: 20,
+      bonusEffect: 1.5
+    },
+    cooldown: 320
+  },
+  {
     id: "debit_vador",
     name: "Débit Vador",
     description: "\"Luke, je suis ton débiteur.\" La force est avec lui pour quadrupler la production des collaborateurs pendant 15 secondes !",
@@ -959,6 +986,24 @@ export const initialUpgrades: Upgrade[] = [
       }
     })
   },
+
+  {
+    id: "linkedin_premium",
+    name: "Réseau LinkedIn Premium",
+    description: "Débloque le Cabinet de Recrutement et permet d'embaucher des comptables célèbres. Un bon réseau est la clé du succès !",
+    cost: 2000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "uniqueGenerators",
+      id: "unique_generators_3",
+      count: 3
+    },
+    effect: (state) => ({
+      ...state,
+      cabinetUnlocked: true
+    })
+  },
 ];
 
 export const initialAchievements: Achievement[] = [
@@ -1244,11 +1289,13 @@ export const initialGameState: GameState = {
     clicksInCombo: 0,
     lastClickTime: 0,
     maxMultiplier: 2,
-    comboTimeWindow: 3000 // 3 secondes pour plus de confort
+    comboTimeWindow: 3000
   },
   activePowerUps: [],
   level: {
     current: 0,
     xp: 0
-  }
+  },
+  cabinetUnlocked: false,
+  improvements: [],
 };
