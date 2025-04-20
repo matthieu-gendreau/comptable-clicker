@@ -20,13 +20,13 @@ const Upgrades: React.FC = () => {
     return new Intl.NumberFormat('fr-FR').format(Math.floor(num));
   };
 
-  const availableUpgrades = state.upgrades.filter(
-    (upgrade) => upgrade.unlocked && !upgrade.purchased
-  );
+  const availableUpgrades = state.upgrades
+    .filter((upgrade) => upgrade.unlocked && !upgrade.purchased)
+    .sort((a, b) => a.cost - b.cost);
 
-  const purchasedUpgrades = state.upgrades.filter(
-    (upgrade) => upgrade.purchased
-  );
+  const purchasedUpgrades = state.upgrades
+    .filter((upgrade) => upgrade.purchased)
+    .sort((a, b) => a.cost - b.cost);
 
   const EmptyState = () => (
     <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -113,6 +113,9 @@ const Upgrades: React.FC = () => {
                       <p className="font-medium">{upgrade.name}</p>
                       <p className="text-sm text-muted-foreground">
                         {upgrade.description}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Coût : {formatEntries(upgrade.cost)} écritures
                       </p>
                     </div>
                   </motion.div>
