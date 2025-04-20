@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useGame } from "@/context/GameContext";
 import { motion } from "framer-motion";
@@ -12,16 +11,16 @@ interface ClickParticle {
 }
 
 const Clicker: React.FC = () => {
-  const { clickEuro, state } = useGame();
+  const { clickEuro: clickEntry, state } = useGame();
   const [particles, setParticles] = useState<ClickParticle[]>([]);
   const [isClicking, setIsClicking] = useState(false);
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    clickEuro();
+    clickEntry();
     setIsClicking(true);
     setTimeout(() => setIsClicking(false), 100);
 
-    // Create particle at click position relative to button
+    // Create particle at click position
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -30,35 +29,29 @@ const Clicker: React.FC = () => {
       id: Date.now(),
       x,
       y,
-      value: state.eurosPerClick,
+      value: state.entriesPerClick,
     };
 
     setParticles((prev) => [...prev, newParticle]);
-
-    // Remove particle after animation completes
     setTimeout(() => {
       setParticles((prev) => prev.filter((p) => p.id !== newParticle.id));
     }, 1000);
   };
 
-  const formatEuros = (num: number): string => {
-    return new Intl.NumberFormat('fr-FR', { 
-      style: 'currency', 
-      currency: 'EUR',
-      maximumFractionDigits: num < 100 ? 2 : 0,
-    }).format(num);
+  const formatEntries = (num: number): string => {
+    return new Intl.NumberFormat('fr-FR').format(num);
   };
 
   return (
     <div className="flex flex-col items-center justify-center space-y-2">
       <div className="text-3xl md:text-4xl font-bold text-pennylane-dark-purple mb-2">
-        {formatEuros(state.euros)}
+        {formatEntries(state.entries)} écritures
       </div>
       <div className="text-sm text-pennylane-gray">
-        Par clic: {formatEuros(state.eurosPerClick)}
+        Par clic: {formatEntries(state.entriesPerClick)}
       </div>
       <div className="text-sm text-pennylane-gray">
-        Par seconde: {formatEuros(state.eurosPerSecond)}
+        Par seconde: {formatEntries(state.entriesPerSecond)}
       </div>
       
       <div className="relative">
@@ -91,7 +84,7 @@ const Clicker: React.FC = () => {
             animate={{ y: particle.y - 50, opacity: 0, scale: 1.2 }}
             transition={{ duration: 1, ease: "easeOut" }}
           >
-            +{formatEuros(particle.value)}
+            +{formatEntries(particle.value)}
           </motion.div>
         ))}
       </div>

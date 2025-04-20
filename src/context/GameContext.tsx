@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useReducer } from "react";
 import { toast } from "sonner";
 
@@ -47,11 +46,12 @@ type Achievement = {
   condition: (state: GameState) => boolean;
 };
 
+// Update GameState type
 type GameState = {
-  euros: number;
-  totalEuros: number;
-  eurosPerClick: number;
-  eurosPerSecond: number;
+  entries: number; // Nombre d'écritures comptables
+  totalEntries: number;
+  entriesPerClick: number;
+  entriesPerSecond: number;
   clickCount: number;
   generators: Generator[];
   upgrades: Upgrade[];
@@ -74,8 +74,8 @@ type GameAction =
 const initialGenerators: Generator[] = [
   {
     id: "junior_accountant",
-    name: "Junior Accountant",
-    description: "Handles basic bookkeeping tasks",
+    name: "Comptable Junior",
+    description: "Saisit les écritures de base",
     baseCost: 10,
     baseOutput: 0.1,
     count: 0,
@@ -83,57 +83,57 @@ const initialGenerators: Generator[] = [
   },
   {
     id: "senior_accountant",
-    name: "Senior Accountant",
-    description: "Efficient accounting professional",
+    name: "Comptable Senior",
+    description: "Gère les écritures complexes",
     baseCost: 100,
     baseOutput: 1,
     count: 0,
     unlocked: false,
     pennylaneFeature: {
-      title: "Automated Invoice Processing",
-      description: "Pennylane's AI automatically processes and categorizes invoices, just like a senior accountant would.",
+      title: "Saisie Automatique",
+      description: "Pennylane automatise la saisie des écritures comptables grâce à l'IA.",
       shown: false,
     },
   },
   {
     id: "accounting_software",
-    name: "Basic Software",
-    description: "Entry-level accounting software",
+    name: "Logiciel Basique",
+    description: "Logiciel de comptabilité simple",
     baseCost: 1000,
     baseOutput: 8,
     count: 0,
     unlocked: false,
     pennylaneFeature: {
-      title: "Intuitive Dashboard",
-      description: "Pennylane's dashboard gives you a real-time overview of your financial situation.",
+      title: "Interface Intuitive",
+      description: "Le tableau de bord Pennylane permet de visualiser en temps réel votre situation comptable.",
       shown: false,
     },
   },
   {
     id: "erp_system",
-    name: "ERP System",
-    description: "Enterprise resource planning system",
+    name: "Système ERP",
+    description: "Système de gestion intégré",
     baseCost: 10000,
     baseOutput: 47,
     count: 0,
     unlocked: false,
     pennylaneFeature: {
-      title: "Complete Business Integration",
-      description: "Pennylane integrates with your entire business ecosystem, removing data silos.",
+      title: "Intégration Complète",
+      description: "Pennylane s'intègre avec tout votre écosystème pour une comptabilité sans silo.",
       shown: false,
     },
   },
   {
     id: "ai_assistant",
-    name: "AI Assistant",
-    description: "Advanced AI for financial tasks",
+    name: "Assistant IA",
+    description: "IA avancée pour la comptabilité",
     baseCost: 50000,
     baseOutput: 260,
     count: 0,
     unlocked: false,
     pennylaneFeature: {
-      title: "Smart Financial Assistant",
-      description: "Pennylane's AI helps you make smarter financial decisions with predictive analytics.",
+      title: "Assistant Intelligent",
+      description: "L'IA de Pennylane aide à la prise de décision avec des analyses prédictives.",
       shown: false,
     },
   },
@@ -150,7 +150,7 @@ const initialUpgrades: Upgrade[] = [
     unlocked: true,
     effect: (state) => ({
       ...state,
-      eurosPerClick: state.eurosPerClick * 2,
+      entriesPerClick: state.entriesPerClick * 2,
     }),
   },
   {
@@ -238,25 +238,25 @@ const initialUpgrades: Upgrade[] = [
 // Define initial achievements
 const initialAchievements: Achievement[] = [
   {
-    id: "first_euro",
-    name: "Premier Pas",
-    description: "Earn your first euro",
+    id: "first_entry",
+    name: "Première Écriture",
+    description: "Saisissez votre première écriture comptable",
     unlocked: false,
     hidden: false,
-    condition: (state) => state.totalEuros >= 1,
+    condition: (state) => state.totalEntries >= 1,
   },
   {
     id: "click_100",
-    name: "Click Master",
-    description: "Click 100 times",
+    name: "Expert en Saisie",
+    description: "Saisissez 100 écritures manuellement",
     unlocked: false,
     hidden: false,
     condition: (state) => state.clickCount >= 100,
   },
   {
     id: "hire_team",
-    name: "Building a Team",
-    description: "Hire 10 accountants total",
+    name: "Constitution d'Équipe",
+    description: "Embauchez 10 comptables au total",
     unlocked: false,
     hidden: false,
     condition: (state) => {
@@ -267,21 +267,21 @@ const initialAchievements: Achievement[] = [
     },
   },
   {
-    id: "euro_millionaire",
-    name: "Euro Millionaire",
-    description: "Accumulate 1,000,000 euros in total",
+    id: "entries_master",
+    name: "Expert Comptable",
+    description: "Accumulez 1,000,000 écritures au total",
     unlocked: false,
     hidden: false,
-    condition: (state) => state.totalEuros >= 1000000,
+    condition: (state) => state.totalEntries >= 1000000,
   },
 ];
 
 // Initial game state
 const initialGameState: GameState = {
-  euros: 0,
-  totalEuros: 0,
-  eurosPerClick: 1,
-  eurosPerSecond: 0,
+  entries: 0,
+  totalEntries: 0,
+  entriesPerClick: 1,
+  entriesPerSecond: 0,
   clickCount: 0,
   generators: initialGenerators,
   upgrades: initialUpgrades,
@@ -307,12 +307,12 @@ const calculateEurosPerSecond = (generators: Generator[]): number => {
 const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
     case "CLICK": {
-      const newEuros = state.euros + state.eurosPerClick;
-      const newTotalEuros = state.totalEuros + state.eurosPerClick;
+      const newEntries = state.entries + state.entriesPerClick;
+      const newTotalEntries = state.totalEntries + state.entriesPerClick;
       return {
         ...state,
-        euros: newEuros,
-        totalEuros: newTotalEuros,
+        entries: newEntries,
+        totalEntries: newTotalEntries,
         clickCount: state.clickCount + 1,
       };
     }
@@ -324,7 +324,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       const generator = state.generators[generatorIndex];
       const cost = calculateGeneratorCost(generator.baseCost, generator.count);
 
-      if (state.euros < cost) return state;
+      if (state.entries < cost) return state;
 
       const updatedGenerators = [...state.generators];
       updatedGenerators[generatorIndex] = {
@@ -333,7 +333,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       };
 
       // Calculate new EPS
-      const eurosPerSecond = calculateEurosPerSecond(updatedGenerators);
+      const entriesPerSecond = calculateEurosPerSecond(updatedGenerators);
 
       // Check if we need to unlock the next generator
       if (generator.count === 0) {
@@ -360,9 +360,9 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
 
       return {
         ...state,
-        euros: state.euros - cost,
+        entries: state.entries - cost,
         generators: updatedGenerators,
-        eurosPerSecond,
+        entriesPerSecond,
         upgrades: updatedUpgrades,
       };
     }
@@ -372,14 +372,14 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       if (upgradeIndex === -1) return state;
 
       const upgrade = state.upgrades[upgradeIndex];
-      if (upgrade.purchased || !upgrade.unlocked || state.euros < upgrade.cost) {
+      if (upgrade.purchased || !upgrade.unlocked || state.entries < upgrade.cost) {
         return state;
       }
 
       // Apply the upgrade effect
       const updatedState = upgrade.effect({
         ...state,
-        euros: state.euros - upgrade.cost,
+        entries: state.entries - upgrade.cost,
         upgrades: state.upgrades.map((u, i) =>
           i === upgradeIndex ? { ...u, purchased: true } : u
         ),
@@ -388,18 +388,18 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       // Recalculate EPS
       return {
         ...updatedState,
-        eurosPerSecond: calculateEurosPerSecond(updatedState.generators),
+        entriesPerSecond: calculateEurosPerSecond(updatedState.generators),
       };
     }
 
     case "TICK": {
       const deltaTime = (action.timestamp - state.lastTickAt) / 1000; // Convert to seconds
-      const earnedEuros = state.eurosPerSecond * deltaTime;
+      const earnedEntries = state.entriesPerSecond * deltaTime;
       
       // Check for newly unlocked achievements
       const updatedAchievements = state.achievements.map((achievement) => {
         if (achievement.unlocked) return achievement;
-        if (achievement.condition({ ...state, euros: state.euros + earnedEuros, totalEuros: state.totalEuros + earnedEuros })) {
+        if (achievement.condition({ ...state, entries: state.entries + earnedEntries, totalEntries: state.totalEntries + earnedEntries })) {
           return { ...achievement, unlocked: true };
         }
         return achievement;
@@ -407,8 +407,8 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
 
       return {
         ...state,
-        euros: state.euros + earnedEuros,
-        totalEuros: state.totalEuros + earnedEuros,
+        entries: state.entries + earnedEntries,
+        totalEntries: state.totalEntries + earnedEntries,
         lastTickAt: action.timestamp,
         achievements: updatedAchievements,
       };
@@ -504,9 +504,9 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Calculate earnings while away
         const awayTime = (Date.now() - parsedState.lastTickAt) / 1000; // in seconds
-        const awayEarnings = parsedState.eurosPerSecond * awayTime;
+        const awayEarnings = parsedState.entriesPerSecond * awayTime;
         
-        if (awayEarnings > 0 && parsedState.eurosPerSecond > 0) {
+        if (awayEarnings > 0 && parsedState.entriesPerSecond > 0) {
           const formattedEarnings = new Intl.NumberFormat('fr-FR', { 
             style: 'currency', 
             currency: 'EUR',
@@ -523,8 +523,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         parsedState.lastSavedAt = Date.now();
         
         // Calculate earnings while away
-        parsedState.euros += awayEarnings;
-        parsedState.totalEuros += awayEarnings;
+        parsedState.entries += awayEarnings;
+        parsedState.totalEntries += awayEarnings;
         
         dispatch({ type: "LOAD_GAME", state: parsedState });
       } catch (error) {
@@ -533,17 +533,18 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  // Achievement notification
+  // Update achievement notification logic
   useEffect(() => {
     const newlyUnlockedAchievements = state.achievements.filter(
       achievement => achievement.unlocked && 
-      !initialGameState.achievements.find(a => a.id === achievement.id)?.unlocked
+      !localStorage.getItem(`achievement_${achievement.id}_shown`)
     );
 
     newlyUnlockedAchievements.forEach(achievement => {
       toast.success(`Trophée débloqué : ${achievement.name}`, {
         description: achievement.description,
       });
+      localStorage.setItem(`achievement_${achievement.id}_shown`, 'true');
     });
   }, [state.achievements]);
 
