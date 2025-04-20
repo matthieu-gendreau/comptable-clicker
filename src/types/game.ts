@@ -97,7 +97,7 @@ export type FiscalSeason = {
   name: string;
   description: string;
   multiplier: number;
-  active: boolean;
+  objectives: FiscalObjective[];
 };
 
 export type FiscalObjective = {
