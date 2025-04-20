@@ -784,6 +784,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         gameStartedAt: Date.now(),
         lastSavedAt: Date.now(),
         lastTickAt: Date.now(),
+        debugMode: true,
       };
       
     case "SHOW_FEATURE": {

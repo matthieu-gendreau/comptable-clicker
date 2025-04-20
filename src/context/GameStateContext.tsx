@@ -13,11 +13,19 @@ const GameStateContext = createContext<GameStateContextType | undefined>(undefin
 export const GameStateProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(gameReducer, initialGameState);
 
-  // Sauvegarde automatique toutes les 30 secondes
+  // Sauvegarde automatique toutes les 5 secondes et à chaque changement d'état important
   useEffect(() => {
+    // Sauvegarde immédiate si changement important
+    if (state.entries !== initialGameState.entries || 
+        state.totalEntries !== initialGameState.totalEntries ||
+        state.clickCount !== initialGameState.clickCount) {
+      localStorage.setItem("gameState", JSON.stringify(state));
+    }
+
+    // Sauvegarde périodique
     const saveInterval = setInterval(() => {
       localStorage.setItem("gameState", JSON.stringify(state));
-    }, 30000);
+    }, 5000);
 
     return () => clearInterval(saveInterval);
   }, [state]);
@@ -40,11 +48,16 @@ export const GameStateProvider = ({ children }: { children: ReactNode }) => {
             ...upgrade,
             effect: initialUpgrades[index].effect
           })),
-          improvements: parsedState.improvements || [], // Ensure improvements array exists
+          // Ensure all required fields are present
+          lastTickAt: Date.now(),
+          lastSavedAt: Date.now(),
+          debugMode: true, // Keep debug mode enabled
         };
         dispatch({ type: "LOAD_GAME", state: restoredState });
       } catch (error) {
         console.error("Erreur lors du chargement de la sauvegarde:", error);
+        // En cas d'erreur, on commence avec l'état initial
+        dispatch({ type: "LOAD_GAME", state: initialGameState });
       }
     }
   }, []);
