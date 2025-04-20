@@ -53,16 +53,11 @@ const GameTabs: React.FC = () => {
       id: "prestige",
       label: "Cabinet",
       content: (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-6">
-            <Prestige />
-          </div>
-          <div className="space-y-6">
-            <Achievements />
-          </div>
+        <div className="max-w-4xl mx-auto">
+          <Prestige />
         </div>
       ),
-      unlocked: state.totalEntries >= 1_000_000,
+      unlocked: state.totalEntries >= 1_000_000 || state.prestige.points > 0,
     },
     {
       id: "achievements",
