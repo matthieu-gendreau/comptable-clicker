@@ -1,5 +1,7 @@
 import { Feature, FeatureId } from "./features";
 
+export type { Feature, FeatureId };
+
 export type GameCollaborator = {
   id: string;
   name: string;
@@ -63,14 +65,14 @@ export type TalentTree = {
   id: string;
   name: string;
   description: string;
+  cost: number;
   level: number;
   maxLevel: number;
-  cost: number;
   effect: (state: GameState) => GameState;
+  parent?: string;
   requirements?: {
-    talents?: { id: string; level: number }[];
-    prestige?: number;
-  };
+    type: "PARENT";
+  }[];
 };
 
 export type MiniGame = {
@@ -219,6 +221,4 @@ export type GameAction =
   | { type: "TOGGLE_DEBUG_MODE" }
   | { type: "UNLOCK_FEATURE"; featureId: FeatureId }
   | { type: "ACTIVATE_FEATURE"; featureId: FeatureId }
-  | { type: "DEACTIVATE_FEATURE"; featureId: FeatureId }
-  | { type: "START_TRIAL"; featureId: FeatureId }
-  | { type: "END_TRIAL"; featureId: FeatureId };
+  | { type: "DEACTIVATE_FEATURE"; featureId: FeatureId };

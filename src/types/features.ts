@@ -3,7 +3,7 @@ import { GameState } from "./game";
 export type FeatureId = "taxOptimizer" | "autoFiling";
 
 export interface FeatureRequirement {
-  type: "totalEntries" | "prestigePoints" | "level" | "achievements";
+  type: "totalEntries" | "prestigePoints" | "achievements";
   value: number;
 }
 
@@ -36,8 +36,6 @@ export const checkFeatureRequirements = (state: GameState, feature: Feature): bo
         return state.totalEntries >= requirement.value;
       case "prestigePoints":
         return state.prestige.points >= requirement.value;
-      case "level":
-        return state.level.current >= requirement.value;
       case "achievements":
         return state.achievements.filter(a => a.unlocked).length >= requirement.value;
       default:

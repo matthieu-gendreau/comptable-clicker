@@ -92,8 +92,8 @@ const calculatePrestigeMultiplier = (prestigeUpgrades: GameState["prestige"]["up
     .reduce((total, upgrade) => total * upgrade.multiplier, 1);
 };
 
-const calculateTalentCost = (talent: GameState["talents"]["tree"][0]): number => {
-  return Math.floor(talent.cost * Math.pow(1.5, talent.level));
+const calculateTalentCost = (talent: GameState["talents"]["tree"][0]) => {
+  return Math.floor(talent.cost);
 };
 
 const checkMiniGameUnlock = (state: GameState): GameState["miniGames"] => {
@@ -595,43 +595,31 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case "UPGRADE_TALENT": {
-      const talentIndex = state.talents.tree.findIndex(t => t.id === action.id);
-      if (talentIndex === -1) return state;
+      const { talentIndex } = action;
+      const talent = state.talents?.tree?.[talentIndex];
+      if (!talent) return state;
 
-      const talent = state.talents.tree[talentIndex];
-      if (talent.level >= talent.maxLevel) return state;
+      if (state.entries < calculateTalentCost(talent)) return state;
 
-      const cost = calculateTalentCost(talent);
-      if (state.talents.points < cost) return state;
-
-      if (talent.requirements) {
-        const { talents: reqTalents, prestige: reqPrestige } = talent.requirements;
-        
-        if (reqPrestige && state.prestige.points < reqPrestige) return state;
-        
-        if (reqTalents && !reqTalents.every(req => {
-          const parentTalent = state.talents.tree.find(t => t.id === req.id);
-          return parentTalent && parentTalent.level >= req.level;
-        })) return state;
-      }
-
-      const updatedState = talent.effect({
-        ...state,
-        talents: {
-          ...state.talents,
-          points: state.talents.points - cost,
-          tree: state.talents.tree.map((t, i) =>
-            i === talentIndex ? { ...t, level: t.level + 1 } : t
-          )
+      const parentTalent = state.talents?.tree?.find(t => t.id === talent.parent);
+      const hasRequirements = talent.requirements?.every(req => {
+        if (req.type === "PARENT") {
+          return parentTalent;
         }
+        return true;
       });
 
-      const updatedAchievements = checkAchievements(state, updatedState);
+      if (!hasRequirements) return state;
 
       return {
-        ...updatedState,
-        achievements: updatedAchievements,
-        entriesPerSecond: calculateEntriesPerSecond(updatedState)
+        ...state,
+        entries: state.entries - calculateTalentCost(talent),
+        talents: {
+          ...state.talents,
+          tree: state.talents?.tree?.map((t, i) =>
+            i === talentIndex ? { ...t } : t
+          ),
+        },
       };
     }
 

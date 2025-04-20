@@ -142,77 +142,35 @@ export const initialCollaborators: GameCollaborator[] = [
   }
 ];
 
-export const initialPrestigeUpgrades: Prestige[] = [
+export const initialPrestigeUpgrades: Upgrade[] = [
   {
-    id: "efficiency_expert",
-    name: "Expert en Efficacité",
-    description: "Vos méthodes de travail optimisées augmentent la productivité de 25%",
-    multiplier: 1.25,
+    id: "prestige_multiplier_1",
+    name: "Prestige Boost I",
+    description: "Increase your prestige multiplier by 10%",
     cost: 1,
+    purchased: false,
     unlocked: true,
-    purchased: false
-  },
-  {
-    id: "team_management",
-    name: "Management d'Équipe",
-    description: "Vos compétences en gestion d'équipe augmentent la production de 50%",
-    multiplier: 1.5,
-    cost: 3,
-    unlocked: false,
-    purchased: false
-  },
-  {
-    id: "digital_transformation",
-    name: "Transformation Digitale",
-    description: "Votre expertise en digitalisation double la production",
-    multiplier: 2,
-    cost: 10,
-    unlocked: false,
-    purchased: false
+    effect: (state: GameState) => ({
+      ...state,
+      prestige: {
+        ...state.prestige,
+        multiplier: state.prestige.multiplier * 1.1
+      }
+    })
   }
 ];
 
 export const initialTalentTree: TalentTree[] = [
   {
-    id: "typing_speed",
-    name: "Vitesse de Frappe",
-    description: "Chaque niveau augmente les gains par clic de 10%",
-    level: 0,
-    maxLevel: 10,
-    cost: 5,
-    effect: (state) => ({
-      ...state,
-      entriesPerClick: state.entriesPerClick * 1.1
-    })
-  },
-  {
-    id: "team_training",
-    name: "Formation d'Équipe",
-    description: "Chaque niveau augmente la production de l'équipe de 10%",
-    level: 0,
-    maxLevel: 10,
-    cost: 8,
-    effect: (state) => ({
-      ...state,
-      collaborators: state.collaborators.map(g => ({
-        ...g,
-        baseOutput: g.baseOutput * 1.1
-      }))
-    })
-  },
-  {
-    id: "resource_management",
-    name: "Gestion des Ressources",
-    description: "Chaque niveau réduit les coûts de 5%",
+    id: "efficiency_expert",
+    name: "Efficiency Expert",
+    description: "Increase your base click power",
+    cost: 1,
     level: 0,
     maxLevel: 5,
-    cost: 12,
-    effect: (state) => ({
+    effect: (state: GameState) => ({
       ...state,
-      collaborators: state.collaborators.map(g => ({
-        ...g,
-        baseCost: g.baseCost * 0.95
-      }))
+      entriesPerClick: state.entriesPerClick * 1.25
     })
   }
 ];
@@ -332,6 +290,7 @@ export const initialUpgrades: Upgrade[] = [
     purchased: false,
     requirement: {
       type: "totalEntries",
+      id: "total_entries_1k",
       count: 1000
     },
     effect: (state: GameState) => ({
