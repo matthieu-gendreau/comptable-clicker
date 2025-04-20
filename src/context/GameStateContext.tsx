@@ -1,7 +1,7 @@
 import { createContext, useContext, useReducer, useEffect, ReactNode } from "react";
 import { GameState, GameAction, Achievement, Upgrade } from "@/types/game";
 import { gameReducer } from "@/reducers/gameReducer";
-import { initialGameState, initialAchievements, initialUpgrades } from "@/data/gameInitialState";
+import { initialGameState, initialAchievements, initialUpgrades, initialCollaborators } from "@/data/gameInitialState";
 
 type GameStateContextType = {
   state: GameState;
@@ -30,7 +30,8 @@ export const GameStateProvider = ({ children }: { children: ReactNode }) => {
         const parsedState = JSON.parse(savedState);
         // Restore achievement conditions and upgrade effects from initial state
         const restoredState = {
-          ...parsedState,
+          ...initialGameState, // Start with initial state to ensure all fields exist
+          ...parsedState, // Override with saved values
           achievements: parsedState.achievements.map((achievement: Omit<Achievement, 'condition'>, index: number) => ({
             ...achievement,
             condition: initialAchievements[index].condition
@@ -38,7 +39,8 @@ export const GameStateProvider = ({ children }: { children: ReactNode }) => {
           upgrades: parsedState.upgrades.map((upgrade: Omit<Upgrade, 'effect'>, index: number) => ({
             ...upgrade,
             effect: initialUpgrades[index].effect
-          }))
+          })),
+          improvements: parsedState.improvements || [], // Ensure improvements array exists
         };
         dispatch({ type: "LOAD_GAME", state: restoredState });
       } catch (error) {
