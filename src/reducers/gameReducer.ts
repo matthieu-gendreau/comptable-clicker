@@ -137,11 +137,29 @@ const initialUpgrades = [
   },
 ];
 
+// Calcul du multiplicateur de clic
+export const calculateClickMultiplier = (state: GameState): number => {
+  const baseMultiplier = 1;
+  
+  // Multiplicateur des spécialisations de type "click"
+  const clickSpecializationMultiplier = state.prestige.specializations
+    .filter(spec => spec.purchased && spec.type === "click")
+    .reduce((total, spec) => total * spec.multiplier, 1);
+  
+  // Multiplicateur global des spécialisations
+  const globalSpecializationMultiplier = state.prestige.specializations
+    .filter(spec => spec.purchased && spec.type === "global")
+    .reduce((total, spec) => total * spec.multiplier, 1);
+  
+  return baseMultiplier * clickSpecializationMultiplier * globalSpecializationMultiplier;
+};
+
 export const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
     case "CLICK": {
-      const clickMultiplier = state.debugMode ? 10 : 1;
-      const clickGain = state.entriesPerClick * clickMultiplier;
+      const debugMultiplier = state.debugMode ? 10 : 1;
+      const clickMultiplier = calculateClickMultiplier(state);
+      const clickGain = state.entriesPerClick * clickMultiplier * debugMultiplier;
       const newEntries = state.entries + clickGain;
       const newTotalEntries = state.totalEntries + clickGain;
       const newClickCount = state.clickCount + 1;

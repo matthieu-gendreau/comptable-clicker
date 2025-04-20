@@ -3,6 +3,7 @@ import { useGameState } from "@/context/GameStateContext";
 import { Button } from "@/components/ui/button";
 import { formatEntries } from "@/utils/formatters";
 import { Badge } from "@/components/ui/badge";
+import { calculateClickMultiplier } from "@/reducers/gameReducer";
 
 const Clicker: React.FC = () => {
   const { state, dispatch } = useGameState();
@@ -10,6 +11,9 @@ const Clicker: React.FC = () => {
   const handleClick = () => {
     dispatch({ type: "CLICK" });
   };
+
+  const clickMultiplier = calculateClickMultiplier(state);
+  const totalPerClick = state.entriesPerClick * clickMultiplier;
 
   return (
     <div className="flex flex-col gap-4 p-6 border rounded-lg">
@@ -21,7 +25,7 @@ const Clicker: React.FC = () => {
           </p>
         </div>
         <Badge variant="outline" className="text-lg">
-          {formatEntries(state.entriesPerClick)}/clic
+          {formatEntries(totalPerClick)}/clic
         </Badge>
       </div>
       <div className="flex flex-col items-center gap-4">
