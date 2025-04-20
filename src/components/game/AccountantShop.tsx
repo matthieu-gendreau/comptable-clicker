@@ -59,7 +59,7 @@ const AccountantShop: React.FC = () => {
                         {!accountant.unlocked && (
                           <>
                             {accountant.id === "jean_compta_van_damme" && 
-                              `Débloqué après ${state.debugMode ? "100" : "5000"} clics`}
+                              `Débloqué après ${state.debugMode ? "10" : "5000"} clics`}
                             {accountant.id === "debit_vador" && "Débloqué après 1 million d'écritures"}
                           </>
                         )}
