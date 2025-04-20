@@ -56,7 +56,7 @@ const GameTabs: React.FC = () => {
           <Upgrades />
         </div>
       ),
-      unlocked: state.entries >= 100,
+      unlocked: state.entries >= 25,
     },
     {
       id: "stats",

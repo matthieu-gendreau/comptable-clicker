@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { calculateGeneratorCost } from "@/reducers/gameReducer";
+import { GameGenerator } from "@/types/game";
 
 const Generators: React.FC = () => {
   const { state, dispatch } = useGameState();

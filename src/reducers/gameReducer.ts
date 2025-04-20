@@ -1,6 +1,6 @@
-import { GameState, GameAction, FiscalObjective, FiscalSeason, FiscalSpecialization } from "@/types/game";
+import { GameState, GameAction, FiscalObjective, FiscalSeason, FiscalSpecialization, GameGenerator } from "@/types/game";
 import { toast } from "sonner";
-import { initialGameState, fiscalSeasons } from "@/data/gameInitialState";
+import { initialGameState, fiscalSeasons, playerProgression } from "@/data/gameInitialState";
 
 export const calculateGeneratorCost = (baseCost: number, count: number): number => {
   return Math.floor(baseCost * Math.pow(1.15, count));
@@ -29,27 +29,27 @@ export const checkAchievements = (state: GameState, newState: Partial<GameState>
 
 // Nouvelle formule de calcul des points de prestige
 export const calculatePrestigePoints = (totalEntries: number, objectives: GameState["prestige"]["objectives"]): number => {
-  // Points de base
-  const basePoints = Math.floor(Math.sqrt(totalEntries / 1e4));
+  // Points de base : plus difficile à obtenir
+  const basePoints = Math.floor(Math.sqrt(totalEntries / 1e6));
   
   // Points bonus des objectifs
   const objectivePoints = objectives
     .filter(obj => obj.completed)
     .reduce((total, obj) => total + obj.reward, 0);
   
-  return basePoints + objectivePoints;
+  return Math.max(0, basePoints + objectivePoints);
 };
 
-// Calcul du multiplicateur total
+// Calcul du multiplicateur total ajusté
 const calculateTotalMultiplier = (state: GameState): number => {
   const seasonMultiplier = state.prestige.currentSeason.multiplier;
   
-  // Multiplicateur des spécialisations
+  // Multiplicateur des spécialisations réduit
   const specializationMultiplier = state.prestige.specializations
     .filter(spec => spec.purchased)
     .reduce((total, spec) => {
-      if (spec.type === "global") return total * spec.multiplier;
-      if (spec.type === "bonus") return total * spec.multiplier;
+      if (spec.type === "global") return total * (1 + (spec.multiplier - 1) * 0.5);
+      if (spec.type === "bonus") return total * (1 + (spec.multiplier - 1) * 0.25);
       return total;
     }, 1);
   
@@ -154,28 +154,105 @@ export const calculateClickMultiplier = (state: GameState): number => {
   return baseMultiplier * clickSpecializationMultiplier * globalSpecializationMultiplier;
 };
 
+export const calculateGeneratorBoost = (state: GameState, generator: GameGenerator): number => {
+  let boost = 1;
+  
+  // Apply boosts from generators with boost effects
+  state.generators
+    .filter(g => g.effects?.boost && g.count > 0)
+    .forEach(boostGenerator => {
+      boost *= 1 + (boostGenerator.effects.boost || 0) * boostGenerator.count;
+    });
+
+  return boost;
+};
+
+export const calculateTrainingPoints = (state: GameState): number => {
+  return state.generators
+    .filter(g => g.effects?.training && g.count > 0)
+    .reduce((total, g) => total + (g.effects?.training || 0) * g.count, 0);
+};
+
+export const calculateComboMultiplier = (state: GameState): number => {
+  if (!state.combo.active) return 1;
+  
+  const timeSinceLastClick = Date.now() - state.combo.lastClickTime;
+  if (timeSinceLastClick > state.combo.comboTimeWindow) {
+    return 1;
+  }
+  
+  return Math.min(
+    state.combo.maxMultiplier,
+    1 + (state.combo.clicksInCombo * 0.1)
+  );
+};
+
+// Calcul de l'XP gagnée
+const calculateXPGain = (entriesGained: number): number => {
+  return Math.floor(Math.sqrt(entriesGained));
+};
+
+// Vérification du niveau
+const checkLevelUp = (state: GameState): GameState => {
+  const currentLevel = playerProgression.levels[state.level.current];
+  const nextLevel = playerProgression.levels[state.level.current + 1];
+  
+  if (nextLevel && state.level.xp >= nextLevel.requiredXP) {
+    toast.success(`🎓 Niveau Supérieur : ${nextLevel.name}`, {
+      description: "Félicitations ! Vous progressez dans votre carrière !",
+    });
+    return {
+      ...state,
+      level: {
+        current: state.level.current + 1,
+        xp: state.level.xp
+      }
+    };
+  }
+  return state;
+};
+
 export const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
     case "CLICK": {
-      const debugMultiplier = state.debugMode ? 10 : 1;
+      const comboMultiplier = calculateComboMultiplier(state);
       const clickMultiplier = calculateClickMultiplier(state);
-      const clickGain = state.entriesPerClick * clickMultiplier * debugMultiplier;
-      const newEntries = state.entries + clickGain;
-      const newTotalEntries = state.totalEntries + clickGain;
-      const newClickCount = state.clickCount + 1;
+      const totalClickMultiplier = comboMultiplier * clickMultiplier;
+      
+      const now = Date.now();
+      const timeSinceLastClick = now - state.combo.lastClickTime;
+      const comboActive = timeSinceLastClick <= state.combo.comboTimeWindow;
+      
+      // Mode debug donne un bonus de x50 au lieu de x10
+      const debugMultiplier = state.debugMode ? 50 : 1;
+      const clickGain = state.entriesPerClick * totalClickMultiplier * debugMultiplier;
+      const xpGain = calculateXPGain(clickGain);
+      
+      const newState = {
+        ...state,
+        entries: state.entries + clickGain,
+        totalEntries: state.totalEntries + clickGain,
+        clickCount: state.clickCount + 1,
+        level: {
+          ...state.level,
+          xp: state.level.xp + xpGain
+        },
+        combo: {
+          ...state.combo,
+          active: true,
+          clicksInCombo: comboActive ? state.combo.clicksInCombo + 1 : 1,
+          lastClickTime: now,
+          multiplier: comboMultiplier
+        }
+      };
 
-      const updatedAchievements = checkAchievements(state, {
-        entries: newEntries,
-        totalEntries: newTotalEntries,
-        clickCount: newClickCount,
-      });
+      // Vérifier le niveau et les achievements
+      const leveledState = checkLevelUp(newState);
+      const updatedAchievements = checkAchievements(state, leveledState);
 
       return {
-        ...state,
-        entries: newEntries,
-        totalEntries: newTotalEntries,
-        clickCount: newClickCount,
-        achievements: updatedAchievements,
+        ...leveledState,
+        achievements: updatedAchievements
       };
     }
 
@@ -552,38 +629,61 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
     }
 
     case "TICK": {
-      const deltaTime = (action.timestamp - state.lastTickAt) / 1000;
-      const speedMultiplier = state.debugMode ? 10 : 1;
-      const prestigeMultiplier = state.prestige.multiplier;
-      const earnedEntries = state.entriesPerSecond * deltaTime * speedMultiplier * prestigeMultiplier;
+      const generatorOutput = state.generators.reduce((total, generator) => {
+        if (generator.count > 0) {
+          const boost = calculateGeneratorBoost(state, generator);
+          // Mode debug donne un bonus de x50 aux générateurs aussi
+          const debugMultiplier = state.debugMode ? 50 : 1;
+          return total + generator.baseOutput * generator.count * boost * debugMultiplier;
+        }
+        return total;
+      }, 0);
+
+      // Check and update combo state
+      const currentTime = Date.now();
+      const comboExpired = currentTime - state.combo.lastClickTime > state.combo.comboTimeWindow;
       
       const updatedMiniGames = checkMiniGameUnlock({
         ...state,
-        entries: state.entries + earnedEntries,
-        totalEntries: state.totalEntries + earnedEntries,
+        entries: state.entries + generatorOutput,
+        totalEntries: state.totalEntries + generatorOutput,
       });
 
       const updatedFamousAccountants = checkFamousAccountantUnlock({
         ...state,
-        entries: state.entries + earnedEntries,
-        totalEntries: state.totalEntries + earnedEntries,
+        entries: state.entries + generatorOutput,
+        totalEntries: state.totalEntries + generatorOutput,
+      });
+
+      // Vérifier le déblocage des améliorations basées sur le nombre total d'entrées
+      const updatedUpgrades = state.upgrades.map((upgrade) => {
+        if (upgrade.unlocked || upgrade.purchased) return upgrade;
+        
+        if (upgrade.requirement?.type === "totalEntries" && 
+            state.totalEntries + generatorOutput >= upgrade.requirement.count) {
+          return { ...upgrade, unlocked: true };
+        }
+        return upgrade;
       });
 
       const updatedAchievements = checkAchievements(state, {
-        entries: state.entries + earnedEntries,
-        totalEntries: state.totalEntries + earnedEntries,
+        entries: state.entries + generatorOutput,
+        totalEntries: state.totalEntries + generatorOutput,
         miniGames: updatedMiniGames,
-        famousAccountants: updatedFamousAccountants
+        famousAccountants: updatedFamousAccountants,
+        upgrades: updatedUpgrades
       });
 
       return {
         ...state,
-        entries: state.entries + earnedEntries,
-        totalEntries: state.totalEntries + earnedEntries,
-        lastTickAt: action.timestamp,
+        entries: state.entries + generatorOutput,
+        totalEntries: state.totalEntries + generatorOutput,
+        combo: comboExpired ? { ...state.combo, active: false, clicksInCombo: 0 } : state.combo,
+        activePowerUps: state.activePowerUps.filter(p => p.expiresAt > currentTime),
         achievements: updatedAchievements,
         miniGames: updatedMiniGames,
-        famousAccountants: updatedFamousAccountants
+        famousAccountants: updatedFamousAccountants,
+        upgrades: updatedUpgrades
       };
     }
 
@@ -626,11 +726,23 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       return state;
     }
 
-    case 'TOGGLE_DEBUG_MODE':
-      return {
+    case "TOGGLE_DEBUG_MODE": {
+      const newState = {
         ...state,
-        debugMode: !state.debugMode,
+        debugMode: !state.debugMode
       };
+      
+      toast.success(
+        newState.debugMode ? "🐞 Mode Debug Activé" : "🐞 Mode Debug Désactivé",
+        {
+          description: newState.debugMode 
+            ? "Multiplicateur x50 activé pour le développement"
+            : "Retour au mode normal"
+        }
+      );
+      
+      return newState;
+    }
 
     default:
       return state;

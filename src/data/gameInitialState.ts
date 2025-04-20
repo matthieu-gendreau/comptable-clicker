@@ -1,112 +1,175 @@
-import { Generator, Upgrade, Achievement, GameState, Prestige, TalentTree, MiniGame, FamousAccountant, FiscalSeason, FiscalObjective, FiscalSpecialization } from "@/types/game";
+import { GameGenerator, Upgrade, Achievement, GameState, Prestige, TalentTree, MiniGame, FamousAccountant, FiscalSeason, FiscalObjective, FiscalSpecialization } from "@/types/game";
 
-export const initialGenerators: Generator[] = [
+// Configuration du joueur débutant
+export const playerProgression = {
+  levels: [
+    { name: "Stagiaire", requiredXP: 0 },
+    { name: "Comptable Junior", requiredXP: 1000 },
+    { name: "Comptable Confirmé", requiredXP: 5000 },
+    { name: "Chef Comptable", requiredXP: 20000 },
+    { name: "Expert-Comptable", requiredXP: 100000 }
+  ]
+};
+
+export const initialGenerators: GameGenerator[] = [
+  // PHASE 1 : STAGIAIRE
   {
-    id: "junior_accountant",
-    name: "Stagiaire DCG",
-    description: "Sait à peine différencier un débit d'un crédit. Mais tellement enthousiaste ! Compte sur ses doigts et utilise encore une calculette Casio.",
-    baseCost: 10,
-    baseOutput: 1,
+    id: "intern_colleague",
+    name: "Collègue Stagiaire",
+    description: "Un autre stagiaire pour partager la charge de travail. Deux cerveaux valent mieux qu'un !",
+    baseCost: 25,
+    baseOutput: 0.2,
     count: 0,
     unlocked: true,
+    effects: {
+      training: 0.1 // Bonus d'apprentissage mutuel
+    }
   },
   {
-    id: "ocr_scanner",
-    name: "Scanner OCR",
-    description: "Reconnaissance automatique des factures. Plus besoin de déchiffrer les tickets de caisse froissés ! Même les notes de kebab sont lisibles.",
-    baseCost: 50,
-    baseOutput: 5,
+    id: "basic_calculator",
+    name: "Calculatrice de Bureau",
+    description: "Une calculatrice avec rouleau de papier. Un premier pas vers l'automatisation !",
+    baseCost: 100,
+    baseOutput: 0.5,
+    count: 0,
+    unlocked: false
+  },
+  // PHASE 2 : COMPTABLE JUNIOR
+  {
+    id: "excel_sheets",
+    name: "Classeurs Excel",
+    description: "Des formules Excel bien organisées. La puissance des tableaux croisés dynamiques !",
+    baseCost: 500,
+    baseOutput: 2,
+    count: 0,
+    unlocked: false,
+    effects: {
+      boost: 1.05 // Améliore légèrement tout le monde
+    }
+  },
+  {
+    id: "accounting_software",
+    name: "Logiciel Comptable",
+    description: "Un vrai logiciel de compta. Fini les erreurs d'arrondi !",
+    baseCost: 2000,
+    baseOutput: 6,
     count: 0,
     unlocked: false,
     pennylaneFeature: {
-      title: "Reconnaissance Automatique",
-      description: "Pennylane extrait automatiquement les informations de vos factures grâce à son OCR intelligent.",
-      shown: false,
-    },
+      title: "Interface Intuitive",
+      description: "Pennylane propose une interface moderne et intuitive pour la saisie comptable.",
+      shown: false
+    }
+  },
+  // PHASE 3 : COMPTABLE CONFIRMÉ
+  {
+    id: "junior_accountant",
+    name: "Comptable Junior",
+    description: "Un jeune comptable motivé. Il apprend vite et travaille bien !",
+    baseCost: 10000,
+    baseOutput: 20,
+    count: 0,
+    unlocked: false,
+    effects: {
+      training: 0.2
+    }
+  },
+  {
+    id: "ocr_system",
+    name: "Système OCR",
+    description: "Reconnaissance automatique des documents. La technologie au service de la comptabilité !",
+    baseCost: 25000,
+    baseOutput: 50,
+    count: 0,
+    unlocked: false,
+    pennylaneFeature: {
+      title: "OCR Intelligent",
+      description: "L'OCR de Pennylane extrait automatiquement les informations de vos documents.",
+      shown: false
+    }
+  },
+  // PHASE 4 : CHEF COMPTABLE
+  {
+    id: "senior_accountant",
+    name: "Comptable Senior",
+    description: "Un comptable expérimenté qui forme les juniors. Un vrai mentor !",
+    baseCost: 100000,
+    baseOutput: 150,
+    count: 0,
+    unlocked: false,
+    effects: {
+      boost: 1.15,
+      training: 0.5
+    }
   },
   {
     id: "bank_sync",
     name: "Synchronisation Bancaire",
-    description: "Connexion directe avec les banques. L'argent va plus vite que son ombre ! Mind the GAAP entre vos comptes.",
-    baseCost: 200,
-    baseOutput: 15,
+    description: "Connexion en temps réel avec les banques. L'argent n'attend pas !",
+    baseCost: 250000,
+    baseOutput: 400,
     count: 0,
     unlocked: false,
     pennylaneFeature: {
       title: "Multi-Banques",
       description: "Pennylane se connecte à toutes vos banques pour une réconciliation automatique.",
-      shown: false,
-    },
+      shown: false
+    }
+  },
+  // PHASE 5 : EXPERT-COMPTABLE
+  {
+    id: "accounting_team",
+    name: "Équipe Comptable",
+    description: "Une équipe complète et bien rodée. La force du collectif !",
+    baseCost: 1000000,
+    baseOutput: 1000,
+    count: 0,
+    unlocked: false,
+    effects: {
+      boost: 1.25
+    }
   },
   {
-    id: "ai_accountant",
-    name: "Robot Comptable IA",
-    description: "Catégorise automatiquement les transactions. Ne fait jamais d'erreur de TVA ! Comprend même les blagues comptables.",
-    baseCost: 1000,
-    baseOutput: 50,
+    id: "ai_assistant",
+    name: "Assistant IA",
+    description: "Un assistant virtuel intelligent qui ne dort jamais. Le futur est là !",
+    baseCost: 5000000,
+    baseOutput: 2500,
     count: 0,
     unlocked: false,
     pennylaneFeature: {
       title: "IA Comptable",
-      description: "L'IA de Pennylane catégorise automatiquement vos transactions avec une précision inégalée.",
-      shown: false,
-    },
-  },
-  {
-    id: "analytics_dashboard",
-    name: "Dashboard Analytics",
-    description: "Tableaux de bord en temps réel. Les graphiques sont tellement beaux qu'on en pleurerait ! Même les actuaires trouvent ça excitant.",
-    baseCost: 5000,
-    baseOutput: 200,
-    count: 0,
-    unlocked: false,
-    pennylaneFeature: {
-      title: "Reporting Intelligent",
-      description: "Pennylane génère automatiquement des rapports personnalisés pour piloter votre entreprise.",
-      shown: false,
-    },
-  },
-  {
-    id: "erp_connector",
-    name: "Connecteur ERP",
-    description: "Un seul outil pour les gouverner tous ! Tellement puissant qu'il pourrait même réconcilier les différences entre deux CPAs.",
-    baseCost: 20000,
-    baseOutput: 750,
-    count: 0,
-    unlocked: false,
-    pennylaneFeature: {
-      title: "Écosystème Complet",
-      description: "Pennylane s'intègre avec tous vos outils métier pour une gestion unifiée.",
-      shown: false,
-    },
+      description: "L'IA de Pennylane automatise les tâches répétitives et détecte les anomalies.",
+      shown: false
+    }
   }
 ];
 
 export const initialPrestigeUpgrades: Prestige[] = [
   {
-    id: "audit_mastery",
-    name: "Maîtrise de l'Audit",
-    description: "Votre expertise d'audit augmente tous les revenus de 50%. Même Sherlock Holmes est impressionné !",
-    multiplier: 1.5,
-    cost: 100,
+    id: "efficiency_expert",
+    name: "Expert en Efficacité",
+    description: "Vos méthodes de travail optimisées augmentent la productivité de 25%",
+    multiplier: 1.25,
+    cost: 1,
     unlocked: true,
     purchased: false
   },
   {
-    id: "tax_optimization",
-    name: "Optimisation Fiscale",
-    description: "Vos connaissances en optimisation fiscale doublent la production. 100% légal, promis !",
-    multiplier: 2,
-    cost: 250,
+    id: "team_management",
+    name: "Management d'Équipe",
+    description: "Vos compétences en gestion d'équipe augmentent la production de 50%",
+    multiplier: 1.5,
+    cost: 3,
     unlocked: false,
     purchased: false
   },
   {
-    id: "ifrs_master",
-    name: "Maître des IFRS",
-    description: "Votre maîtrise des normes internationales triple la production. Le monde entier vous envie !",
-    multiplier: 3,
-    cost: 1000,
+    id: "digital_transformation",
+    name: "Transformation Digitale",
+    description: "Votre expertise en digitalisation double la production",
+    multiplier: 2,
+    cost: 10,
     unlocked: false,
     purchased: false
   }
@@ -114,44 +177,44 @@ export const initialPrestigeUpgrades: Prestige[] = [
 
 export const initialTalentTree: TalentTree[] = [
   {
-    id: "tax_expert",
-    name: "Expert Fiscal",
-    description: "Chaque niveau augmente les gains de clic de 25%",
+    id: "typing_speed",
+    name: "Vitesse de Frappe",
+    description: "Chaque niveau augmente les gains par clic de 10%",
     level: 0,
-    maxLevel: 5,
-    cost: 10,
+    maxLevel: 10,
+    cost: 5,
     effect: (state) => ({
       ...state,
-      entriesPerClick: state.entriesPerClick * 1.25
+      entriesPerClick: state.entriesPerClick * 1.1
     })
   },
   {
-    id: "automation_specialist",
-    name: "Spécialiste Automation",
-    description: "Chaque niveau augmente la production des générateurs de 20%",
+    id: "team_training",
+    name: "Formation d'Équipe",
+    description: "Chaque niveau augmente la production de l'équipe de 10%",
     level: 0,
-    maxLevel: 5,
-    cost: 15,
+    maxLevel: 10,
+    cost: 8,
     effect: (state) => ({
       ...state,
       generators: state.generators.map(g => ({
         ...g,
-        baseOutput: g.baseOutput * 1.2
+        baseOutput: g.baseOutput * 1.1
       }))
     })
   },
   {
-    id: "financial_analyst",
-    name: "Analyste Financier",
-    description: "Chaque niveau réduit le coût des générateurs de 10%",
+    id: "resource_management",
+    name: "Gestion des Ressources",
+    description: "Chaque niveau réduit les coûts de 5%",
     level: 0,
-    maxLevel: 3,
-    cost: 20,
+    maxLevel: 5,
+    cost: 12,
     effect: (state) => ({
       ...state,
       generators: state.generators.map(g => ({
         ...g,
-        baseCost: g.baseCost * 0.9
+        baseCost: g.baseCost * 0.95
       }))
     })
   }
@@ -233,112 +296,387 @@ export const initialFamousAccountants: FamousAccountant[] = [
 ];
 
 export const initialUpgrades: Upgrade[] = [
+  // Améliorations de base (clics)
   {
-    id: "better_calculator",
-    name: "Calculatrice Connectée",
-    description: "Double votre puissance de clic. La calculette rejoint enfin le 21ème siècle !",
+    id: "faster_typing",
+    name: "Cours de Frappe",
+    description: "Double votre vitesse de saisie. Adieu la méthode deux doigts !",
     cost: 50,
-    purchased: false,
     unlocked: true,
+    purchased: false,
     effect: (state) => ({
       ...state,
-      entriesPerClick: state.entriesPerClick * 2,
-    }),
+      entriesPerClick: state.entriesPerClick * 2
+    })
   },
   {
-    id: "stats_unlock",
-    name: "Tableau de bord",
-    description: "Débloque l'accès aux statistiques détaillées de votre cabinet",
-    cost: 5000,
-    unlocked: false,
-    purchased: false,
-    requirement: {
-      type: "generator",
-      id: "ocr_scanner",
-      count: 5,
-    },
-    effect: (state) => state,
-  },
-  {
-    id: "ocr_boost",
-    name: "IA Vision Avancée",
-    description: "L'OCR est deux fois plus efficace. Même les tickets de kebab sont reconnus !",
+    id: "ergonomic_keyboard",
+    name: "Clavier Ergonomique",
+    description: "Un clavier adapté à la saisie intensive. Vos poignets vous remercient !",
     cost: 200,
-    purchased: false,
     unlocked: false,
-    requirement: {
-      type: "generator",
-      id: "ocr_scanner",
-      count: 3,
-    },
-    effect: (state) => {
-      return {
-        ...state,
-        generators: state.generators.map((g) =>
-          g.id === "ocr_scanner"
-            ? { ...g, baseOutput: g.baseOutput * 2 }
-            : g
-        ),
-      };
-    },
-    pennylaneFeature: {
-      title: "OCR Multi-Documents",
-      description: "Pennylane reconnaît tous types de documents : factures, tickets, notes de frais...",
-      shown: false,
-    },
+    purchased: false,
+    effect: (state) => ({
+      ...state,
+      entriesPerClick: state.entriesPerClick * 1.5
+    })
   },
   {
-    id: "instant_sync",
-    name: "Sync Temps Réel",
-    description: "Synchronisation bancaire 50% plus rapide. L'argent va plus vite que son ombre !",
+    id: "shortcut_mastery",
+    name: "Maîtrise des Raccourcis",
+    description: "CTRL+C, CTRL+V comme un pro ! Augmente les gains de clic de 75%",
     cost: 1000,
-    purchased: false,
     unlocked: false,
+    purchased: false,
+    effect: (state) => ({
+      ...state,
+      entriesPerClick: state.entriesPerClick * 1.75
+    })
+  },
+
+  // Améliorations Stagiaire
+  {
+    id: "intern_coffee",
+    name: "Machine à Café",
+    description: "Les stagiaires sont plus efficaces avec de la caféine. Production +50%",
+    cost: 150,
+    unlocked: false,
+    purchased: false,
     requirement: {
       type: "generator",
-      id: "bank_sync",
-      count: 3,
+      id: "intern_colleague",
+      count: 3
     },
-    effect: (state) => {
-      return {
-        ...state,
-        generators: state.generators.map((g) =>
-          g.id === "bank_sync" ? { ...g, baseOutput: g.baseOutput * 1.5 } : g
-        ),
-      };
-    },
-    pennylaneFeature: {
-      title: "Sync Instantanée",
-      description: "Les transactions bancaires sont synchronisées en temps réel dans Pennylane.",
-      shown: false,
-    },
+    effect: (state) => ({
+      ...state,
+      generators: state.generators.map(g =>
+        g.id === "intern_colleague" ? { ...g, baseOutput: g.baseOutput * 1.5 } : g
+      )
+    })
   },
   {
-    id: "ai_upgrade",
-    name: "IA GPT-4",
-    description: "L'IA est deux fois plus intelligente. Elle comprend même les blagues comptables !",
-    cost: 5000,
-    purchased: false,
+    id: "intern_mentoring",
+    name: "Programme de Mentorat",
+    description: "Un stagiaire bien formé en vaut deux ! Production +100%",
+    cost: 500,
     unlocked: false,
+    purchased: false,
     requirement: {
       type: "generator",
-      id: "ai_accountant",
-      count: 2,
+      id: "intern_colleague",
+      count: 5
     },
-    effect: (state) => {
-      return {
-        ...state,
-        generators: state.generators.map((g) =>
-          g.id === "ai_accountant" ? { ...g, baseOutput: g.baseOutput * 2 } : g
-        ),
-      };
-    },
-    pennylaneFeature: {
-      title: "IA Prédictive",
-      description: "L'IA de Pennylane anticipe et suggère les écritures comptables avant même leur saisie.",
-      shown: false,
-    },
+    effect: (state) => ({
+      ...state,
+      generators: state.generators.map(g =>
+        g.id === "intern_colleague" ? { ...g, baseOutput: g.baseOutput * 2 } : g
+      )
+    })
   },
+
+  // Améliorations Calculatrice
+  {
+    id: "calculator_memory",
+    name: "Touches Mémoire",
+    description: "Utilisation des touches M+, M-, MRC. Production +75%",
+    cost: 300,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "generator",
+      id: "basic_calculator",
+      count: 2
+    },
+    effect: (state) => ({
+      ...state,
+      generators: state.generators.map(g =>
+        g.id === "basic_calculator" ? { ...g, baseOutput: g.baseOutput * 1.75 } : g
+      )
+    })
+  },
+  {
+    id: "calculator_ribbon",
+    name: "Ruban Sans Fin",
+    description: "Plus besoin de changer le rouleau ! Production +100%",
+    cost: 1000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "generator",
+      id: "basic_calculator",
+      count: 5
+    },
+    effect: (state) => ({
+      ...state,
+      generators: state.generators.map(g =>
+        g.id === "basic_calculator" ? { ...g, baseOutput: g.baseOutput * 2 } : g
+      )
+    })
+  },
+
+  // Améliorations Excel
+  {
+    id: "excel_formulas",
+    name: "Formules Avancées",
+    description: "RECHERCHEV comme un champion ! Production +100%",
+    cost: 2000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "generator",
+      id: "excel_sheets",
+      count: 3
+    },
+    effect: (state) => ({
+      ...state,
+      generators: state.generators.map(g =>
+        g.id === "excel_sheets" ? { ...g, baseOutput: g.baseOutput * 2 } : g
+      )
+    })
+  },
+  {
+    id: "excel_macros",
+    name: "Macros VBA",
+    description: "Automatisation poussée avec VBA. Production +150% et bonus global +5%",
+    cost: 5000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "generator",
+      id: "excel_sheets",
+      count: 5
+    },
+    effect: (state) => ({
+      ...state,
+      generators: state.generators.map(g =>
+        g.id === "excel_sheets" 
+          ? { ...g, baseOutput: g.baseOutput * 2.5, effects: { ...g.effects, boost: (g.effects?.boost || 1) + 0.05 } }
+          : g
+      )
+    })
+  },
+
+  // Améliorations Logiciel Comptable
+  {
+    id: "software_templates",
+    name: "Modèles d'Écritures",
+    description: "Écritures récurrentes pré-enregistrées. Production +100%",
+    cost: 10000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "generator",
+      id: "accounting_software",
+      count: 2
+    },
+    effect: (state) => ({
+      ...state,
+      generators: state.generators.map(g =>
+        g.id === "accounting_software" ? { ...g, baseOutput: g.baseOutput * 2 } : g
+      )
+    }),
+    pennylaneFeature: {
+      title: "Modèles Intelligents",
+      description: "Pennylane apprend de vos habitudes pour suggérer les bonnes écritures",
+      shown: false
+    }
+  },
+  {
+    id: "software_api",
+    name: "API Connectée",
+    description: "Connexion avec vos autres outils. Production +200%",
+    cost: 25000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "generator",
+      id: "accounting_software",
+      count: 5
+    },
+    effect: (state) => ({
+      ...state,
+      generators: state.generators.map(g =>
+        g.id === "accounting_software" ? { ...g, baseOutput: g.baseOutput * 3 } : g
+      )
+    }),
+    pennylaneFeature: {
+      title: "API Ouverte",
+      description: "Pennylane s'intègre avec tout votre écosystème logiciel",
+      shown: false
+    }
+  },
+
+  // Améliorations Comptable Junior
+  {
+    id: "junior_training",
+    name: "Formation Continue",
+    description: "Formations régulières pour vos juniors. Production +100% et bonus formation +10%",
+    cost: 50000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "generator",
+      id: "junior_accountant",
+      count: 3
+    },
+    effect: (state) => ({
+      ...state,
+      generators: state.generators.map(g =>
+        g.id === "junior_accountant" 
+          ? { ...g, baseOutput: g.baseOutput * 2, effects: { ...g.effects, training: (g.effects?.training || 0) + 0.1 } }
+          : g
+      )
+    })
+  },
+  {
+    id: "junior_specialization",
+    name: "Spécialisation Sectorielle",
+    description: "Chaque junior se spécialise dans un secteur. Production +150%",
+    cost: 100000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "generator",
+      id: "junior_accountant",
+      count: 5
+    },
+    effect: (state) => ({
+      ...state,
+      generators: state.generators.map(g =>
+        g.id === "junior_accountant" ? { ...g, baseOutput: g.baseOutput * 2.5 } : g
+      )
+    })
+  },
+
+  // Améliorations OCR
+  {
+    id: "ocr_ai",
+    name: "IA Avancée",
+    description: "Reconnaissance plus précise avec l'IA. Production +150%",
+    cost: 150000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "generator",
+      id: "ocr_system",
+      count: 2
+    },
+    effect: (state) => ({
+      ...state,
+      generators: state.generators.map(g =>
+        g.id === "ocr_system" ? { ...g, baseOutput: g.baseOutput * 2.5 } : g
+      )
+    }),
+    pennylaneFeature: {
+      title: "IA de Pointe",
+      description: "L'IA de Pennylane comprend même les documents manuscrits",
+      shown: false
+    }
+  },
+
+  // Améliorations globales
+  {
+    id: "office_coffee",
+    name: "Café de Qualité",
+    description: "Du vrai café en grains. Tout le monde est plus efficace ! Production globale +10%",
+    cost: 5000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "totalEntries",
+      id: "total_entries_10k",
+      count: 10000
+    },
+    effect: (state) => ({
+      ...state,
+      generators: state.generators.map(g => ({
+        ...g,
+        baseOutput: g.baseOutput * 1.1
+      }))
+    })
+  },
+  {
+    id: "team_building",
+    name: "Team Building",
+    description: "Une équipe soudée est plus efficace. Production globale +25%",
+    cost: 25000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "totalEntries",
+      id: "total_entries_50k",
+      count: 50000
+    },
+    effect: (state) => ({
+      ...state,
+      generators: state.generators.map(g => ({
+        ...g,
+        baseOutput: g.baseOutput * 1.25
+      }))
+    })
+  },
+  {
+    id: "office_renovation",
+    name: "Rénovation des Bureaux",
+    description: "Un environnement agréable booste la productivité. Production globale +50%",
+    cost: 100000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "totalEntries",
+      id: "total_entries_200k",
+      count: 200000
+    },
+    effect: (state) => ({
+      ...state,
+      generators: state.generators.map(g => ({
+        ...g,
+        baseOutput: g.baseOutput * 1.5
+      }))
+    })
+  },
+
+  // Améliorations combo
+  {
+    id: "combo_training",
+    name: "Formation Concentration",
+    description: "Gardez votre concentration plus longtemps. Durée du combo +1 seconde",
+    cost: 1000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "clickCount",
+      id: "click_count_100",
+      count: 100
+    },
+    effect: (state) => ({
+      ...state,
+      combo: {
+        ...state.combo,
+        comboTimeWindow: state.combo.comboTimeWindow + 1000
+      }
+    })
+  },
+  {
+    id: "combo_mastery",
+    name: "Maîtrise du Rythme",
+    description: "Vos combos sont plus puissants. Multiplicateur maximum +0.5",
+    cost: 5000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "clickCount",
+      id: "click_count_500",
+      count: 500
+    },
+    effect: (state) => ({
+      ...state,
+      combo: {
+        ...state.combo,
+        maxMultiplier: state.combo.maxMultiplier + 0.5
+      }
+    })
+  }
 ];
 
 export const initialAchievements: Achievement[] = [
@@ -617,5 +955,18 @@ export const initialGameState: GameState = {
     tree: initialTalentTree
   },
   miniGames: initialMiniGames,
-  famousAccountants: initialFamousAccountants
+  famousAccountants: initialFamousAccountants,
+  combo: {
+    active: false,
+    multiplier: 1,
+    clicksInCombo: 0,
+    lastClickTime: 0,
+    maxMultiplier: 2,
+    comboTimeWindow: 3000 // 3 secondes pour plus de confort
+  },
+  activePowerUps: [],
+  level: {
+    current: 0,
+    xp: 0
+  }
 };

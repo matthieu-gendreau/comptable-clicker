@@ -1,4 +1,4 @@
-export type Generator = {
+export interface GameGenerator {
   id: string;
   name: string;
   description: string;
@@ -6,12 +6,17 @@ export type Generator = {
   baseOutput: number;
   count: number;
   unlocked: boolean;
+  effects?: {
+    boost?: number;
+    training?: number;
+  };
   pennylaneFeature?: {
     title: string;
     description: string;
     shown: boolean;
   };
-};
+  requiresPrestige?: boolean;
+}
 
 export type Upgrade = {
   id: string;
@@ -119,19 +124,44 @@ export type FiscalSpecialization = {
   type: "production" | "click" | "global" | "bonus";
 };
 
+export interface ComboSystem {
+  active: boolean;
+  clicksInCombo: number;
+  multiplier: number;
+  lastClickTime: number;
+  maxMultiplier: number;
+  comboTimeWindow: number;
+}
+
+export type PowerUp = {
+  id: string;
+  type: "click" | "production" | "combo";
+  multiplier: number;
+  duration: number;
+  active: boolean;
+  expiresAt?: number;
+};
+
+export type Level = {
+  current: number;
+  xp: number;
+};
+
 export type GameState = {
   entries: number;
   totalEntries: number;
   entriesPerClick: number;
   entriesPerSecond: number;
   clickCount: number;
-  generators: Generator[];
+  generators: GameGenerator[];
   upgrades: Upgrade[];
   achievements: Achievement[];
   debugMode: boolean;
   gameStartedAt: number;
   lastTickAt: number;
   lastSavedAt: number;
+  combo: ComboSystem;
+  activePowerUps: PowerUp[];
   prestige: {
     points: number;
     multiplier: number;
@@ -147,6 +177,7 @@ export type GameState = {
   };
   miniGames: MiniGame[];
   famousAccountants: FamousAccountant[];
+  level: Level;
 };
 
 export type GameAction =
