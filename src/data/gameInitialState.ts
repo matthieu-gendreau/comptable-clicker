@@ -6,73 +6,87 @@ export const initialGenerators: Generator[] = [
     name: "Stagiaire DCG",
     description: "Sait à peine différencier un débit d'un crédit. Mais tellement enthousiaste !",
     baseCost: 10,
-    baseOutput: 0.1,
+    baseOutput: 1,
     count: 0,
     unlocked: true,
   },
   {
-    id: "senior_accountant",
-    name: "Comptable Expérimenté",
-    description: "Son café est aussi noir que ses tableaux Excel. Un vrai ninja des écritures.",
-    baseCost: 100,
-    baseOutput: 1,
+    id: "ocr_scanner",
+    name: "Scanner OCR",
+    description: "Reconnaissance automatique des factures. Plus besoin de déchiffrer les tickets de caisse froissés !",
+    baseCost: 50,
+    baseOutput: 5,
     count: 0,
     unlocked: false,
     pennylaneFeature: {
-      title: "Saisie Automatique",
-      description: "Pennylane automatise la saisie des écritures comptables grâce à l'IA.",
+      title: "Reconnaissance Automatique",
+      description: "Pennylane extrait automatiquement les informations de vos factures grâce à son OCR intelligent.",
       shown: false,
     },
   },
   {
-    id: "accounting_software",
-    name: "Cegid",
-    description: "L'interface est restée bloquée en 2005. Les bugs sont des 'fonctionnalités spéciales'.",
+    id: "bank_sync",
+    name: "Synchronisation Bancaire",
+    description: "Connexion directe avec les banques. Fini les relevés bancaires en PDF !",
+    baseCost: 200,
+    baseOutput: 15,
+    count: 0,
+    unlocked: false,
+    pennylaneFeature: {
+      title: "Multi-Banques",
+      description: "Pennylane se connecte à toutes vos banques pour une réconciliation automatique.",
+      shown: false,
+    },
+  },
+  {
+    id: "ai_accountant",
+    name: "Robot Comptable IA",
+    description: "Catégorise automatiquement les transactions. Ne fait jamais d'erreur de TVA !",
     baseCost: 1000,
-    baseOutput: 8,
+    baseOutput: 50,
     count: 0,
     unlocked: false,
     pennylaneFeature: {
-      title: "Interface Intuitive",
-      description: "Le tableau de bord Pennylane permet de visualiser en temps réel votre situation comptable.",
+      title: "IA Comptable",
+      description: "L'IA de Pennylane catégorise automatiquement vos transactions avec une précision inégalée.",
       shown: false,
     },
   },
   {
-    id: "erp_system",
-    name: "Système ERP Capricieux",
-    description: "Requiert 17 mots de passe différents et une offrande au dieu de l'informatique.",
-    baseCost: 10000,
-    baseOutput: 47,
+    id: "analytics_dashboard",
+    name: "Dashboard Analytics",
+    description: "Tableaux de bord en temps réel. Les graphiques sont tellement beaux qu'on en pleurerait !",
+    baseCost: 5000,
+    baseOutput: 200,
     count: 0,
     unlocked: false,
     pennylaneFeature: {
-      title: "Intégration Complète",
-      description: "Pennylane s'intègre avec tout votre écosystème pour une comptabilité sans silo.",
+      title: "Reporting Intelligent",
+      description: "Pennylane génère automatiquement des rapports personnalisés pour piloter votre entreprise.",
       shown: false,
     },
   },
   {
-    id: "ai_assistant",
-    name: "IA Assistante Comptable",
-    description: "Ne prend jamais de pause café mais a tendance à philosopher sur le sens des chiffres.",
-    baseCost: 50000,
-    baseOutput: 260,
+    id: "erp_connector",
+    name: "Connecteur ERP",
+    description: "Intégration avec tous vos outils. Un seul outil pour les gouverner tous !",
+    baseCost: 20000,
+    baseOutput: 750,
     count: 0,
     unlocked: false,
     pennylaneFeature: {
-      title: "Assistant Intelligent",
-      description: "L'IA de Pennylane aide à la prise de décision avec des analyses prédictives.",
+      title: "Écosystème Complet",
+      description: "Pennylane s'intègre avec tous vos outils métier pour une gestion unifiée.",
       shown: false,
     },
-  },
+  }
 ];
 
 export const initialUpgrades: Upgrade[] = [
   {
     id: "better_calculator",
-    name: "Calculatrice Scientifique",
-    description: "Double votre puissance de clic. La calculette de poche ne suffit plus !",
+    name: "Calculatrice Connectée",
+    description: "Double votre puissance de clic. La calculette rejoint enfin le 21ème siècle !",
     cost: 50,
     purchased: false,
     unlocked: true,
@@ -82,82 +96,82 @@ export const initialUpgrades: Upgrade[] = [
     }),
   },
   {
-    id: "training_program",
-    name: "Formation Express",
-    description: "Les stagiaires sont deux fois plus efficaces. Ils ont enfin compris la différence entre TVA et TTC !",
+    id: "ocr_boost",
+    name: "IA Vision Avancée",
+    description: "L'OCR est deux fois plus efficace. Même les tickets de kebab sont reconnus !",
     cost: 200,
     purchased: false,
     unlocked: false,
     requirement: {
       type: "generator",
-      id: "junior_accountant",
-      count: 5,
-    },
-    effect: (state) => {
-      return {
-        ...state,
-        generators: state.generators.map((g) =>
-          g.id === "junior_accountant"
-            ? { ...g, baseOutput: g.baseOutput * 2 }
-            : g
-        ),
-      };
-    },
-    pennylaneFeature: {
-      title: "Formation Automatisée",
-      description: "Pennylane offre une interface intuitive qui réduit le temps de formation des nouveaux utilisateurs.",
-      shown: false,
-    },
-  },
-  {
-    id: "ergonomic_chairs",
-    name: "Chaises Ergonomiques",
-    description: "Tous les employés travaillent 50% plus vite. Le mal de dos était donc un vrai problème !",
-    cost: 1000,
-    purchased: false,
-    unlocked: false,
-    requirement: {
-      type: "generator",
-      id: "senior_accountant",
+      id: "ocr_scanner",
       count: 3,
     },
     effect: (state) => {
       return {
         ...state,
         generators: state.generators.map((g) =>
-          g.id.includes("accountant") ? { ...g, baseOutput: g.baseOutput * 1.5 } : g
+          g.id === "ocr_scanner"
+            ? { ...g, baseOutput: g.baseOutput * 2 }
+            : g
         ),
       };
     },
     pennylaneFeature: {
-      title: "Confort Utilisateur",
-      description: "La conception ergonomique de Pennylane réduit le temps passé sur les tâches comptables.",
+      title: "OCR Multi-Documents",
+      description: "Pennylane reconnaît tous types de documents : factures, tickets, notes de frais...",
       shown: false,
     },
   },
   {
-    id: "cloud_upgrade",
-    name: "Migration Cloud",
-    description: "Performance des logiciels augmentée de 100%. Adieu serveur dans le placard à balais !",
+    id: "instant_sync",
+    name: "Sync Temps Réel",
+    description: "Synchronisation bancaire 50% plus rapide. L'argent va plus vite que son ombre !",
+    cost: 1000,
+    purchased: false,
+    unlocked: false,
+    requirement: {
+      type: "generator",
+      id: "bank_sync",
+      count: 3,
+    },
+    effect: (state) => {
+      return {
+        ...state,
+        generators: state.generators.map((g) =>
+          g.id === "bank_sync" ? { ...g, baseOutput: g.baseOutput * 1.5 } : g
+        ),
+      };
+    },
+    pennylaneFeature: {
+      title: "Sync Instantanée",
+      description: "Les transactions bancaires sont synchronisées en temps réel dans Pennylane.",
+      shown: false,
+    },
+  },
+  {
+    id: "ai_upgrade",
+    name: "IA GPT-4",
+    description: "L'IA est deux fois plus intelligente. Elle comprend même les blagues comptables !",
     cost: 5000,
     purchased: false,
     unlocked: false,
     requirement: {
       type: "generator",
-      id: "accounting_software",
+      id: "ai_accountant",
       count: 2,
     },
     effect: (state) => {
       return {
         ...state,
         generators: state.generators.map((g) =>
-          g.id === "accounting_software" ? { ...g, baseOutput: g.baseOutput * 2 } : g
+          g.id === "ai_accountant" ? { ...g, baseOutput: g.baseOutput * 2 } : g
         ),
       };
     },
     pennylaneFeature: {
-      title: "Plateforme Cloud",
-      description: "Pennylane fonctionne entièrement dans le cloud, permettant un accès de partout avec des mises à jour automatiques.",
+      title: "IA Prédictive",
+      description: "L'IA de Pennylane anticipe et suggère les écritures comptables avant même leur saisie.",
       shown: false,
     },
   },
@@ -166,41 +180,44 @@ export const initialUpgrades: Upgrade[] = [
 export const initialAchievements: Achievement[] = [
   {
     id: "first_entry",
-    name: "Premier Pas Comptable",
-    description: "Votre première écriture comptable. Le début d'une grande aventure financière !",
+    name: "Premier Pas Digital",
+    description: "Votre première écriture automatisée. Bienvenue dans le futur de la comptabilité !",
     unlocked: false,
     hidden: false,
     condition: (state) => state.totalEntries >= 1,
   },
   {
-    id: "click_100",
-    name: "Doigts de Comptable",
-    description: "100 écritures saisies manuellement. Vous êtes officiellement accro à la calculette !",
+    id: "digital_pioneer",
+    name: "Pionnier Digital",
+    description: "100 écritures automatisées. La transformation digitale est en marche !",
     unlocked: false,
     hidden: false,
     condition: (state) => state.clickCount >= 100,
   },
   {
-    id: "hire_team",
-    name: "Chef Comptable",
-    description: "Embauchez 10 comptables au total. Votre équipe est plus grande que votre cuisine !",
+    id: "automation_master",
+    name: "Maître de l'Automatisation",
+    description: "Possédez au moins un exemplaire de chaque générateur. Votre comptabilité est full-stack !",
     unlocked: false,
     hidden: false,
-    condition: (state) => {
-      const totalAccountants = state.generators
-        .filter((g) => g.id.includes("accountant"))
-        .reduce((total, g) => total + g.count, 0);
-      return totalAccountants >= 10;
-    },
+    condition: (state) => state.generators.every(g => g.count > 0),
   },
   {
-    id: "entries_master",
-    name: "Maître des Comptes",
-    description: "Accumulez 1 000 000 d'écritures au total. Votre cerveau pense maintenant en partie double !",
+    id: "efficiency_expert",
+    name: "Expert en Efficacité",
+    description: "Atteignez 1000 écritures par seconde. Votre productivité est over 9000 !",
+    unlocked: false,
+    hidden: false,
+    condition: (state) => state.entriesPerSecond >= 1000,
+  },
+  {
+    id: "digital_revolution",
+    name: "Révolution Digitale",
+    description: "Accumulez 1 million d'écritures automatisées. La comptabilité manuelle appartient au passé !",
     unlocked: false,
     hidden: false,
     condition: (state) => state.totalEntries >= 1000000,
-  },
+  }
 ];
 
 export const initialGameState: GameState = {
