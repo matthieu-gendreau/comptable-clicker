@@ -1,107 +1,137 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useGameState } from "@/context/GameStateContext";
-import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Info, X } from "lucide-react";
+import { motion } from "framer-motion";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { calculateGeneratorCost } from "@/reducers/gameReducer";
-import { formatNumber } from "@/lib/utils";
-import { Info } from "lucide-react";
+import { GameGenerator } from "@/types/game";
 
-const Collaborators: React.FC = () => {
+const Generators: React.FC = () => {
   const { state, dispatch } = useGameState();
 
-  const handleBuyGenerator = (id: string) => {
-    dispatch({ type: "BUY_GENERATOR", id });
-  };
-
-  const handleShowFeature = (id: string) => {
-    dispatch({ type: "SHOW_FEATURE", id: `generator:${id}` });
+  const formatNumber = (num: number) => {
+    return new Intl.NumberFormat("fr-FR").format(num);
   };
 
   return (
     <Card>
-      <CardContent className="pt-6">
+      <CardHeader>
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>Collaborateurs</CardTitle>
             <CardDescription>
-              Recrutez des collaborateurs pour votre cabinet !
+              Automatisez votre production d'écritures !
             </CardDescription>
           </div>
+          <Badge variant="outline" className="text-lg">
+            {formatNumber(state.entriesPerSecond)}/s
+          </Badge>
         </div>
-
-        <div className="mt-4 space-y-4">
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
           {state.generators
             .filter((generator) => generator.unlocked)
             .map((generator) => {
-              const cost = calculateGeneratorCost(
-                generator.baseCost,
-                generator.count
-              );
-              const canAfford = state.entries >= cost;
+              const cost = calculateGeneratorCost(generator.baseCost, generator.count);
+              const canBuy = state.entries >= cost;
+              const output = generator.baseOutput * generator.count;
+              const hasFeature = generator.pennylaneFeature;
+              const featureShown = hasFeature && generator.pennylaneFeature?.shown;
 
               return (
-                <div
-                  key={generator.id}
-                  className="flex items-center justify-between gap-4"
+                <motion.div 
+                  key={generator.id} 
+                  className={`p-3 rounded-md border ${canBuy ? "border-pennylane-light-gray" : "border-gray-200 opacity-80"}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
                 >
-                  <div className="flex-1 space-y-1">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-medium leading-none">
-                        {generator.name}
-                      </h4>
-                      {generator.pennylaneFeature && !generator.pennylaneFeature.shown && (
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-4 w-4 text-blue-500"
-                                onClick={() => handleShowFeature(generator.id)}
-                              >
-                                <Info className="h-4 w-4" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Découvrez une fonctionnalité Pennylane !</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      )}
+                  <div className="flex flex-col sm:flex-row sm:items-start gap-3">
+                    <div className="flex-1">
+                      <div className="flex items-center mb-1">
+                        <h3 className="font-medium">{generator.name}</h3>
+                        {hasFeature && !featureShown && (
+                          <button 
+                            onClick={() => dispatch({
+                              type: "SHOW_FEATURE",
+                              id: `generator:${generator.id}`,
+                            })}
+                            className="ml-2 text-[#003d3d] hover:text-green-800 transition-colors"
+                          >
+                            <Info size={16} />
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-xs text-pennylane-gray">{generator.description}</p>
+                      <div className="text-sm mt-1">
+                        <span className="font-medium">{generator.count}</span> possédés
+                        {output > 0 && (
+                          <span className="ml-2 text-[#003d3d]">
+                            {formatNumber(Math.floor(output))} écritures/sec
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      {generator.description}
-                    </p>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <span>
-                        Production : {formatNumber(generator.baseOutput)}/s
-                      </span>
-                      <span>•</span>
-                      <span>Possédés : {generator.count}</span>
+                    <div className="flex-shrink-0">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              onClick={() => dispatch({
+                                type: "BUY_GENERATOR",
+                                id: generator.id,
+                              })} 
+                              disabled={!canBuy}
+                              size="sm" 
+                              className={canBuy 
+                                ? "bg-[#003d3d] hover:bg-green-800 w-full sm:w-auto" 
+                                : "bg-gray-300 w-full sm:w-auto"
+                              }
+                            >
+                              {formatNumber(Math.floor(cost))} écritures
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top">
+                            <p>Génère {formatNumber(generator.baseOutput)} écritures par seconde</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline">
-                      {formatNumber(cost)} entrées
-                    </Badge>
-                    <Button
-                      variant={canAfford ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => handleBuyGenerator(generator.id)}
-                      disabled={!canAfford}
+                  {hasFeature && featureShown && (
+                    <motion.div 
+                      className="mt-3 p-2 bg-pennylane-yellow rounded border border-yellow-300 text-sm relative"
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      transition={{ duration: 0.3 }}
                     >
-                      Recruter
-                    </Button>
-                  </div>
-                </div>
+                      <button 
+                        onClick={() => dispatch({
+                          type: "SHOW_FEATURE",
+                          id: `generator:${generator.id}`,
+                        })}
+                        className="absolute right-1 top-1 text-[#003d3d] hover:text-green-800 transition-colors"
+                      >
+                        <X size={14} />
+                      </button>
+                      <div className="font-medium text-[#003d3d]">
+                        ✨ {generator.pennylaneFeature?.title}
+                      </div>
+                      <div className="text-xs mt-1">{generator.pennylaneFeature?.description}</div>
+                    </motion.div>
+                  )}
+                </motion.div>
               );
             })}
         </div>
@@ -110,4 +140,4 @@ const Collaborators: React.FC = () => {
   );
 };
 
-export default Collaborators;
+export default Generators;
