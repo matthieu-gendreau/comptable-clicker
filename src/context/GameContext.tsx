@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useReducer } from "react";
 import { GameState, GameAction } from "@/types/game";
 import { gameReducer } from "@/reducers/gameReducer";
@@ -69,6 +68,35 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
   }, []);
+
+  // Feature auto-hide
+  useEffect(() => {
+    const timeouts: NodeJS.Timeout[] = [];
+
+    // Check generators
+    state.generators.forEach(generator => {
+      if (generator.pennylaneFeature?.shown) {
+        const timeout = setTimeout(() => {
+          dispatch({ type: "SHOW_FEATURE", id: `generator:${generator.id}` });
+        }, 10000);
+        timeouts.push(timeout);
+      }
+    });
+
+    // Check upgrades
+    state.upgrades.forEach(upgrade => {
+      if (upgrade.pennylaneFeature?.shown) {
+        const timeout = setTimeout(() => {
+          dispatch({ type: "SHOW_FEATURE", id: `upgrade:${upgrade.id}` });
+        }, 10000);
+        timeouts.push(timeout);
+      }
+    });
+
+    return () => {
+      timeouts.forEach(timeout => clearTimeout(timeout));
+    };
+  }, [state.generators, state.upgrades]);
 
   // Achievement notifications
   useEffect(() => {

@@ -1,8 +1,7 @@
-
-import React from "react";
+import React, { useEffect } from "react";
 import { useGame } from "@/context/GameContext";
 import { Button } from "@/components/ui/button";
-import { Info } from "lucide-react";
+import { Info, X } from "lucide-react";
 import { motion } from "framer-motion";
 
 const Upgrades: React.FC = () => {
@@ -101,6 +100,15 @@ const Upgrades: React.FC = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3 }}
                     >
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          showFeature(`upgrade:${upgrade.id}`);
+                        }}
+                        className="absolute right-1 top-1 text-[#003d3d] hover:text-green-800 transition-colors"
+                      >
+                        <X size={14} />
+                      </button>
                       <div className="font-medium text-[#003d3d] text-xs">
                         ✨ {upgrade.pennylaneFeature?.title}
                       </div>

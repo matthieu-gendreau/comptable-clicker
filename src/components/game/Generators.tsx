@@ -1,9 +1,8 @@
-
-import React from "react";
+import React, { useEffect } from "react";
 import { useGame } from "@/context/GameContext";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Info } from "lucide-react";
+import { Info, X } from "lucide-react";
 import { motion } from "framer-motion";
 
 const Generators: React.FC = () => {
@@ -18,7 +17,7 @@ const Generators: React.FC = () => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 max-w-2xl">
       <h2 className="text-xl font-bold border-b pb-2 border-pennylane-light-gray">Personnel Comptable</h2>
       <div className="space-y-3">
         {state.generators
@@ -27,7 +26,7 @@ const Generators: React.FC = () => {
             const cost = calculateGeneratorCost(generator.baseCost, generator.count);
             const canAfford = state.entries >= cost;
             const output = generator.baseOutput * generator.count;
-            const hasFeature = generator.pennylaneFeature && generator.count > 0;
+            const hasFeature = generator.pennylaneFeature;
             const featureShown = hasFeature && generator.pennylaneFeature?.shown;
 
             return (
@@ -38,9 +37,9 @@ const Generators: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="flex items-center">
+                <div className="flex flex-col sm:flex-row sm:items-start gap-3">
+                  <div className="flex-1">
+                    <div className="flex items-center mb-1">
                       <h3 className="font-medium">{generator.name}</h3>
                       {hasFeature && !featureShown && (
                         <button 
@@ -61,36 +60,43 @@ const Generators: React.FC = () => {
                       )}
                     </div>
                   </div>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button 
-                          onClick={() => buyGenerator(generator.id)} 
-                          disabled={!canAfford}
-                          size="sm" 
-                          className={canAfford 
-                            ? "bg-[#003d3d] hover:bg-green-800" 
-                            : "bg-gray-300"
-                          }
-                        >
-                          {formatEntries(Math.floor(cost))} écritures
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent side="top">
-                        <p>Génère {formatEntries(generator.baseOutput)} écritures par seconde</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <div className="flex-shrink-0">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button 
+                            onClick={() => buyGenerator(generator.id)} 
+                            disabled={!canAfford}
+                            size="sm" 
+                            className={canAfford 
+                              ? "bg-[#003d3d] hover:bg-green-800 w-full sm:w-auto" 
+                              : "bg-gray-300 w-full sm:w-auto"
+                            }
+                          >
+                            {formatEntries(Math.floor(cost))} écritures
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="top">
+                          <p>Génère {formatEntries(generator.baseOutput)} écritures par seconde</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                 </div>
 
-                {/* Pennylane Feature Banner */}
                 {hasFeature && featureShown && (
                   <motion.div 
-                    className="mt-3 p-2 bg-pennylane-yellow rounded border border-yellow-300 text-sm"
+                    className="mt-3 p-2 bg-pennylane-yellow rounded border border-yellow-300 text-sm relative"
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     transition={{ duration: 0.3 }}
                   >
+                    <button 
+                      onClick={() => showFeature(`generator:${generator.id}`)}
+                      className="absolute right-1 top-1 text-[#003d3d] hover:text-green-800 transition-colors"
+                    >
+                      <X size={14} />
+                    </button>
                     <div className="font-medium text-[#003d3d]">
                       ✨ {generator.pennylaneFeature?.title}
                     </div>
