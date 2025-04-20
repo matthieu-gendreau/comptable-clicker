@@ -1,34 +1,23 @@
 import React from "react";
+import { useGameState } from "@/context/GameStateContext";
 import { Button } from "@/components/ui/button";
-import { useGame } from "@/context/GameContext";
 import { Bug } from "lucide-react";
 
 const Header: React.FC = () => {
-  const { state, resetGame, toggleDebugMode } = useGame();
-  
+  const { state, dispatch } = useGameState();
+
+  const toggleDebugMode = () => {
+    dispatch({ type: "TOGGLE_DEBUG_MODE" });
+  };
+
   return (
     <header className="flex justify-between items-center h-14 px-6">
       <h1 className="text-xl font-semibold tracking-tight text-[#003D3D]">
-        <span className="font-bold">Pennylane</span>
-        {" "}
-        <span className="font-medium">clicker</span>
+        Pennylane Clicker
       </h1>
-      <div className="flex gap-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={toggleDebugMode}
-          className={`text-[#003D3D] hover:bg-[#003D3D] hover:text-white ${state.debugMode ? 'bg-[#003D3D] text-white' : ''}`}
-        >
-          <Bug className="w-4 h-4" />
-        </Button>
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={resetGame}
-          className="border-[#003D3D] text-[#003D3D] hover:bg-[#003D3D] hover:text-white"
-        >
-          Réinitialiser
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" onClick={toggleDebugMode}>
+          <Bug className={state.debugMode ? "text-primary" : "text-muted-foreground"} />
         </Button>
       </div>
     </header>
