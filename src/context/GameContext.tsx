@@ -11,6 +11,7 @@ type GameContextType = {
   buyUpgrade: (id: string) => void;
   resetGame: () => void;
   showFeature: (id: string) => void;
+  toggleDebugMode: () => void;
 };
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -125,6 +126,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     },
     showFeature: (id) => dispatch({ type: "SHOW_FEATURE", id }),
+    toggleDebugMode: () => dispatch({ type: "TOGGLE_DEBUG_MODE" }),
   };
 
   return (

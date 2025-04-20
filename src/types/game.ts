@@ -1,4 +1,3 @@
-
 export type Generator = {
   id: string;
   name: string;
@@ -55,6 +54,7 @@ export type GameState = {
   gameStartedAt: number;
   lastSavedAt: number;
   lastTickAt: number;
+  debugMode: boolean;
 };
 
 export type GameAction =
@@ -64,4 +64,5 @@ export type GameAction =
   | { type: "TICK"; timestamp: number }
   | { type: "LOAD_GAME"; state: GameState }
   | { type: "RESET_GAME" }
-  | { type: "SHOW_FEATURE"; id: string };
+  | { type: "SHOW_FEATURE"; id: string }
+  | { type: "TOGGLE_DEBUG_MODE" };
