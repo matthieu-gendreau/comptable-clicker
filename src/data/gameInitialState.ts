@@ -1,17 +1,14 @@
-import { GameGenerator, Upgrade, Achievement, GameState, Prestige, TalentTree, MiniGame, FamousAccountant, FiscalSeason, FiscalObjective, FiscalSpecialization } from "@/types/game";
+import { GameCollaborator, Upgrade, Achievement, GameState, Prestige, TalentTree, MiniGame, FamousAccountant, FiscalSeason, FiscalObjective, FiscalSpecialization } from "@/types/game";
+import { initialFeaturesState } from "@/reducers/features/featureReducer";
 
 // Configuration du joueur débutant
 export const playerProgression = {
-  levels: [
-    { name: "Stagiaire", requiredXP: 0 },
-    { name: "Comptable Junior", requiredXP: 1000 },
-    { name: "Comptable Confirmé", requiredXP: 5000 },
-    { name: "Chef Comptable", requiredXP: 20000 },
-    { name: "Expert-Comptable", requiredXP: 100000 }
-  ]
+  // Configuration de base du joueur
+  baseClickValue: 1,
+  baseMultiplier: 1
 };
 
-export const initialGenerators: GameGenerator[] = [
+export const initialCollaborators: GameCollaborator[] = [
   // PHASE 1 : STAGIAIRE
   {
     id: "intern_colleague",
@@ -197,7 +194,7 @@ export const initialTalentTree: TalentTree[] = [
     cost: 8,
     effect: (state) => ({
       ...state,
-      generators: state.generators.map(g => ({
+      collaborators: state.collaborators.map(g => ({
         ...g,
         baseOutput: g.baseOutput * 1.1
       }))
@@ -212,7 +209,7 @@ export const initialTalentTree: TalentTree[] = [
     cost: 12,
     effect: (state) => ({
       ...state,
-      generators: state.generators.map(g => ({
+      collaborators: state.collaborators.map(g => ({
         ...g,
         baseCost: g.baseCost * 0.95
       }))
@@ -326,6 +323,28 @@ export const initialFamousAccountants: FamousAccountant[] = [
 ];
 
 export const initialUpgrades: Upgrade[] = [
+  {
+    id: "linkedin_premium",
+    name: "LinkedIn Premium",
+    description: "Débloque le Cabinet de Recrutement et permet d'embaucher des comptables célèbres",
+    cost: 1000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "totalEntries",
+      count: 1000
+    },
+    effect: (state: GameState) => ({
+      ...state,
+      cabinetUnlocked: true,
+      entriesPerSecond: state.entriesPerSecond * 1.5,
+      entriesPerClick: state.entriesPerClick * 1.5,
+      talents: {
+        ...state.talents,
+        points: state.talents.points + 100
+      }
+    })
+  },
   // EARLY GAME - Améliorations de clic de base
   {
     id: "typing_101",
@@ -384,7 +403,7 @@ export const initialUpgrades: Upgrade[] = [
     },
     effect: (state) => ({
       ...state,
-      generators: state.generators.map(g =>
+      collaborators: state.collaborators.map(g =>
         g.id === "intern_colleague" ? { ...g, baseOutput: g.baseOutput * 1.5 } : g
       )
     })
@@ -403,7 +422,7 @@ export const initialUpgrades: Upgrade[] = [
     },
     effect: (state) => ({
       ...state,
-      generators: state.generators.map(g =>
+      collaborators: state.collaborators.map(g =>
         g.id === "basic_calculator" ? { ...g, baseOutput: g.baseOutput * 1.75 } : g
       )
     })
@@ -424,7 +443,7 @@ export const initialUpgrades: Upgrade[] = [
     },
     effect: (state) => ({
       ...state,
-      generators: state.generators.map(g => ({
+      collaborators: state.collaborators.map(g => ({
         ...g,
         baseOutput: g.baseOutput * 1.1
       }))
@@ -444,7 +463,7 @@ export const initialUpgrades: Upgrade[] = [
     },
     effect: (state) => ({
       ...state,
-      generators: state.generators.map(g => ({
+      collaborators: state.collaborators.map(g => ({
         ...g,
         baseOutput: g.baseOutput * 1.15
       }))
@@ -483,7 +502,7 @@ export const initialUpgrades: Upgrade[] = [
     },
     effect: (state) => ({
       ...state,
-      generators: state.generators.map(g => ({
+      collaborators: state.collaborators.map(g => ({
         ...g,
         baseOutput: g.baseOutput * 1.25
       }))
@@ -505,7 +524,7 @@ export const initialUpgrades: Upgrade[] = [
     },
     effect: (state) => ({
       ...state,
-      generators: state.generators.map(g => ({
+      collaborators: state.collaborators.map(g => ({
         ...g,
         baseOutput: g.baseOutput * 1.5
       }))
@@ -525,7 +544,7 @@ export const initialUpgrades: Upgrade[] = [
     },
     effect: (state) => ({
       ...state,
-      generators: state.generators.map(g => ({
+      collaborators: state.collaborators.map(g => ({
         ...g,
         baseOutput: g.baseOutput * 2
       }))
@@ -636,7 +655,7 @@ export const initialUpgrades: Upgrade[] = [
     },
     effect: (state) => ({
       ...state,
-      generators: state.generators.map(g => ({
+      collaborators: state.collaborators.map(g => ({
         ...g,
         baseOutput: g.baseOutput * 1.5
       }))
@@ -658,7 +677,7 @@ export const initialUpgrades: Upgrade[] = [
     },
     effect: (state) => ({
       ...state,
-      generators: state.generators.map(g => ({
+      collaborators: state.collaborators.map(g => ({
         ...g,
         baseOutput: g.baseOutput * 2
       }))
@@ -678,7 +697,7 @@ export const initialUpgrades: Upgrade[] = [
     },
     effect: (state) => ({
       ...state,
-      generators: state.generators.map(g => ({
+      collaborators: state.collaborators.map(g => ({
         ...g,
         baseOutput: g.baseOutput * 2.5
       })),
@@ -704,7 +723,7 @@ export const initialUpgrades: Upgrade[] = [
     },
     effect: (state) => ({
       ...state,
-      generators: state.generators.map(g => ({
+      collaborators: state.collaborators.map(g => ({
         ...g,
         baseOutput: g.baseOutput * 2
       }))
@@ -724,7 +743,7 @@ export const initialUpgrades: Upgrade[] = [
     },
     effect: (state) => ({
       ...state,
-      generators: state.generators.map(g => ({
+      collaborators: state.collaborators.map(g => ({
         ...g,
         baseOutput: g.baseOutput * 3
       }))
@@ -746,7 +765,7 @@ export const initialUpgrades: Upgrade[] = [
     },
     effect: (state) => ({
       ...state,
-      generators: state.generators.map(g => ({
+      collaborators: state.collaborators.map(g => ({
         ...g,
         baseOutput: g.baseOutput * 2,
         effects: g.effects ? {
@@ -770,7 +789,7 @@ export const initialUpgrades: Upgrade[] = [
     },
     effect: (state) => ({
       ...state,
-      generators: state.generators.map(g => ({
+      collaborators: state.collaborators.map(g => ({
         ...g,
         baseOutput: g.baseOutput * 2.5
       }))
@@ -792,7 +811,7 @@ export const initialUpgrades: Upgrade[] = [
     },
     effect: (state) => ({
       ...state,
-      generators: state.generators.map(g => ({
+      collaborators: state.collaborators.map(g => ({
         ...g,
         baseOutput: g.baseOutput * 2.5
       }))
@@ -814,7 +833,7 @@ export const initialUpgrades: Upgrade[] = [
     },
     effect: (state) => ({
       ...state,
-      generators: state.generators.map(g => ({
+      collaborators: state.collaborators.map(g => ({
         ...g,
         baseOutput: g.baseOutput * 1.1
       }))
@@ -834,7 +853,7 @@ export const initialUpgrades: Upgrade[] = [
     },
     effect: (state) => ({
       ...state,
-      generators: state.generators.map(g => ({
+      collaborators: state.collaborators.map(g => ({
         ...g,
         baseOutput: g.baseOutput * 1.25
       }))
@@ -854,7 +873,7 @@ export const initialUpgrades: Upgrade[] = [
     },
     effect: (state) => ({
       ...state,
-      generators: state.generators.map(g => ({
+      collaborators: state.collaborators.map(g => ({
         ...g,
         baseOutput: g.baseOutput * 1.5
       }))
@@ -918,7 +937,7 @@ export const initialUpgrades: Upgrade[] = [
     },
     effect: (state) => ({
       ...state,
-      generators: state.generators.map(g => ({
+      collaborators: state.collaborators.map(g => ({
         ...g,
         baseOutput: g.baseOutput * 1.3
       }))
@@ -938,7 +957,7 @@ export const initialUpgrades: Upgrade[] = [
     },
     effect: (state) => ({
       ...state,
-      generators: state.generators.map(g => ({
+      collaborators: state.collaborators.map(g => ({
         ...g,
         baseOutput: g.baseOutput * 1.4
       }))
@@ -985,25 +1004,7 @@ export const initialUpgrades: Upgrade[] = [
         multiplier: state.prestige.multiplier * 1.5
       }
     })
-  },
-
-  {
-    id: "linkedin_premium",
-    name: "Réseau LinkedIn Premium",
-    description: "Débloque le Cabinet de Recrutement et permet d'embaucher des comptables célèbres. Un bon réseau est la clé du succès !",
-    cost: 2000,
-    unlocked: false,
-    purchased: false,
-    requirement: {
-      type: "uniqueGenerators",
-      id: "unique_generators_3",
-      count: 3
-    },
-    effect: (state) => ({
-      ...state,
-      cabinetUnlocked: true
-    })
-  },
+  }
 ];
 
 export const initialAchievements: Achievement[] = [
@@ -1029,7 +1030,7 @@ export const initialAchievements: Achievement[] = [
     description: "Possédez au moins un exemplaire de chaque générateur. Même les développeurs sont jaloux de votre stack !",
     unlocked: false,
     hidden: false,
-    condition: (state) => state.generators.every(g => g.count > 0),
+    condition: (state) => state.collaborators?.every(g => g.count > 0) || false,
   },
   {
     id: "efficiency_expert",
@@ -1085,7 +1086,7 @@ export const initialAchievements: Achievement[] = [
     description: "Débloquez tous les talents. Vous êtes le Léonard de Vinci de la comptabilité moderne !",
     unlocked: false,
     hidden: true,
-    condition: (state) => state.talents.tree.every(t => t.level === t.maxLevel),
+    condition: (state) => state.talents?.tree?.every(t => t.level === t.maxLevel) || false,
   },
   {
     id: "famous_friend",
@@ -1093,7 +1094,7 @@ export const initialAchievements: Achievement[] = [
     description: "Débloquez tous les comptables célèbres. Votre réseau LinkedIn fait pâlir d'envie !",
     unlocked: false,
     hidden: true,
-    condition: (state) => state.famousAccountants.every(a => a.unlocked),
+    condition: (state) => state.famousAccountants?.every(a => a.unlocked) || false,
   },
   {
     id: "minigame_champion",
@@ -1101,7 +1102,7 @@ export const initialAchievements: Achievement[] = [
     description: "Complétez tous les mini-jeux. La comptabilité n'a plus aucun secret pour vous !",
     unlocked: false,
     hidden: true,
-    condition: (state) => state.miniGames.every(m => m.completed),
+    condition: (state) => state.miniGames?.every(m => m.completed) || false,
   }
 ];
 
@@ -1265,7 +1266,7 @@ export const initialGameState: GameState = {
   lastSavedAt: Date.now(),
   gameStartedAt: Date.now(),
   debugMode: false,
-  generators: initialGenerators,
+  collaborators: initialCollaborators,
   upgrades: initialUpgrades,
   achievements: initialAchievements,
   prestige: {
@@ -1283,6 +1284,7 @@ export const initialGameState: GameState = {
   },
   miniGames: initialMiniGames,
   famousAccountants: initialFamousAccountants,
+  fiscalSeasons: fiscalSeasons,
   combo: {
     active: false,
     multiplier: 1,
@@ -1291,11 +1293,8 @@ export const initialGameState: GameState = {
     maxMultiplier: 2,
     comboTimeWindow: 3000
   },
+  powerUps: [],
   activePowerUps: [],
-  level: {
-    current: 0,
-    xp: 0
-  },
-  cabinetUnlocked: false,
-  improvements: [],
+  features: initialFeaturesState,
+  cabinetUnlocked: false
 };

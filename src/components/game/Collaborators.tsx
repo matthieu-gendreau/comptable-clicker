@@ -12,10 +12,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { calculateGeneratorCost } from "@/reducers/gameReducer";
-import { GameGenerator } from "@/types/game";
+import { calculateCollaboratorCost } from "@/reducers/gameReducer";
+import { GameCollaborator } from "@/types/game";
 
-const Generators: React.FC = () => {
+const Collaborators: React.FC = () => {
   const { state, dispatch } = useGameState();
 
   const formatNumber = (num: number) => {
@@ -39,18 +39,17 @@ const Generators: React.FC = () => {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {state.generators
-            .filter((generator) => generator.unlocked)
-            .map((generator) => {
-              const cost = calculateGeneratorCost(generator.baseCost, generator.count);
+          {state.collaborators?.filter((collaborator) => collaborator.unlocked)
+            .map((collaborator) => {
+              const cost = calculateCollaboratorCost(collaborator.baseCost, collaborator.count);
               const canBuy = state.entries >= cost;
-              const output = generator.baseOutput * generator.count;
-              const hasFeature = generator.pennylaneFeature;
-              const featureShown = hasFeature && generator.pennylaneFeature?.shown;
+              const output = collaborator.baseOutput * collaborator.count;
+              const hasFeature = collaborator.pennylaneFeature;
+              const featureShown = hasFeature && collaborator.pennylaneFeature?.shown;
 
               return (
                 <motion.div 
-                  key={generator.id} 
+                  key={collaborator.id} 
                   className={`p-3 rounded-md border ${canBuy ? "border-pennylane-light-gray" : "border-gray-200 opacity-80"}`}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -59,12 +58,12 @@ const Generators: React.FC = () => {
                   <div className="flex flex-col sm:flex-row sm:items-start gap-3">
                     <div className="flex-1">
                       <div className="flex items-center mb-1">
-                        <h3 className="font-medium">{generator.name}</h3>
+                        <h3 className="font-medium">{collaborator.name}</h3>
                         {hasFeature && !featureShown && (
                           <button 
                             onClick={() => dispatch({
                               type: "SHOW_FEATURE",
-                              id: `generator:${generator.id}`,
+                              id: `collaborator:${collaborator.id}`,
                             })}
                             className="ml-2 text-[#003d3d] hover:text-green-800 transition-colors"
                           >
@@ -72,9 +71,9 @@ const Generators: React.FC = () => {
                           </button>
                         )}
                       </div>
-                      <p className="text-xs text-pennylane-gray">{generator.description}</p>
+                      <p className="text-xs text-pennylane-gray">{collaborator.description}</p>
                       <div className="text-sm mt-1">
-                        <span className="font-medium">{generator.count}</span> possédés
+                        <span className="font-medium">{collaborator.count}</span> possédés
                         {output > 0 && (
                           <span className="ml-2 text-[#003d3d]">
                             {formatNumber(Math.floor(output))} écritures/sec
@@ -88,8 +87,8 @@ const Generators: React.FC = () => {
                           <TooltipTrigger asChild>
                             <Button 
                               onClick={() => dispatch({
-                                type: "BUY_GENERATOR",
-                                id: generator.id,
+                                type: "BUY_COLLABORATOR",
+                                id: collaborator.id,
                               })} 
                               disabled={!canBuy}
                               size="sm" 
@@ -102,7 +101,7 @@ const Generators: React.FC = () => {
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent side="top">
-                            <p>Génère {formatNumber(generator.baseOutput)} écritures par seconde</p>
+                            <p>Génère {formatNumber(collaborator.baseOutput)} écritures par seconde</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
@@ -119,16 +118,16 @@ const Generators: React.FC = () => {
                       <button 
                         onClick={() => dispatch({
                           type: "SHOW_FEATURE",
-                          id: `generator:${generator.id}`,
+                          id: `collaborator:${collaborator.id}`,
                         })}
                         className="absolute right-1 top-1 text-[#003d3d] hover:text-green-800 transition-colors"
                       >
                         <X size={14} />
                       </button>
                       <div className="font-medium text-[#003d3d]">
-                        ✨ {generator.pennylaneFeature?.title}
+                        ✨ {collaborator.pennylaneFeature?.title}
                       </div>
-                      <div className="text-xs mt-1">{generator.pennylaneFeature?.description}</div>
+                      <div className="text-xs mt-1">{collaborator.pennylaneFeature?.description}</div>
                     </motion.div>
                   )}
                 </motion.div>
@@ -140,4 +139,4 @@ const Generators: React.FC = () => {
   );
 };
 
-export default Generators;
+export default Collaborators;

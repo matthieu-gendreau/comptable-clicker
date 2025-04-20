@@ -206,116 +206,109 @@ export const calculateComboMultiplier = (state: GameState): number => {
   );
 };
 
-// Calcul de l'XP gagnée avec feedback
-const calculateXPGain = (entriesGained: number): number => {
-  const xpGain = Math.floor(Math.sqrt(entriesGained));
-  if (xpGain > 0) {
-    toast.info(`📚 +${xpGain} XP`, {
-      description: "Continuez comme ça pour monter en grade !"
-    });
-  }
-  return xpGain;
-};
-
-// Vérification du niveau avec feedback détaillé
-const checkLevelUp = (state: GameState): GameState => {
-  const currentLevel = playerProgression.levels[state.level.current];
-  const nextLevel = playerProgression.levels[state.level.current + 1];
+const applyFeatureEffects = (state: GameState): GameState => {
+  let updatedState = { ...state };
   
-  if (nextLevel && state.level.xp >= nextLevel.requiredXP) {
-    toast.success(`🎓 Niveau Supérieur : ${nextLevel.name}`, {
-      description: `Félicitations ! Vous êtes maintenant ${nextLevel.name}. De nouvelles opportunités s'offrent à vous !`
-    });
-
-    // Vérifier si ce niveau débloque LinkedIn Premium
-    if (state.level.current === 0 && !state.features.linkedinPremium.active) {
-      toast.info("💼 LinkedIn Premium est maintenant disponible !", {
-        description: "Vous pouvez maintenant activer LinkedIn Premium pour débloquer le Cabinet de Recrutement."
-      });
-    }
-
-    return {
-      ...state,
-      level: {
-        current: state.level.current + 1,
-        xp: state.level.xp
+  Object.values(state.features).forEach(feature => {
+    if (!feature.active) return;
+    
+    feature.effects.forEach(effect => {
+      switch (effect.type) {
+        case "multiplier":
+          updatedState = {
+            ...updatedState,
+            entriesPerClick: updatedState.entriesPerClick * effect.value,
+            entriesPerSecond: updatedState.entriesPerSecond * effect.value
+          };
+          break;
+        case "bonus":
+          updatedState = {
+            ...updatedState,
+            talents: {
+              ...updatedState.talents,
+              points: updatedState.talents.points + effect.value
+            }
+          };
+          break;
+        case "automation":
+          // L'automation est gérée via cabinetUnlocked
+          break;
       }
-    };
-  }
-  return state;
+    });
+  });
+  
+  return updatedState;
 };
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case "TICK": {
-      const now = action.timestamp;
-      const deltaTime = (now - state.lastTickAt) / 1000;
+      const now = Date.now();
+      const deltaTime = now - state.lastTickAt;
+      if (deltaTime < 50) return state;
 
-      // Calculate entries per second from collaborators
       const entriesPerSecond = calculateEntriesPerSecond(state);
+      const entriesGained = (entriesPerSecond * deltaTime) / 1000;
+      
+      const newEntries = state.entries + entriesGained;
+      const newTotalEntries = state.totalEntries + entriesGained;
 
-      // Update combo system
-      let combo = state.combo;
-      if (combo.active && now - combo.lastClickTime > combo.comboTimeWindow) {
-        combo = {
-          ...combo,
-          active: false,
-          multiplier: 1,
-          clicksInCombo: 0
+      // Mise à jour du combo
+      const combo = state.combo.active ? {
+        ...state.combo,
+        multiplier: Math.min(
+          state.combo.maxMultiplier,
+          state.combo.multiplier + (deltaTime / state.combo.comboTimeWindow) * 0.1
+        )
+      } : state.combo;
+
+      // Vérification des mini-jeux
+      const updatedMiniGames = state.miniGames.map(game => {
+        if (!game.active) return game;
+        return {
+          ...game,
+          timeLeft: Math.max(0, (game.timeLeft || 0) - deltaTime)
         };
-      }
-
-      // Check for unlocks with the new values
-      const newEntries = state.entries + (entriesPerSecond * deltaTime);
-      const newTotalEntries = state.totalEntries + (entriesPerSecond * deltaTime);
-
-      const updatedMiniGames = checkMiniGameUnlock({
-        ...state,
-        entries: newEntries,
-        totalEntries: newTotalEntries,
       });
 
-      const updatedFamousAccountants = checkFamousAccountantUnlock({
-        ...state,
-        entries: newEntries,
-        totalEntries: newTotalEntries,
+      // Vérification des comptables célèbres
+      const updatedFamousAccountants = state.famousAccountants.map(accountant => {
+        if (!accountant.active) return accountant;
+        return {
+          ...accountant,
+          cooldown: Math.max(0, accountant.cooldown - deltaTime)
+        };
       });
 
-      // Update upgrades based on new values
-      const uniqueCollaboratorsCount = state.collaborators.filter(g => g.count > 0).length;
-      const updatedUpgrades = state.upgrades.map((upgrade) => {
-        if (upgrade.unlocked || upgrade.purchased) return upgrade;
+      // Vérification des améliorations
+      const updatedUpgrades = state.upgrades.map(upgrade => {
+        if (upgrade.purchased || upgrade.unlocked) return upgrade;
         
-        if (upgrade.requirement?.type === "totalEntries" && 
-            newTotalEntries >= upgrade.requirement.count) {
-          return { ...upgrade, unlocked: true };
+        if (upgrade.requirement) {
+          const requirement = upgrade.requirement;
+          
+          switch (requirement.type) {
+            case "totalEntries":
+              return {
+                ...upgrade,
+                unlocked: newTotalEntries >= requirement.count
+              };
+            default:
+              return upgrade;
+          }
         }
-
-        if (upgrade.requirement?.type === "uniqueCollaborators" && 
-            uniqueCollaboratorsCount >= upgrade.requirement.count) {
-          return { ...upgrade, unlocked: true };
-        }
-
+        
         return upgrade;
       });
 
-      // Check for feature unlocks
+      // Vérification des fonctionnalités
       const updatedFeatures = { ...state.features };
+      
       Object.entries(state.features).forEach(([id, feature]) => {
         if (!feature.unlocked && checkFeatureRequirements(state, feature)) {
           updatedFeatures[id] = {
             ...feature,
             unlocked: true
-          };
-        }
-      });
-
-      // Check for trial expirations
-      Object.entries(updatedFeatures).forEach(([id, feature]) => {
-        if (feature.trialPeriod?.endedAt && now > feature.trialPeriod.endedAt && feature.active) {
-          updatedFeatures[id] = {
-            ...feature,
-            active: false
           };
         }
       });
@@ -330,7 +323,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         features: updatedFeatures
       });
 
-      return {
+      let updatedState = {
         ...state,
         entries: newEntries,
         totalEntries: newTotalEntries,
@@ -344,6 +337,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         features: updatedFeatures,
         activePowerUps: state.activePowerUps.filter(p => p.expiresAt > now)
       };
+
+      // Appliquer les effets des fonctionnalités actives
+      updatedState = applyFeatureEffects(updatedState);
+
+      return updatedState;
     }
 
     case "CLICK": {
@@ -848,27 +846,19 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case "ACTIVATE_FEATURE": {
       const updatedFeatures = featureReducer(state.features, action);
-      const feature = updatedFeatures[action.featureId];
-      
-      // Si c'est LinkedIn Premium qui est activé, on débloque le cabinet
-      if (action.featureId === "linkedinPremium" && feature.active) {
-        return {
-          ...state,
-          features: updatedFeatures,
-          cabinetUnlocked: true
-        };
-      }
-      
-      return {
+      let updatedState = {
         ...state,
         features: updatedFeatures
       };
+      
+      // Appliquer les effets immédiatement
+      updatedState = applyFeatureEffects(updatedState);
+      
+      return updatedState;
     }
 
     case "DEACTIVATE_FEATURE":
-    case "UNLOCK_FEATURE":
-    case "START_TRIAL":
-    case "END_TRIAL": {
+    case "UNLOCK_FEATURE": {
       return {
         ...state,
         features: featureReducer(state.features, action)

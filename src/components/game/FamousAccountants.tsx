@@ -27,13 +27,6 @@ const FamousAccountants: React.FC = () => {
 
   const activateAccountant = (id: string) => {
     dispatch({ type: "ACTIVATE_ACCOUNTANT", id });
-    const accountant = state.famousAccountants.find(a => a.id === id);
-    if (accountant) {
-      setActivePowers(prev => ({
-        ...prev,
-        [id]: now + (accountant.power.duration * 1000)
-      }));
-    }
   };
 
   const purchasedAccountants = state.famousAccountants.filter(a => a.purchased);
@@ -53,11 +46,11 @@ const FamousAccountants: React.FC = () => {
   };
 
   // Fonction pour obtenir les styles du pouvoir
-  const getPowerStyles = (type: "click" | "generator" | "global") => {
+  const getPowerStyles = (type: "click" | "generator" | "global" | "cost" | "upgrade") => {
     switch (type) {
       case "click":
         return {
-          background: "from-yellow-500 to-orange-600",
+          background: "from-yellow-500 to-amber-600",
           border: "border-yellow-400",
           hover: "hover:border-yellow-300",
           icon: "text-yellow-100",
@@ -78,6 +71,22 @@ const FamousAccountants: React.FC = () => {
           hover: "hover:border-blue-300",
           icon: "text-blue-100",
           progress: "bg-blue-300"
+        };
+      case "cost":
+        return {
+          background: "from-green-500 to-emerald-600",
+          border: "border-green-400",
+          hover: "hover:border-green-300",
+          icon: "text-green-100",
+          progress: "bg-green-300"
+        };
+      case "upgrade":
+        return {
+          background: "from-red-500 to-rose-600",
+          border: "border-red-400",
+          hover: "hover:border-red-300",
+          icon: "text-red-100",
+          progress: "bg-red-300"
         };
     }
   };
@@ -143,7 +152,9 @@ const FamousAccountants: React.FC = () => {
                   <p className="text-slate-200 leading-snug">
                     Multiplie {accountant.power.type === "click" ? "la valeur de vos clics" : 
                              accountant.power.type === "generator" ? "votre production par seconde" : 
-                             "tous vos gains"} par {accountant.power.multiplier} pendant {accountant.power.duration} secondes
+                             accountant.power.type === "global" ? "tous vos gains" :
+                             accountant.power.type === "cost" ? "réduit le coût des générateurs" :
+                             "l'efficacité des améliorations"} par {accountant.power.multiplier}x pendant {accountant.power.duration} secondes
                   </p>
                   <p className="text-xs text-slate-400 italic mt-1">
                     Temps de recharge : {accountant.cooldown} secondes

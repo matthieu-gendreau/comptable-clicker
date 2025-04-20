@@ -146,11 +146,6 @@ export type PowerUp = {
   expiresAt?: number;
 };
 
-export type Level = {
-  current: number;
-  xp: number;
-};
-
 export type Requirement = {
   type: "collaborator" | "totalEntries" | "clickCount" | "uniqueCollaborators";
   id: string;
@@ -197,10 +192,6 @@ export interface GameState {
   powerUps: PowerUp[];
   activePowerUps: PowerUp[];
   features: Record<string, Feature>;
-  level: {
-    current: number;
-    xp: number;
-  };
   debugMode: boolean;
   cabinetUnlocked: boolean;
   gameStartedAt: number;
