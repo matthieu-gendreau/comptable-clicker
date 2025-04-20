@@ -9,9 +9,19 @@ import Upgrades from "./Upgrades";
 import Achievements from "./Achievements";
 import { Prestige } from "./Prestige";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { calculatePrestigePoints } from "@/reducers/gameReducer";
 
 const GameTabs: React.FC = () => {
   const { state, dispatch } = useGameState();
+
+  // Calcule le nombre d'améliorations disponibles à l'achat
+  const availableUpgrades = state.upgrades.filter(
+    u => u.unlocked && !u.purchased && state.entries >= u.cost
+  ).length;
+
+  // Vérifie si on peut faire un prestige
+  const canPrestige = calculatePrestigePoints(state.totalEntries, state.prestige.objectives) > state.prestige.points;
 
   const tabs = [
     {
@@ -31,7 +41,16 @@ const GameTabs: React.FC = () => {
     },
     {
       id: "upgrades",
-      label: "Améliorations",
+      label: (
+        <div className="flex items-center gap-2">
+          Améliorations
+          {availableUpgrades > 0 && (
+            <Badge variant="secondary" className="h-5 px-1.5">
+              {availableUpgrades}
+            </Badge>
+          )}
+        </div>
+      ),
       content: (
         <div className="max-w-4xl mx-auto">
           <Upgrades />
@@ -51,7 +70,16 @@ const GameTabs: React.FC = () => {
     },
     {
       id: "prestige",
-      label: "Cabinet",
+      label: (
+        <div className="flex items-center gap-2">
+          Cabinet
+          {canPrestige && (
+            <Badge variant="secondary" className="h-5 px-1.5 bg-green-500/10 text-green-500">
+              ✨
+            </Badge>
+          )}
+        </div>
+      ),
       content: (
         <div className="max-w-4xl mx-auto">
           <Prestige />
