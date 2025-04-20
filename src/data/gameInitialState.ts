@@ -150,6 +150,7 @@ export const initialPrestigeUpgrades: Upgrade[] = [
     cost: 1,
     purchased: false,
     unlocked: true,
+    multiplier: 1.1,
     effect: (state: GameState) => ({
       ...state,
       prestige: {
@@ -175,24 +176,28 @@ export const initialTalentTree: TalentTree[] = [
   }
 ];
 
-export const initialMiniGames: MiniGame[] = [
+export const miniGames: MiniGame[] = [
   {
     id: "balance_puzzle",
-    name: "Puzzle du Bilan",
-    description: "Équilibrez le bilan en plaçant les bonnes écritures. Un vrai casse-tête comptable !",
+    name: "Puzzle de la Balance",
+    description: "Équilibrez les comptes pour gagner un multiplicateur de production",
     unlocked: true,
     completed: false,
+    active: false,
+    timeLeft: 0,
     reward: {
       type: "multiplier",
-      value: 1.5
+      value: 2
     }
   },
   {
     id: "tax_return_rush",
     name: "Rush des Déclarations",
-    description: "C'est la deadline des impôts ! Complétez le maximum de déclarations avant minuit.",
+    description: "Remplissez un maximum de déclarations en temps limité",
     unlocked: false,
     completed: false,
+    active: false,
+    timeLeft: 0,
     reward: {
       type: "resource",
       value: 1000
@@ -200,24 +205,27 @@ export const initialMiniGames: MiniGame[] = [
   },
   {
     id: "audit_investigation",
-    name: "Enquête d'Audit",
-    description: "Trouvez les anomalies dans les comptes. Votre sens du détail est mis à l'épreuve !",
+    name: "Investigation d'Audit",
+    description: "Menez l'enquête pour trouver les erreurs comptables",
     unlocked: false,
     completed: false,
+    active: false,
+    timeLeft: 0,
     reward: {
       type: "talent_points",
-      value: 5
+      value: 1
     }
   }
 ];
 
-export const initialFamousAccountants: FamousAccountant[] = [
+export const famousAccountants: FamousAccountant[] = [
   {
     id: "bilan_gates",
     name: "Bilan Gates",
-    description: "Le génie du bilan comptable. Son pouvoir équilibre parfaitement vos comptes et double tous les gains pendant 30 secondes !",
+    description: "Le génie de la comptabilité numérique",
     unlocked: true,
     purchased: false,
+    active: false,
     power: {
       type: "global",
       multiplier: 2,
@@ -228,9 +236,10 @@ export const initialFamousAccountants: FamousAccountant[] = [
   {
     id: "jean_compta_van_damme",
     name: "Jean-Compta Van Damme",
-    description: "\"Je suis fasciné par l'air. Si on enlève l'air du ciel, tous les oiseaux tomberaient par terre... Et les chiffres aussi.\" Triple la puissance de clic pendant 20 secondes !",
+    description: "Ses clics sont aussi puissants que ses coups",
     unlocked: false,
     purchased: false,
+    active: false,
     power: {
       type: "click",
       multiplier: 3,
@@ -241,9 +250,10 @@ export const initialFamousAccountants: FamousAccountant[] = [
   {
     id: "credit_suisse",
     name: "Crédit Suisse",
-    description: "\"L'optimisation fiscale, c'est comme le fromage suisse : il faut savoir où sont les trous !\" Réduit le coût de tous les générateurs de 50% pendant 25 secondes !",
+    description: "Expert en optimisation des coûts",
     unlocked: false,
     purchased: false,
+    active: false,
     power: {
       type: "cost",
       multiplier: 0.5,
@@ -254,27 +264,29 @@ export const initialFamousAccountants: FamousAccountant[] = [
   {
     id: "warren_buffeuille",
     name: "Warren Buffeuille",
-    description: "\"Dans la comptabilité comme dans la cuisine, c'est dans les petits détails que se cache la réussite.\" Double la vitesse d'apparition des améliorations et augmente leur efficacité de 50% pendant 20 secondes !",
+    description: "Le sage de l'investissement comptable",
     unlocked: false,
     purchased: false,
+    active: false,
     power: {
       type: "upgrade",
-      multiplier: 2,
-      duration: 20,
-      bonusEffect: 1.5
+      multiplier: 1.5,
+      duration: 35,
+      bonusEffect: 2
     },
     cooldown: 320
   },
   {
     id: "debit_vador",
     name: "Débit Vador",
-    description: "\"Luke, je suis ton débiteur.\" La force est avec lui pour quadrupler la production des collaborateurs pendant 15 secondes !",
+    description: "Le côté obscur de la comptabilité",
     unlocked: false,
     purchased: false,
+    active: false,
     power: {
       type: "generator",
-      multiplier: 4,
-      duration: 15
+      multiplier: 2.5,
+      duration: 40
     },
     cooldown: 360
   }
@@ -302,7 +314,8 @@ export const initialUpgrades: Upgrade[] = [
         ...state.talents,
         points: state.talents.points + 100
       }
-    })
+    }),
+    multiplier: 1
   },
   // EARLY GAME - Améliorations de clic de base
   {
@@ -315,7 +328,8 @@ export const initialUpgrades: Upgrade[] = [
     effect: (state) => ({
       ...state,
       entriesPerClick: state.entriesPerClick * 1.5
-    })
+    }),
+    multiplier: 1
   },
   {
     id: "coffee_basics",
@@ -327,7 +341,8 @@ export const initialUpgrades: Upgrade[] = [
     effect: (state) => ({
       ...state,
       entriesPerClick: state.entriesPerClick * 1.25
-    })
+    }),
+    multiplier: 1
   },
   {
     id: "excel_basics",
@@ -344,7 +359,8 @@ export const initialUpgrades: Upgrade[] = [
     effect: (state) => ({
       ...state,
       entriesPerClick: state.entriesPerClick * 1.75
-    })
+    }),
+    multiplier: 1
   },
 
   // EARLY-MID GAME - Améliorations des premiers collaborateurs
@@ -365,7 +381,8 @@ export const initialUpgrades: Upgrade[] = [
       collaborators: state.collaborators.map(g =>
         g.id === "intern_colleague" ? { ...g, baseOutput: g.baseOutput * 1.5 } : g
       )
-    })
+    }),
+    multiplier: 1
   },
   {
     id: "admin_desk",
@@ -384,7 +401,8 @@ export const initialUpgrades: Upgrade[] = [
       collaborators: state.collaborators.map(g =>
         g.id === "basic_calculator" ? { ...g, baseOutput: g.baseOutput * 1.75 } : g
       )
-    })
+    }),
+    multiplier: 1
   },
 
   // MID GAME - Améliorations globales
@@ -406,7 +424,8 @@ export const initialUpgrades: Upgrade[] = [
         ...g,
         baseOutput: g.baseOutput * 1.1
       }))
-    })
+    }),
+    multiplier: 1
   },
   {
     id: "casual_friday",
@@ -426,7 +445,8 @@ export const initialUpgrades: Upgrade[] = [
         ...g,
         baseOutput: g.baseOutput * 1.15
       }))
-    })
+    }),
+    multiplier: 1
   },
 
   // MID-LATE GAME - Améliorations fun
@@ -445,7 +465,8 @@ export const initialUpgrades: Upgrade[] = [
     effect: (state) => ({
       ...state,
       entriesPerClick: state.entriesPerClick * 2
-    })
+    }),
+    multiplier: 1
   },
   {
     id: "office_cat",
@@ -465,7 +486,8 @@ export const initialUpgrades: Upgrade[] = [
         ...g,
         baseOutput: g.baseOutput * 1.25
       }))
-    })
+    }),
+    multiplier: 1
   },
 
   // LATE GAME - Améliorations avancées
@@ -487,7 +509,8 @@ export const initialUpgrades: Upgrade[] = [
         ...g,
         baseOutput: g.baseOutput * 1.5
       }))
-    })
+    }),
+    multiplier: 1
   },
   {
     id: "time_machine",
@@ -507,7 +530,8 @@ export const initialUpgrades: Upgrade[] = [
         ...g,
         baseOutput: g.baseOutput * 2
       }))
-    })
+    }),
+    multiplier: 1
   },
 
   // COSMETIC - Améliorations visuelles
@@ -523,7 +547,8 @@ export const initialUpgrades: Upgrade[] = [
       id: "click_count_5k",
       count: 5000
     },
-    effect: (state) => state // Effet purement cosmétique
+    effect: (state) => state,
+    multiplier: 1
   },
   {
     id: "golden_calculator",
@@ -537,7 +562,8 @@ export const initialUpgrades: Upgrade[] = [
       id: "total_entries_100k",
       count: 100000
     },
-    effect: (state) => state // Effet purement cosmétique
+    effect: (state) => state,
+    multiplier: 1
   },
 
   // COMBO - Améliorations de combo
@@ -559,7 +585,8 @@ export const initialUpgrades: Upgrade[] = [
         ...state.combo,
         comboTimeWindow: state.combo.comboTimeWindow + 2000
       }
-    })
+    }),
+    multiplier: 1
   },
   {
     id: "combo_master",
@@ -579,7 +606,8 @@ export const initialUpgrades: Upgrade[] = [
         ...state.combo,
         maxMultiplier: state.combo.maxMultiplier + 1
       }
-    })
+    }),
+    multiplier: 1
   },
 
   // EASTER EGGS - Améliorations secrètes
@@ -598,7 +626,8 @@ export const initialUpgrades: Upgrade[] = [
     effect: (state) => ({
       ...state,
       entriesPerClick: state.entriesPerClick * 2
-    })
+    }),
+    multiplier: 1
   },
   {
     id: "comic_sans",
@@ -618,7 +647,8 @@ export const initialUpgrades: Upgrade[] = [
         ...g,
         baseOutput: g.baseOutput * 1.5
       }))
-    })
+    }),
+    multiplier: 1
   },
 
   // EXCEL IMPROVEMENTS
@@ -640,7 +670,8 @@ export const initialUpgrades: Upgrade[] = [
         ...g,
         baseOutput: g.baseOutput * 2
       }))
-    })
+    }),
+    multiplier: 1
   },
   {
     id: "vba_macros",
@@ -664,7 +695,8 @@ export const initialUpgrades: Upgrade[] = [
         ...state.prestige,
         multiplier: state.prestige.multiplier * 1.05
       }
-    })
+    }),
+    multiplier: 1
   },
 
   // ACCOUNTING SOFTWARE IMPROVEMENTS
@@ -686,7 +718,8 @@ export const initialUpgrades: Upgrade[] = [
         ...g,
         baseOutput: g.baseOutput * 2
       }))
-    })
+    }),
+    multiplier: 1
   },
   {
     id: "connected_api",
@@ -706,7 +739,8 @@ export const initialUpgrades: Upgrade[] = [
         ...g,
         baseOutput: g.baseOutput * 3
       }))
-    })
+    }),
+    multiplier: 1
   },
 
   // JUNIOR ACCOUNTING IMPROVEMENTS
@@ -732,7 +766,8 @@ export const initialUpgrades: Upgrade[] = [
           training: (g.effects.training || 0) + 0.1
         } : { training: 0.1 }
       }))
-    })
+    }),
+    multiplier: 1
   },
   {
     id: "sector_specialization",
@@ -752,7 +787,8 @@ export const initialUpgrades: Upgrade[] = [
         ...g,
         baseOutput: g.baseOutput * 2.5
       }))
-    })
+    }),
+    multiplier: 1
   },
 
   // OCR IMPROVEMENTS
@@ -774,7 +810,8 @@ export const initialUpgrades: Upgrade[] = [
         ...g,
         baseOutput: g.baseOutput * 2.5
       }))
-    })
+    }),
+    multiplier: 1
   },
 
   // GLOBAL IMPROVEMENTS
@@ -796,7 +833,8 @@ export const initialUpgrades: Upgrade[] = [
         ...g,
         baseOutput: g.baseOutput * 1.1
       }))
-    })
+    }),
+    multiplier: 1
   },
   {
     id: "team_building",
@@ -816,7 +854,8 @@ export const initialUpgrades: Upgrade[] = [
         ...g,
         baseOutput: g.baseOutput * 1.25
       }))
-    })
+    }),
+    multiplier: 1
   },
   {
     id: "office_renovation",
@@ -836,7 +875,8 @@ export const initialUpgrades: Upgrade[] = [
         ...g,
         baseOutput: g.baseOutput * 1.5
       }))
-    })
+    }),
+    multiplier: 1
   },
 
   // COMBO IMPROVEMENTS
@@ -858,7 +898,8 @@ export const initialUpgrades: Upgrade[] = [
         ...state.combo,
         comboTimeWindow: state.combo.comboTimeWindow + 5000
       }
-    })
+    }),
+    multiplier: 1
   },
   {
     id: "combo_power",
@@ -878,7 +919,8 @@ export const initialUpgrades: Upgrade[] = [
         ...state.combo,
         maxMultiplier: state.combo.maxMultiplier + 2
       }
-    })
+    }),
+    multiplier: 1
   },
 
   // FUN IMPROVEMENTS
@@ -900,7 +942,8 @@ export const initialUpgrades: Upgrade[] = [
         ...g,
         baseOutput: g.baseOutput * 1.3
       }))
-    })
+    }),
+    multiplier: 1
   },
   {
     id: "nap_room",
@@ -920,7 +963,8 @@ export const initialUpgrades: Upgrade[] = [
         ...g,
         baseOutput: g.baseOutput * 1.4
       }))
-    })
+    }),
+    multiplier: 1
   },
 
   // PRESTIGE RELATED
@@ -942,7 +986,8 @@ export const initialUpgrades: Upgrade[] = [
         ...state.prestige,
         multiplier: state.prestige.multiplier * 1.2
       }
-    })
+    }),
+    multiplier: 1
   },
   {
     id: "prestige_master",
@@ -962,7 +1007,8 @@ export const initialUpgrades: Upgrade[] = [
         ...state.prestige,
         multiplier: state.prestige.multiplier * 1.5
       }
-    })
+    }),
+    multiplier: 1
   }
 ];
 
@@ -1070,7 +1116,10 @@ export const fiscalSeasons: FiscalSeason[] = [
     id: "season_1",
     name: "Saison des Déclarations",
     description: "La période la plus chargée de l'année ! Les deadlines s'enchaînent, mais votre expertise fait la différence.",
+    active: false,
+    timeLeft: 0,
     multiplier: 1.2,
+    specializations: [],
     objectives: [
       {
         id: "obj_1",
@@ -1102,7 +1151,10 @@ export const fiscalSeasons: FiscalSeason[] = [
     id: "season_2",
     name: "Saison des Bilans",
     description: "L'heure des clôtures annuelles a sonné ! Votre cabinet croît à vue d'œil.",
+    active: false,
+    timeLeft: 0,
     multiplier: 1.5,
+    specializations: [],
     objectives: [
       {
         id: "obj_4",
@@ -1220,6 +1272,7 @@ export const initialGameState: GameState = {
   totalEntries: 0,
   entriesPerSecond: 0,
   entriesPerClick: 1,
+  clickPower: 1,
   clickCount: 0,
   lastTickAt: Date.now(),
   lastSavedAt: Date.now(),
@@ -1227,23 +1280,42 @@ export const initialGameState: GameState = {
   debugMode: true,
   collaborators: initialCollaborators,
   upgrades: initialUpgrades,
+  prestigeUpgrades: initialPrestigeUpgrades,
   achievements: initialAchievements,
   prestige: {
+    id: "base_prestige",
+    name: "Prestige de Base",
+    description: "Votre niveau de prestige actuel",
+    cost: 0,
+    unlocked: true,
+    purchased: false,
     points: 0,
     multiplier: 1,
     totalResets: 0,
     currentSeason: fiscalSeasons[0],
-    objectives: fiscalObjectives,
-    specializations: fiscalSpecializations,
-    upgrades: initialPrestigeUpgrades
+    objectives: [],
+    specializations: [],
+    upgrades: []
   },
+  multiplier: 1,
+  talentTree: initialTalentTree[0],
   talents: {
     points: 0,
     tree: initialTalentTree
   },
-  miniGames: initialMiniGames,
-  famousAccountants: initialFamousAccountants,
+  miniGames: miniGames,
+  famousAccountants: famousAccountants,
   fiscalSeasons: fiscalSeasons,
+  fiscalObjectives: fiscalObjectives,
+  fiscalSpecializations: fiscalSpecializations,
+  comboSystem: {
+    active: false,
+    clicksInCombo: 0,
+    multiplier: 1,
+    lastClickTime: 0,
+    maxMultiplier: 2,
+    comboTimeWindow: 3000
+  },
   combo: {
     active: false,
     multiplier: 1,
@@ -1254,6 +1326,12 @@ export const initialGameState: GameState = {
   },
   powerUps: [],
   activePowerUps: [],
-  features: initialFeaturesState,
-  cabinetUnlocked: false
+  features: Object.values(initialFeaturesState),
+  cabinetUnlocked: false,
+  improvements: [],
+  level: {
+    current: 1,
+    xp: 0,
+    nextLevelXp: 100
+  }
 };
