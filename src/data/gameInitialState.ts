@@ -1,4 +1,3 @@
-
 import { Generator, Upgrade, Achievement, GameState } from "@/types/game";
 
 export const initialGenerators: Generator[] = [
@@ -27,8 +26,8 @@ export const initialGenerators: Generator[] = [
   },
   {
     id: "accounting_software",
-    name: "Logiciel Comptable Vintage",
-    description: "Tourne sous Windows 95. Plante régulièrement mais c'est 'normal'.",
+    name: "Cegid",
+    description: "L'interface est restée bloquée en 2005. Les bugs sont des 'fonctionnalités spéciales'.",
     baseCost: 1000,
     baseOutput: 8,
     count: 0,

@@ -9,7 +9,7 @@ const Stats: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   
   const formatEntries = (num: number): string => {
-    return new Intl.NumberFormat('fr-FR').format(num);
+    return new Intl.NumberFormat('fr-FR').format(Math.floor(num));
   };
   
   // Calculate time played
@@ -40,7 +40,7 @@ const Stats: React.FC = () => {
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="flex items-center">
-          <Clock className="w-5 h-5 mr-2 text-pennylane-purple" />
+          <Clock className="w-5 h-5 mr-2 text-[#003d3d]" />
           <h2 className="font-medium">Statistiques</h2>
         </div>
         {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}

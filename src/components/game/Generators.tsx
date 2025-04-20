@@ -45,7 +45,7 @@ const Generators: React.FC = () => {
                       {hasFeature && !featureShown && (
                         <button 
                           onClick={() => showFeature(`generator:${generator.id}`)}
-                          className="ml-2 text-pennylane-purple hover:text-pennylane-dark-purple transition-colors"
+                          className="ml-2 text-[#003d3d] hover:text-green-800 transition-colors"
                         >
                           <Info size={16} />
                         </button>
@@ -55,8 +55,8 @@ const Generators: React.FC = () => {
                     <div className="text-sm mt-1">
                       <span className="font-medium">{generator.count}</span> possédés
                       {output > 0 && (
-                        <span className="ml-2 text-pennylane-dark-purple">
-                          {formatEntries(output)} écritures/sec
+                        <span className="ml-2 text-[#003d3d]">
+                          {formatEntries(Math.floor(output))} écritures/sec
                         </span>
                       )}
                     </div>
@@ -69,11 +69,11 @@ const Generators: React.FC = () => {
                           disabled={!canAfford}
                           size="sm" 
                           className={canAfford 
-                            ? "bg-pennylane-purple hover:bg-pennylane-dark-purple" 
+                            ? "bg-[#003d3d] hover:bg-green-800" 
                             : "bg-gray-300"
                           }
                         >
-                          {formatEntries(cost)} écritures
+                          {formatEntries(Math.floor(cost))} écritures
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent side="top">
@@ -91,7 +91,7 @@ const Generators: React.FC = () => {
                     animate={{ opacity: 1, height: 'auto' }}
                     transition={{ duration: 0.3 }}
                   >
-                    <div className="font-medium text-pennylane-dark-purple">
+                    <div className="font-medium text-[#003d3d]">
                       ✨ {generator.pennylaneFeature?.title}
                     </div>
                     <div className="text-xs mt-1">{generator.pennylaneFeature?.description}</div>

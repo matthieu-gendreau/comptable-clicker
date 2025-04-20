@@ -69,7 +69,7 @@ export default {
 					gray: '#8E9196',
 					'dark-gray': '#1A1F2C',
 					'light-gray': '#F1F0FB',
-					green: '#F2FCE2',
+					green: '#003d3d',
 					yellow: '#FEF7CD',
 					orange: '#F97316',
 				},

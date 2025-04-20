@@ -14,12 +14,13 @@ const Header: React.FC = () => {
           alt="Pennylane Logo" 
           className="h-8 mr-3"
         />
-        <h1 className="text-xl font-bold">Clicker Cash</h1>
+        <h1 className="text-xl font-bold text-[#003d3d]">Clicker Cash</h1>
       </div>
       <Button 
         variant="outline" 
         size="sm"
         onClick={resetGame}
+        className="border-[#003d3d] text-[#003d3d] hover:bg-[#003d3d] hover:text-white"
       >
         Réinitialiser
       </Button>

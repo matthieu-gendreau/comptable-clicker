@@ -9,7 +9,7 @@ const Upgrades: React.FC = () => {
   const { state, buyUpgrade, showFeature } = useGame();
 
   const formatEntries = (num: number): string => {
-    return new Intl.NumberFormat('fr-FR').format(num);
+    return new Intl.NumberFormat('fr-FR').format(Math.floor(num));
   };
 
   const availableUpgrades = state.upgrades.filter(
@@ -52,7 +52,7 @@ const Upgrades: React.FC = () => {
                     disabled={!canAfford}
                     size="sm" 
                     className={canAfford 
-                      ? "bg-pennylane-orange hover:bg-orange-600 text-white" 
+                      ? "bg-[#003d3d] hover:bg-green-800 text-white" 
                       : "bg-gray-300"
                     }
                   >
@@ -77,7 +77,7 @@ const Upgrades: React.FC = () => {
               return (
                 <div key={upgrade.id} className="relative">
                   <div 
-                    className="w-10 h-10 bg-pennylane-light-gray rounded-md flex items-center justify-center border border-pennylane-purple"
+                    className="w-10 h-10 bg-pennylane-light-gray rounded-md flex items-center justify-center border border-[#003d3d]"
                     title={upgrade.name}
                   >
                     {upgrade.name.charAt(0).toUpperCase()}
@@ -86,7 +86,7 @@ const Upgrades: React.FC = () => {
                   {hasFeature && !featureShown && (
                     <button 
                       onClick={() => showFeature(`upgrade:${upgrade.id}`)}
-                      className="absolute -top-1 -right-1 bg-pennylane-purple text-white rounded-full w-5 h-5 flex items-center justify-center hover:bg-pennylane-dark-purple transition-colors"
+                      className="absolute -top-1 -right-1 bg-[#003d3d] text-white rounded-full w-5 h-5 flex items-center justify-center hover:bg-green-800 transition-colors"
                       title="Voir la fonctionnalité Pennylane"
                     >
                       <Info size={12} />
@@ -101,7 +101,7 @@ const Upgrades: React.FC = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3 }}
                     >
-                      <div className="font-medium text-pennylane-dark-purple text-xs">
+                      <div className="font-medium text-[#003d3d] text-xs">
                         ✨ {upgrade.pennylaneFeature?.title}
                       </div>
                       <div className="text-xs mt-1">{upgrade.pennylaneFeature?.description}</div>
