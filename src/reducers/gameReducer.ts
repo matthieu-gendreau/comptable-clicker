@@ -1,31 +1,47 @@
-import { GameState, GameAction, FiscalObjective, FiscalSeason, FiscalSpecialization, GameGenerator } from "@/types/game";
+import { GameState, GameAction, FiscalObjective, FiscalSeason, FiscalSpecialization, GameCollaborator, Achievement, Feature } from "@/types/game";
 import { toast } from "sonner";
 import { initialGameState, fiscalSeasons, playerProgression } from "@/data/gameInitialState";
+import { featureReducer } from "./features/featureReducer";
+import { checkFeatureRequirements } from "@/types/features";
 
-export const calculateGeneratorCost = (baseCost: number, count: number): number => {
+const DEBUG_MULTIPLIER = 50;
+
+export const calculateCollaboratorCost = (baseCost: number, count: number): number => {
   return Math.floor(baseCost * Math.pow(1.15, count));
 };
 
-export const calculateEntriesPerSecond = (generators: GameState["generators"]): number => {
-  return generators.reduce(
-    (total, generator) => total + generator.baseOutput * generator.count,
+export const calculateEntriesPerSecond = (state: GameState): number => {
+  const baseEntriesPerSecond = state.collaborators?.reduce(
+    (total, collaborator) => total + collaborator.baseOutput * collaborator.count,
     0
-  );
+  ) || 0;
+  
+  return state.debugMode ? baseEntriesPerSecond * DEBUG_MULTIPLIER : baseEntriesPerSecond;
 };
 
-export const checkAchievements = (state: GameState, newState: Partial<GameState>) => {
-  return state.achievements.map((achievement) => {
+function checkAchievements(state: GameState, updates: Partial<GameState>): Achievement[] {
+  return state.achievements.map(achievement => {
     if (achievement.unlocked) return achievement;
-    const testState = { ...state, ...newState };
-    if (achievement.condition(testState)) {
-      toast.success(`🏆 Trophée débloqué : ${achievement.name}`, {
-        description: achievement.description,
-      });
-      return { ...achievement, unlocked: true };
+
+    const testState = {
+      ...state,
+      ...updates
+    };
+
+    try {
+      if (achievement.condition(testState)) {
+        return {
+          ...achievement,
+          unlocked: true
+        };
+      }
+    } catch (error) {
+      console.error("Error checking achievement:", achievement.id, error);
     }
+
     return achievement;
   });
-};
+}
 
 // Nouvelle formule de calcul des points de prestige
 export const calculatePrestigePoints = (totalEntries: number, objectives: GameState["prestige"]["objectives"]): number => {
@@ -154,21 +170,21 @@ export const calculateClickMultiplier = (state: GameState): number => {
   return baseMultiplier * clickSpecializationMultiplier * globalSpecializationMultiplier;
 };
 
-export const calculateGeneratorBoost = (state: GameState, generator: GameGenerator): number => {
+export const calculateCollaboratorBoost = (state: GameState, collaborator: GameCollaborator): number => {
   let boost = 1;
   
-  // Apply boosts from generators with boost effects
-  state.generators
+  // Apply boosts from collaborators with boost effects
+  state.collaborators
     .filter(g => g.effects?.boost && g.count > 0)
-    .forEach(boostGenerator => {
-      boost *= 1 + (boostGenerator.effects.boost || 0) * boostGenerator.count;
+    .forEach(boostCollaborator => {
+      boost *= 1 + (boostCollaborator.effects.boost || 0) * boostCollaborator.count;
     });
 
   return boost;
 };
 
 export const calculateTrainingPoints = (state: GameState): number => {
-  return state.generators
+  return state.collaborators
     .filter(g => g.effects?.training && g.count > 0)
     .reduce((total, g) => total + (g.effects?.training || 0) * g.count, 0);
 };
@@ -190,20 +206,34 @@ export const calculateComboMultiplier = (state: GameState): number => {
   );
 };
 
-// Calcul de l'XP gagnée
+// Calcul de l'XP gagnée avec feedback
 const calculateXPGain = (entriesGained: number): number => {
-  return Math.floor(Math.sqrt(entriesGained));
+  const xpGain = Math.floor(Math.sqrt(entriesGained));
+  if (xpGain > 0) {
+    toast.info(`📚 +${xpGain} XP`, {
+      description: "Continuez comme ça pour monter en grade !"
+    });
+  }
+  return xpGain;
 };
 
-// Vérification du niveau
+// Vérification du niveau avec feedback détaillé
 const checkLevelUp = (state: GameState): GameState => {
   const currentLevel = playerProgression.levels[state.level.current];
   const nextLevel = playerProgression.levels[state.level.current + 1];
   
   if (nextLevel && state.level.xp >= nextLevel.requiredXP) {
     toast.success(`🎓 Niveau Supérieur : ${nextLevel.name}`, {
-      description: "Félicitations ! Vous progressez dans votre carrière !",
+      description: `Félicitations ! Vous êtes maintenant ${nextLevel.name}. De nouvelles opportunités s'offrent à vous !`
     });
+
+    // Vérifier si ce niveau débloque LinkedIn Premium
+    if (state.level.current === 0 && !state.features.linkedinPremium.active) {
+      toast.info("💼 LinkedIn Premium est maintenant disponible !", {
+        description: "Vous pouvez maintenant activer LinkedIn Premium pour débloquer le Cabinet de Recrutement."
+      });
+    }
+
     return {
       ...state,
       level: {
@@ -215,98 +245,208 @@ const checkLevelUp = (state: GameState): GameState => {
   return state;
 };
 
-export const gameReducer = (state: GameState, action: GameAction): GameState => {
+export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
-    case "CLICK": {
-      const comboMultiplier = calculateComboMultiplier(state);
-      const clickMultiplier = calculateClickMultiplier(state);
-      const totalClickMultiplier = comboMultiplier * clickMultiplier;
-      
-      const now = Date.now();
-      const timeSinceLastClick = now - state.combo.lastClickTime;
-      const comboActive = timeSinceLastClick <= state.combo.comboTimeWindow;
-      
-      // Mode debug donne un bonus de x50 au lieu de x10
-      const debugMultiplier = state.debugMode ? 50 : 1;
-      const clickGain = state.entriesPerClick * totalClickMultiplier * debugMultiplier;
-      const xpGain = calculateXPGain(clickGain);
-      
-      const newState = {
-        ...state,
-        entries: state.entries + clickGain,
-        totalEntries: state.totalEntries + clickGain,
-        clickCount: state.clickCount + 1,
-        level: {
-          ...state.level,
-          xp: state.level.xp + xpGain
-        },
-        combo: {
-          ...state.combo,
-          active: true,
-          clicksInCombo: comboActive ? state.combo.clicksInCombo + 1 : 1,
-          lastClickTime: now,
-          multiplier: comboMultiplier
-        }
-      };
+    case "TICK": {
+      const now = action.timestamp;
+      const deltaTime = (now - state.lastTickAt) / 1000;
 
-      // Vérifier le niveau et les achievements
-      const leveledState = checkLevelUp(newState);
-      const updatedAchievements = checkAchievements(state, leveledState);
+      // Calculate entries per second from collaborators
+      const entriesPerSecond = calculateEntriesPerSecond(state);
+
+      // Update combo system
+      let combo = state.combo;
+      if (combo.active && now - combo.lastClickTime > combo.comboTimeWindow) {
+        combo = {
+          ...combo,
+          active: false,
+          multiplier: 1,
+          clicksInCombo: 0
+        };
+      }
+
+      // Check for unlocks with the new values
+      const newEntries = state.entries + (entriesPerSecond * deltaTime);
+      const newTotalEntries = state.totalEntries + (entriesPerSecond * deltaTime);
+
+      const updatedMiniGames = checkMiniGameUnlock({
+        ...state,
+        entries: newEntries,
+        totalEntries: newTotalEntries,
+      });
+
+      const updatedFamousAccountants = checkFamousAccountantUnlock({
+        ...state,
+        entries: newEntries,
+        totalEntries: newTotalEntries,
+      });
+
+      // Update upgrades based on new values
+      const uniqueCollaboratorsCount = state.collaborators.filter(g => g.count > 0).length;
+      const updatedUpgrades = state.upgrades.map((upgrade) => {
+        if (upgrade.unlocked || upgrade.purchased) return upgrade;
+        
+        if (upgrade.requirement?.type === "totalEntries" && 
+            newTotalEntries >= upgrade.requirement.count) {
+          return { ...upgrade, unlocked: true };
+        }
+
+        if (upgrade.requirement?.type === "uniqueCollaborators" && 
+            uniqueCollaboratorsCount >= upgrade.requirement.count) {
+          return { ...upgrade, unlocked: true };
+        }
+
+        return upgrade;
+      });
+
+      // Check for feature unlocks
+      const updatedFeatures = { ...state.features };
+      Object.entries(state.features).forEach(([id, feature]) => {
+        if (!feature.unlocked && checkFeatureRequirements(state, feature)) {
+          updatedFeatures[id] = {
+            ...feature,
+            unlocked: true
+          };
+        }
+      });
+
+      // Check for trial expirations
+      Object.entries(updatedFeatures).forEach(([id, feature]) => {
+        if (feature.trialPeriod?.endedAt && now > feature.trialPeriod.endedAt && feature.active) {
+          updatedFeatures[id] = {
+            ...feature,
+            active: false
+          };
+        }
+      });
+
+      // Check achievements with all updated values
+      const updatedAchievements = checkAchievements(state, {
+        entries: newEntries,
+        totalEntries: newTotalEntries,
+        miniGames: updatedMiniGames,
+        famousAccountants: updatedFamousAccountants,
+        upgrades: updatedUpgrades,
+        features: updatedFeatures
+      });
 
       return {
-        ...leveledState,
-        achievements: updatedAchievements
+        ...state,
+        entries: newEntries,
+        totalEntries: newTotalEntries,
+        entriesPerSecond,
+        lastTickAt: now,
+        combo,
+        achievements: updatedAchievements,
+        miniGames: updatedMiniGames,
+        famousAccountants: updatedFamousAccountants,
+        upgrades: updatedUpgrades,
+        features: updatedFeatures,
+        activePowerUps: state.activePowerUps.filter(p => p.expiresAt > now)
       };
     }
 
-    case "BUY_GENERATOR": {
-      const generatorIndex = state.generators.findIndex((g) => g.id === action.id);
-      if (generatorIndex === -1) return state;
+    case "CLICK": {
+      const now = Date.now();
+      const clickMultiplier = calculateTotalMultiplier(state);
+      // Apply debug multiplier to clicks
+      const baseEntriesPerClick = state.entriesPerClick * clickMultiplier;
+      const entriesPerClick = state.debugMode ? baseEntriesPerClick * DEBUG_MULTIPLIER : baseEntriesPerClick;
 
-      const generator = state.generators[generatorIndex];
-      const cost = calculateGeneratorCost(generator.baseCost, generator.count);
+      // Update combo system
+      let combo = { ...state.combo };
+      if (!combo.active || now - combo.lastClickTime <= combo.comboTimeWindow) {
+        combo = {
+          ...combo,
+          active: true,
+          multiplier: Math.min(combo.multiplier + 0.1, combo.maxMultiplier),
+          clicksInCombo: combo.clicksInCombo + 1,
+          lastClickTime: now
+        };
+      } else {
+        combo = {
+          ...combo,
+          active: true,
+          multiplier: 1,
+          clicksInCombo: 1,
+          lastClickTime: now
+        };
+      }
+
+      const entriesGained = entriesPerClick * combo.multiplier;
+
+      return {
+        ...state,
+        entries: state.entries + entriesGained,
+        totalEntries: state.totalEntries + entriesGained,
+        clickCount: state.clickCount + 1,
+        combo
+      };
+    }
+
+    case "BUY_COLLABORATOR": {
+      const collaboratorIndex = state.collaborators.findIndex((g) => g.id === action.id);
+      if (collaboratorIndex === -1) return state;
+
+      const collaborator = state.collaborators[collaboratorIndex];
+      const cost = calculateCollaboratorCost(collaborator.baseCost, collaborator.count);
 
       if (state.entries < cost) return state;
 
-      const updatedGenerators = [...state.generators];
-      updatedGenerators[generatorIndex] = {
-        ...generator,
-        count: generator.count + 1,
+      const updatedCollaborators = [...state.collaborators];
+      updatedCollaborators[collaboratorIndex] = {
+        ...collaborator,
+        count: collaborator.count + 1,
       };
 
-      const entriesPerSecond = calculateEntriesPerSecond(updatedGenerators);
+      const entriesPerSecond = calculateEntriesPerSecond({
+        ...state,
+        collaborators: updatedCollaborators
+      });
 
-      if (generator.count === 0) {
-        const nextIndex = generatorIndex + 1;
-        if (nextIndex < updatedGenerators.length && !updatedGenerators[nextIndex].unlocked) {
-          updatedGenerators[nextIndex] = {
-            ...updatedGenerators[nextIndex],
+      // Unlock next collaborator if this is the first purchase
+      if (collaborator.count === 0) {
+        const nextIndex = collaboratorIndex + 1;
+        if (nextIndex < updatedCollaborators.length && !updatedCollaborators[nextIndex].unlocked) {
+          updatedCollaborators[nextIndex] = {
+            ...updatedCollaborators[nextIndex],
             unlocked: true,
           };
         }
       }
 
+      // Count unique collaborators after this purchase
+      const uniqueCollaboratorsCount = updatedCollaborators.filter(g => g.count > 0).length;
+
       const updatedUpgrades = state.upgrades.map((upgrade) => {
         if (upgrade.unlocked || upgrade.purchased) return upgrade;
         
-        if (upgrade.requirement?.type === "generator" && 
-            upgrade.requirement.id === generator.id && 
-            generator.count + 1 >= upgrade.requirement.count) {
+        if (upgrade.requirement?.type === "collaborator" && 
+            upgrade.requirement.id === collaborator.id && 
+            collaborator.count + 1 >= upgrade.requirement.count) {
           return { ...upgrade, unlocked: true };
         }
+
+        // Check for uniqueCollaborators requirement
+        if (upgrade.requirement?.type === "uniqueCollaborators" && 
+            uniqueCollaboratorsCount >= upgrade.requirement.count) {
+          return { ...upgrade, unlocked: true };
+        }
+
         return upgrade;
       });
 
       const updatedAchievements = checkAchievements(state, {
         entries: state.entries - cost,
-        generators: updatedGenerators,
+        collaborators: updatedCollaborators,
         entriesPerSecond,
+        upgrades: updatedUpgrades,
       });
 
       return {
         ...state,
         entries: state.entries - cost,
-        generators: updatedGenerators,
+        collaborators: updatedCollaborators,
         entriesPerSecond,
         upgrades: updatedUpgrades,
         achievements: updatedAchievements,
@@ -334,7 +474,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
 
       return {
         ...updatedState,
-        entriesPerSecond: calculateEntriesPerSecond(updatedState.generators),
+        entriesPerSecond: calculateEntriesPerSecond(updatedState),
         achievements: updatedAchievements,
       };
     }
@@ -493,7 +633,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       return {
         ...updatedState,
         achievements: updatedAchievements,
-        entriesPerSecond: calculateEntriesPerSecond(updatedState.generators)
+        entriesPerSecond: calculateEntriesPerSecond(updatedState)
       };
     }
 
@@ -584,21 +724,24 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
           break;
         }
         case "generator": {
-          const boostedGenerators = state.generators.map(g => ({
+          const boostedGenerators = state.collaborators.map(g => ({
             ...g,
             baseOutput: g.baseOutput * accountant.power.multiplier
           }));
           updatedState = {
             ...updatedState,
-            generators: boostedGenerators,
-            entriesPerSecond: calculateEntriesPerSecond(boostedGenerators)
+            collaborators: boostedGenerators,
+            entriesPerSecond: calculateEntriesPerSecond({
+              ...state,
+              collaborators: boostedGenerators
+            })
           };
           // Réinitialiser après la durée
           setTimeout(() => {
             updatedState = {
               ...updatedState,
-              generators: state.generators,
-              entriesPerSecond: calculateEntriesPerSecond(state.generators)
+              collaborators: state.collaborators,
+              entriesPerSecond: calculateEntriesPerSecond(state)
             };
           }, accountant.power.duration * 1000);
           break;
@@ -607,7 +750,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
           updatedState = {
             ...updatedState,
             entriesPerClick: state.entriesPerClick * accountant.power.multiplier,
-            generators: state.generators.map(g => ({
+            collaborators: state.collaborators.map(g => ({
               ...g,
               baseOutput: g.baseOutput * accountant.power.multiplier
             }))
@@ -617,7 +760,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
             updatedState = {
               ...updatedState,
               entriesPerClick: state.entriesPerClick,
-              generators: state.generators
+              collaborators: state.collaborators
             };
           }, accountant.power.duration * 1000);
           break;
@@ -646,65 +789,6 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       };
     }
 
-    case "TICK": {
-      const generatorOutput = state.generators.reduce((total, generator) => {
-        if (generator.count > 0) {
-          const boost = calculateGeneratorBoost(state, generator);
-          // Mode debug donne un bonus de x50 aux collaborateurs aussi
-          const debugMultiplier = state.debugMode ? 50 : 1;
-          return total + generator.baseOutput * generator.count * boost * debugMultiplier;
-        }
-        return total;
-      }, 0);
-
-      // Check and update combo state
-      const currentTime = Date.now();
-      const comboExpired = currentTime - state.combo.lastClickTime > state.combo.comboTimeWindow;
-      
-      const updatedMiniGames = checkMiniGameUnlock({
-        ...state,
-        entries: state.entries + generatorOutput,
-        totalEntries: state.totalEntries + generatorOutput,
-      });
-
-      const updatedFamousAccountants = checkFamousAccountantUnlock({
-        ...state,
-        entries: state.entries + generatorOutput,
-        totalEntries: state.totalEntries + generatorOutput,
-      });
-
-      // Vérifier le déblocage des améliorations basées sur le nombre total d'entrées
-      const updatedUpgrades = state.upgrades.map((upgrade) => {
-        if (upgrade.unlocked || upgrade.purchased) return upgrade;
-        
-        if (upgrade.requirement?.type === "totalEntries" && 
-            state.totalEntries + generatorOutput >= upgrade.requirement.count) {
-          return { ...upgrade, unlocked: true };
-        }
-        return upgrade;
-      });
-
-      const updatedAchievements = checkAchievements(state, {
-        entries: state.entries + generatorOutput,
-        totalEntries: state.totalEntries + generatorOutput,
-        miniGames: updatedMiniGames,
-        famousAccountants: updatedFamousAccountants,
-        upgrades: updatedUpgrades
-      });
-
-      return {
-        ...state,
-        entries: state.entries + generatorOutput,
-        totalEntries: state.totalEntries + generatorOutput,
-        combo: comboExpired ? { ...state.combo, active: false, clicksInCombo: 0 } : state.combo,
-        activePowerUps: state.activePowerUps.filter(p => p.expiresAt > currentTime),
-        achievements: updatedAchievements,
-        miniGames: updatedMiniGames,
-        famousAccountants: updatedFamousAccountants,
-        upgrades: updatedUpgrades
-      };
-    }
-
     case "LOAD_GAME":
       return action.state;
 
@@ -722,7 +806,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       if (type === "generator") {
         return {
           ...state,
-          generators: state.generators.map(g => 
+          collaborators: state.collaborators.map(g => 
             g.id === id && g.pennylaneFeature 
               ? { ...g, pennylaneFeature: { ...g.pennylaneFeature, shown: true }} 
               : g
@@ -762,7 +846,37 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       return newState;
     }
 
+    case "ACTIVATE_FEATURE": {
+      const updatedFeatures = featureReducer(state.features, action);
+      const feature = updatedFeatures[action.featureId];
+      
+      // Si c'est LinkedIn Premium qui est activé, on débloque le cabinet
+      if (action.featureId === "linkedinPremium" && feature.active) {
+        return {
+          ...state,
+          features: updatedFeatures,
+          cabinetUnlocked: true
+        };
+      }
+      
+      return {
+        ...state,
+        features: updatedFeatures
+      };
+    }
+
+    case "DEACTIVATE_FEATURE":
+    case "UNLOCK_FEATURE":
+    case "START_TRIAL":
+    case "END_TRIAL": {
+      return {
+        ...state,
+        features: featureReducer(state.features, action)
+      };
+    }
+
     default:
       return state;
   }
-};
+}
+

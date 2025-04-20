@@ -1,4 +1,6 @@
-export interface GameGenerator {
+import { Feature, FeatureId } from "./features";
+
+export type GameCollaborator = {
   id: string;
   name: string;
   description: string;
@@ -16,7 +18,7 @@ export interface GameGenerator {
     shown: boolean;
   };
   requiresPrestige?: boolean;
-}
+};
 
 export type Upgrade = {
   id: string;
@@ -90,9 +92,10 @@ export type FamousAccountant = {
   unlocked: boolean;
   purchased: boolean;
   power: {
-    type: "click" | "generator" | "global";
+    type: "click" | "generator" | "global" | "cost" | "upgrade";
     multiplier: number;
     duration: number;
+    bonusEffect?: number;
   };
   cooldown: number;
   lastUsed?: number;
@@ -148,29 +151,40 @@ export type Level = {
   xp: number;
 };
 
-export type GameState = {
+export type Requirement = {
+  type: "collaborator" | "totalEntries" | "clickCount" | "uniqueCollaborators";
+  id: string;
+  count: number;
+};
+
+export type Improvement = {
+  id: string;
+  name: string;
+  description: string;
+  cost: number;
+  purchased: boolean;
+  unlocked: boolean;
+  requirements?: Requirement[];
+};
+
+export interface GameState {
   entries: number;
   totalEntries: number;
   entriesPerClick: number;
   entriesPerSecond: number;
   clickCount: number;
-  generators: GameGenerator[];
+  lastTickAt: number;
+  collaborators: GameCollaborator[];
   upgrades: Upgrade[];
   achievements: Achievement[];
-  debugMode: boolean;
-  gameStartedAt: number;
-  lastTickAt: number;
-  lastSavedAt: number;
-  combo: ComboSystem;
-  activePowerUps: PowerUp[];
   prestige: {
     points: number;
-    multiplier: number;
-    totalResets: number;
-    currentSeason: FiscalSeason;
+    upgrades: Upgrade[];
     objectives: FiscalObjective[];
     specializations: FiscalSpecialization[];
-    upgrades: Prestige[];
+    currentSeason: FiscalSeason;
+    multiplier: number;
+    totalResets: number;
   };
   talents: {
     points: number;
@@ -178,12 +192,24 @@ export type GameState = {
   };
   miniGames: MiniGame[];
   famousAccountants: FamousAccountant[];
-  level: Level;
-};
+  fiscalSeasons: FiscalSeason[];
+  combo: ComboSystem;
+  powerUps: PowerUp[];
+  activePowerUps: PowerUp[];
+  features: Record<string, Feature>;
+  level: {
+    current: number;
+    xp: number;
+  };
+  debugMode: boolean;
+  cabinetUnlocked: boolean;
+  gameStartedAt: number;
+  lastSavedAt: number;
+}
 
 export type GameAction =
   | { type: "CLICK" }
-  | { type: "BUY_GENERATOR"; id: string }
+  | { type: "BUY_COLLABORATOR"; id: string }
   | { type: "BUY_UPGRADE"; id: string }
   | { type: "PRESTIGE" }
   | { type: "BUY_SPECIALIZATION"; id: string }
@@ -192,11 +218,16 @@ export type GameAction =
   | { type: "BUY_PRESTIGE_UPGRADE"; id: string }
   | { type: "UPGRADE_TALENT"; id: string }
   | { type: "START_MINIGAME"; id: string }
-  | { type: "COMPLETE_MINIGAME"; id: string; score: number }
+  | { type: "COMPLETE_MINIGAME"; id: string }
   | { type: "ACTIVATE_ACCOUNTANT"; id: string }
   | { type: "PURCHASE_ACCOUNTANT"; id: string }
   | { type: "TICK"; timestamp: number }
   | { type: "LOAD_GAME"; state: GameState }
   | { type: "RESET_GAME" }
   | { type: "SHOW_FEATURE"; id: string }
-  | { type: "TOGGLE_DEBUG_MODE" };
+  | { type: "TOGGLE_DEBUG_MODE" }
+  | { type: "UNLOCK_FEATURE"; featureId: FeatureId }
+  | { type: "ACTIVATE_FEATURE"; featureId: FeatureId }
+  | { type: "DEACTIVATE_FEATURE"; featureId: FeatureId }
+  | { type: "START_TRIAL"; featureId: FeatureId }
+  | { type: "END_TRIAL"; featureId: FeatureId };
