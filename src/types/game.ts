@@ -65,4 +65,3 @@ export type GameAction =
   | { type: "LOAD_GAME"; state: GameState }
   | { type: "RESET_GAME" }
   | { type: "SHOW_FEATURE"; id: string };
-

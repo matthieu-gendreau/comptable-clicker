@@ -13,23 +13,19 @@ const Generators: React.FC = () => {
     return Math.floor(baseCost * Math.pow(1.15, count));
   };
 
-  const formatEuros = (num: number): string => {
-    return new Intl.NumberFormat('fr-FR', { 
-      style: 'currency', 
-      currency: 'EUR',
-      maximumFractionDigits: num < 100 ? 2 : 0,
-    }).format(num);
+  const formatEntries = (num: number): string => {
+    return new Intl.NumberFormat('fr-FR').format(num);
   };
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-bold border-b pb-2 border-pennylane-light-gray">Investissements</h2>
+      <h2 className="text-xl font-bold border-b pb-2 border-pennylane-light-gray">Personnel Comptable</h2>
       <div className="space-y-3">
         {state.generators
           .filter((generator) => generator.unlocked)
           .map((generator) => {
             const cost = calculateGeneratorCost(generator.baseCost, generator.count);
-            const canAfford = state.euros >= cost;
+            const canAfford = state.entries >= cost;
             const output = generator.baseOutput * generator.count;
             const hasFeature = generator.pennylaneFeature && generator.count > 0;
             const featureShown = hasFeature && generator.pennylaneFeature?.shown;
@@ -60,7 +56,7 @@ const Generators: React.FC = () => {
                       <span className="font-medium">{generator.count}</span> possédés
                       {output > 0 && (
                         <span className="ml-2 text-pennylane-dark-purple">
-                          {formatEuros(output)}/sec
+                          {formatEntries(output)} écritures/sec
                         </span>
                       )}
                     </div>
@@ -77,11 +73,11 @@ const Generators: React.FC = () => {
                             : "bg-gray-300"
                           }
                         >
-                          {formatEuros(cost)}
+                          {formatEntries(cost)} écritures
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent side="top">
-                        <p>Génère {formatEuros(generator.baseOutput)} par seconde</p>
+                        <p>Génère {formatEntries(generator.baseOutput)} écritures par seconde</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>

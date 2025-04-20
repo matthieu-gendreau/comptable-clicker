@@ -1,10 +1,11 @@
+
 import { Generator, Upgrade, Achievement, GameState } from "@/types/game";
 
 export const initialGenerators: Generator[] = [
   {
     id: "junior_accountant",
-    name: "Comptable Junior",
-    description: "Saisit les écritures de base",
+    name: "Stagiaire DCG",
+    description: "Sait à peine différencier un débit d'un crédit. Mais tellement enthousiaste !",
     baseCost: 10,
     baseOutput: 0.1,
     count: 0,
@@ -12,8 +13,8 @@ export const initialGenerators: Generator[] = [
   },
   {
     id: "senior_accountant",
-    name: "Comptable Senior",
-    description: "Gère les écritures complexes",
+    name: "Comptable Expérimenté",
+    description: "Son café est aussi noir que ses tableaux Excel. Un vrai ninja des écritures.",
     baseCost: 100,
     baseOutput: 1,
     count: 0,
@@ -26,8 +27,8 @@ export const initialGenerators: Generator[] = [
   },
   {
     id: "accounting_software",
-    name: "Logiciel Basique",
-    description: "Logiciel de comptabilité simple",
+    name: "Logiciel Comptable Vintage",
+    description: "Tourne sous Windows 95. Plante régulièrement mais c'est 'normal'.",
     baseCost: 1000,
     baseOutput: 8,
     count: 0,
@@ -40,8 +41,8 @@ export const initialGenerators: Generator[] = [
   },
   {
     id: "erp_system",
-    name: "Système ERP",
-    description: "Système de gestion intégré",
+    name: "Système ERP Capricieux",
+    description: "Requiert 17 mots de passe différents et une offrande au dieu de l'informatique.",
     baseCost: 10000,
     baseOutput: 47,
     count: 0,
@@ -54,8 +55,8 @@ export const initialGenerators: Generator[] = [
   },
   {
     id: "ai_assistant",
-    name: "Assistant IA",
-    description: "IA avancée pour la comptabilité",
+    name: "IA Assistante Comptable",
+    description: "Ne prend jamais de pause café mais a tendance à philosopher sur le sens des chiffres.",
     baseCost: 50000,
     baseOutput: 260,
     count: 0,
@@ -71,8 +72,8 @@ export const initialGenerators: Generator[] = [
 export const initialUpgrades: Upgrade[] = [
   {
     id: "better_calculator",
-    name: "Better Calculator",
-    description: "Double your clicking power",
+    name: "Calculatrice Scientifique",
+    description: "Double votre puissance de clic. La calculette de poche ne suffit plus !",
     cost: 50,
     purchased: false,
     unlocked: true,
@@ -83,8 +84,8 @@ export const initialUpgrades: Upgrade[] = [
   },
   {
     id: "training_program",
-    name: "Training Program",
-    description: "Junior Accountants are twice as efficient",
+    name: "Formation Express",
+    description: "Les stagiaires sont deux fois plus efficaces. Ils ont enfin compris la différence entre TVA et TTC !",
     cost: 200,
     purchased: false,
     unlocked: false,
@@ -104,15 +105,15 @@ export const initialUpgrades: Upgrade[] = [
       };
     },
     pennylaneFeature: {
-      title: "Automated Training",
-      description: "Pennylane offers an intuitive interface that reduces training time for new users.",
+      title: "Formation Automatisée",
+      description: "Pennylane offre une interface intuitive qui réduit le temps de formation des nouveaux utilisateurs.",
       shown: false,
     },
   },
   {
     id: "ergonomic_chairs",
-    name: "Ergonomic Chairs",
-    description: "All employees work 50% faster",
+    name: "Chaises Ergonomiques",
+    description: "Tous les employés travaillent 50% plus vite. Le mal de dos était donc un vrai problème !",
     cost: 1000,
     purchased: false,
     unlocked: false,
@@ -130,15 +131,15 @@ export const initialUpgrades: Upgrade[] = [
       };
     },
     pennylaneFeature: {
-      title: "User Comfort",
-      description: "Pennylane's ergonomic design reduces the time spent on accounting tasks.",
+      title: "Confort Utilisateur",
+      description: "La conception ergonomique de Pennylane réduit le temps passé sur les tâches comptables.",
       shown: false,
     },
   },
   {
     id: "cloud_upgrade",
-    name: "Cloud Infrastructure",
-    description: "Software performance increased by 100%",
+    name: "Migration Cloud",
+    description: "Performance des logiciels augmentée de 100%. Adieu serveur dans le placard à balais !",
     cost: 5000,
     purchased: false,
     unlocked: false,
@@ -156,8 +157,8 @@ export const initialUpgrades: Upgrade[] = [
       };
     },
     pennylaneFeature: {
-      title: "Cloud-Based Platform",
-      description: "Pennylane runs entirely in the cloud, allowing access from anywhere with automatic updates.",
+      title: "Plateforme Cloud",
+      description: "Pennylane fonctionne entièrement dans le cloud, permettant un accès de partout avec des mises à jour automatiques.",
       shown: false,
     },
   },
@@ -166,24 +167,24 @@ export const initialUpgrades: Upgrade[] = [
 export const initialAchievements: Achievement[] = [
   {
     id: "first_entry",
-    name: "Première Écriture",
-    description: "Saisissez votre première écriture comptable",
+    name: "Premier Pas Comptable",
+    description: "Votre première écriture comptable. Le début d'une grande aventure financière !",
     unlocked: false,
     hidden: false,
     condition: (state) => state.totalEntries >= 1,
   },
   {
     id: "click_100",
-    name: "Expert en Saisie",
-    description: "Saisissez 100 écritures manuellement",
+    name: "Doigts de Comptable",
+    description: "100 écritures saisies manuellement. Vous êtes officiellement accro à la calculette !",
     unlocked: false,
     hidden: false,
     condition: (state) => state.clickCount >= 100,
   },
   {
     id: "hire_team",
-    name: "Constitution d'Équipe",
-    description: "Embauchez 10 comptables au total",
+    name: "Chef Comptable",
+    description: "Embauchez 10 comptables au total. Votre équipe est plus grande que votre cuisine !",
     unlocked: false,
     hidden: false,
     condition: (state) => {
@@ -195,8 +196,8 @@ export const initialAchievements: Achievement[] = [
   },
   {
     id: "entries_master",
-    name: "Expert Comptable",
-    description: "Accumulez 1,000,000 écritures au total",
+    name: "Maître des Comptes",
+    description: "Accumulez 1 000 000 d'écritures au total. Votre cerveau pense maintenant en partie double !",
     unlocked: false,
     hidden: false,
     condition: (state) => state.totalEntries >= 1000000,

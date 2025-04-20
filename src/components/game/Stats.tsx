@@ -8,12 +8,8 @@ const Stats: React.FC = () => {
   const { state } = useGame();
   const [isOpen, setIsOpen] = useState(false);
   
-  const formatEuros = (num: number): string => {
-    return new Intl.NumberFormat('fr-FR', { 
-      style: 'currency', 
-      currency: 'EUR',
-      maximumFractionDigits: num < 100 ? 2 : 0,
-    }).format(num);
+  const formatEntries = (num: number): string => {
+    return new Intl.NumberFormat('fr-FR').format(num);
   };
   
   // Calculate time played
@@ -33,7 +29,7 @@ const Stats: React.FC = () => {
     }
   };
   
-  // Calculate euros per click and per second
+  // Calculate total generators and upgrades
   const totalGenerators = state.generators.reduce((acc, gen) => acc + gen.count, 0);
   const totalUpgrades = state.upgrades.filter(u => u.purchased).length;
   
@@ -65,8 +61,8 @@ const Stats: React.FC = () => {
             </div>
             
             <div className="p-2 bg-pennylane-light-gray bg-opacity-30 rounded-md">
-              <div className="font-medium">Euros totaux</div>
-              <div>{formatEuros(state.totalEuros)}</div>
+              <div className="font-medium">Écritures totales</div>
+              <div>{formatEntries(state.totalEntries)}</div>
             </div>
             
             <div className="p-2 bg-pennylane-light-gray bg-opacity-30 rounded-md">
@@ -75,7 +71,7 @@ const Stats: React.FC = () => {
             </div>
             
             <div className="p-2 bg-pennylane-light-gray bg-opacity-30 rounded-md">
-              <div className="font-medium">Investissements</div>
+              <div className="font-medium">Personnel</div>
               <div>{totalGenerators}</div>
             </div>
             

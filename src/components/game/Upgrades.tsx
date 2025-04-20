@@ -8,12 +8,8 @@ import { motion } from "framer-motion";
 const Upgrades: React.FC = () => {
   const { state, buyUpgrade, showFeature } = useGame();
 
-  const formatEuros = (num: number): string => {
-    return new Intl.NumberFormat('fr-FR', { 
-      style: 'currency', 
-      currency: 'EUR',
-      maximumFractionDigits: num < 100 ? 2 : 0,
-    }).format(num);
+  const formatEntries = (num: number): string => {
+    return new Intl.NumberFormat('fr-FR').format(num);
   };
 
   const availableUpgrades = state.upgrades.filter(
@@ -36,7 +32,7 @@ const Upgrades: React.FC = () => {
       {availableUpgrades.length > 0 && (
         <div className="space-y-3">
           {availableUpgrades.map((upgrade) => {
-            const canAfford = state.euros >= upgrade.cost;
+            const canAfford = state.entries >= upgrade.cost;
             
             return (
               <motion.div 
@@ -60,7 +56,7 @@ const Upgrades: React.FC = () => {
                       : "bg-gray-300"
                     }
                   >
-                    {formatEuros(upgrade.cost)}
+                    {formatEntries(upgrade.cost)} écritures
                   </Button>
                 </div>
               </motion.div>
