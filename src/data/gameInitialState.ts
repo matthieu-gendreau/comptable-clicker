@@ -15,8 +15,8 @@ export const initialGenerators: GameGenerator[] = [
   // PHASE 1 : STAGIAIRE
   {
     id: "intern_colleague",
-    name: "Collègue Stagiaire",
-    description: "Un autre stagiaire pour partager la charge de travail. Deux cerveaux valent mieux qu'un !",
+    name: "Stagiaire",
+    description: "Un stagiaire motivé pour vous aider. Deux cerveaux valent mieux qu'un !",
     baseCost: 25,
     baseOutput: 0.2,
     count: 0,
@@ -27,8 +27,8 @@ export const initialGenerators: GameGenerator[] = [
   },
   {
     id: "basic_calculator",
-    name: "Calculatrice de Bureau",
-    description: "Une calculatrice avec rouleau de papier. Un premier pas vers l'automatisation !",
+    name: "Assistant Administratif",
+    description: "Un assistant pour gérer les tâches administratives. La paperasse n'attend pas !",
     baseCost: 100,
     baseOutput: 0.5,
     count: 0,
@@ -37,8 +37,8 @@ export const initialGenerators: GameGenerator[] = [
   // PHASE 2 : COMPTABLE JUNIOR
   {
     id: "excel_sheets",
-    name: "Classeurs Excel",
-    description: "Des formules Excel bien organisées. La puissance des tableaux croisés dynamiques !",
+    name: "Comptable Débutant",
+    description: "Un jeune comptable qui maîtrise Excel. La puissance des tableaux croisés dynamiques !",
     baseCost: 500,
     baseOutput: 2,
     count: 0,
@@ -49,8 +49,8 @@ export const initialGenerators: GameGenerator[] = [
   },
   {
     id: "accounting_software",
-    name: "Logiciel Comptable",
-    description: "Un vrai logiciel de compta. Fini les erreurs d'arrondi !",
+    name: "Comptable Confirmé",
+    description: "Un comptable expérimenté qui maîtrise les logiciels. Fini les erreurs d'arrondi !",
     baseCost: 2000,
     baseOutput: 6,
     count: 0,
@@ -64,8 +64,8 @@ export const initialGenerators: GameGenerator[] = [
   // PHASE 3 : COMPTABLE CONFIRMÉ
   {
     id: "junior_accountant",
-    name: "Comptable Junior",
-    description: "Un jeune comptable motivé. Il apprend vite et travaille bien !",
+    name: "Chef Comptable",
+    description: "Un chef comptable qui supervise l'équipe. Son expertise fait la différence !",
     baseCost: 10000,
     baseOutput: 20,
     count: 0,
@@ -76,8 +76,8 @@ export const initialGenerators: GameGenerator[] = [
   },
   {
     id: "ocr_system",
-    name: "Système OCR",
-    description: "Reconnaissance automatique des documents. La technologie au service de la comptabilité !",
+    name: "Expert-Comptable Junior",
+    description: "Un jeune expert-comptable dynamique. La technique au service de la comptabilité !",
     baseCost: 25000,
     baseOutput: 50,
     count: 0,
@@ -91,8 +91,8 @@ export const initialGenerators: GameGenerator[] = [
   // PHASE 4 : CHEF COMPTABLE
   {
     id: "senior_accountant",
-    name: "Comptable Senior",
-    description: "Un comptable expérimenté qui forme les juniors. Un vrai mentor !",
+    name: "Expert-Comptable Senior",
+    description: "Un expert-comptable expérimenté qui forme les juniors. Un vrai mentor !",
     baseCost: 100000,
     baseOutput: 150,
     count: 0,
@@ -104,8 +104,8 @@ export const initialGenerators: GameGenerator[] = [
   },
   {
     id: "bank_sync",
-    name: "Synchronisation Bancaire",
-    description: "Connexion en temps réel avec les banques. L'argent n'attend pas !",
+    name: "Directeur de Mission",
+    description: "Un directeur qui gère les missions complexes. L'expertise à son plus haut niveau !",
     baseCost: 250000,
     baseOutput: 400,
     count: 0,
@@ -131,8 +131,8 @@ export const initialGenerators: GameGenerator[] = [
   },
   {
     id: "ai_assistant",
-    name: "Assistant IA",
-    description: "Un assistant virtuel intelligent qui ne dort jamais. Le futur est là !",
+    name: "Cabinet Comptable",
+    description: "Un cabinet entier à votre service. L'excellence comptable incarnée !",
     baseCost: 5000000,
     baseOutput: 2500,
     count: 0,
@@ -284,7 +284,7 @@ export const initialFamousAccountants: FamousAccountant[] = [
   {
     id: "sherlock_holmes",
     name: "Sherlock Holmes",
-    description: "Le détective des comptes. Quadruple la production des générateurs pendant 15 secondes !",
+    description: "Le détective des comptes. Quadruple la production des collaborateurs pendant 15 secondes !",
     unlocked: false,
     power: {
       type: "generator",

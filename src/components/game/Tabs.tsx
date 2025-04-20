@@ -4,7 +4,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Lock } from "lucide-react";
 import Clicker from "./Clicker";
 import Stats from "./Stats";
-import Generators from "./Generators";
+import Collaborators from "./Collaborators";
 import Upgrades from "./Upgrades";
 import Achievements from "./Achievements";
 import { Prestige } from "./Prestige";
@@ -33,7 +33,7 @@ const GameTabs: React.FC = () => {
             <Clicker />
           </div>
           <div className="space-y-6 md:h-[calc(100vh-12rem)] md:overflow-y-auto md:sticky md:top-4">
-            <Generators />
+            <Collaborators />
           </div>
         </div>
       ),

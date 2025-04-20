@@ -632,7 +632,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       const generatorOutput = state.generators.reduce((total, generator) => {
         if (generator.count > 0) {
           const boost = calculateGeneratorBoost(state, generator);
-          // Mode debug donne un bonus de x50 aux générateurs aussi
+          // Mode debug donne un bonus de x50 aux collaborateurs aussi
           const debugMultiplier = state.debugMode ? 50 : 1;
           return total + generator.baseOutput * generator.count * boost * debugMultiplier;
         }
