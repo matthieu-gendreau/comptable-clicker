@@ -1224,7 +1224,7 @@ export const initialGameState: GameState = {
   lastTickAt: Date.now(),
   lastSavedAt: Date.now(),
   gameStartedAt: Date.now(),
-  debugMode: false,
+  debugMode: true,
   collaborators: initialCollaborators,
   upgrades: initialUpgrades,
   achievements: initialAchievements,

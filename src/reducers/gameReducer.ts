@@ -4,7 +4,7 @@ import { initialGameState, fiscalSeasons, playerProgression } from "@/data/gameI
 import { featureReducer } from "./features/featureReducer";
 import { checkFeatureRequirements } from "@/types/features";
 
-const DEBUG_MULTIPLIER = 50;
+const DEBUG_MULTIPLIER = 1000;
 
 export const calculateCollaboratorCost = (baseCost: number, count: number): number => {
   return Math.floor(baseCost * Math.pow(1.15, count));
@@ -824,7 +824,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         newState.debugMode ? "🐞 Mode Debug Activé" : "🐞 Mode Debug Désactivé",
         {
           description: newState.debugMode 
-            ? "Multiplicateur x50 activé pour le développement"
+            ? "Multiplicateur x1000 activé pour le développement"
             : "Retour au mode normal"
         }
       );
