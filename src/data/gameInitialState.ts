@@ -192,7 +192,7 @@ export const initialAchievements: Achievement[] = [
     description: "100 écritures automatisées. La transformation digitale est en marche !",
     unlocked: false,
     hidden: false,
-    condition: (state) => state.clickCount >= 100,
+    condition: (state) => state.totalEntries >= 100,
   },
   {
     id: "automation_master",
@@ -223,13 +223,14 @@ export const initialAchievements: Achievement[] = [
 export const initialGameState: GameState = {
   entries: 0,
   totalEntries: 0,
-  entriesPerClick: 1,
   entriesPerSecond: 0,
+  entriesPerClick: 1,
   clickCount: 0,
+  lastTickAt: Date.now(),
+  lastSavedAt: Date.now(),
+  gameStartedAt: Date.now(),
+  debugMode: false,
   generators: initialGenerators,
   upgrades: initialUpgrades,
   achievements: initialAchievements,
-  gameStartedAt: Date.now(),
-  lastSavedAt: Date.now(),
-  lastTickAt: Date.now(),
 };
