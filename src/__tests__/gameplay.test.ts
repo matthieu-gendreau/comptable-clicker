@@ -369,13 +369,9 @@ describe('BUY_COLLABORATOR action', () => {
 });
 
 describe('Collaborator unlocking', () => {
-  it('should unlock collaborators based on total entries', () => {
-    const now = Date.now();
+  it('should unlock collaborators based on previous collaborator count', () => {
     const state: GameState = {
       ...initialGameState,
-      totalEntries: 1000,
-      entries: 1000,
-      lastTickAt: now,
       collaborators: [
         {
           id: 'test1',
@@ -383,8 +379,8 @@ describe('Collaborator unlocking', () => {
           description: 'Test 1',
           baseCost: 50,
           baseOutput: 1,
-          count: 0,
-          unlocked: false,
+          count: 5,
+          unlocked: true,
         },
         {
           id: 'test2',
@@ -400,7 +396,7 @@ describe('Collaborator unlocking', () => {
 
     const newState = gameReducer(state, { 
       type: 'TICK',
-      timestamp: now + 100 // Add 100ms to ensure the tick is processed
+      timestamp: Date.now() + 100
     });
 
     const collaborator = newState.collaborators[1]!;

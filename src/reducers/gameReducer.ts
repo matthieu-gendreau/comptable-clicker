@@ -245,13 +245,12 @@ const checkCollaboratorUnlock = (state: GameState): GameCollaborator[] => {
     const previousCollaborator = state.collaborators[index - 1];
     if (!previousCollaborator) return collaborator;
     
-    // Unlock based on previous collaborator count or total entries
+    // Unlock only based on previous collaborator count
     const shouldUnlockByCount = previousCollaborator.unlocked && previousCollaborator.count >= 5;
-    const shouldUnlockByEntries = state.totalEntries >= 1000; // Unlock when reaching 1000 total entries
     
     return {
       ...collaborator,
-      unlocked: shouldUnlockByCount || shouldUnlockByEntries
+      unlocked: shouldUnlockByCount
     };
   });
 };
