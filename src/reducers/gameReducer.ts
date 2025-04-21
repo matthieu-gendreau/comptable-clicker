@@ -363,7 +363,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case "CLICK": {
       const now = Date.now();
-      const clickMultiplier = calculateTotalMultiplier(state);
+      const clickMultiplier = calculateClickMultiplier(state);
       // Apply debug multiplier to clicks
       const baseEntriesPerClick = state.entriesPerClick * clickMultiplier;
       const entriesPerClick = state.debugMode ? baseEntriesPerClick * DEBUG_MULTIPLIER : baseEntriesPerClick;
@@ -388,7 +388,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         };
       }
 
-      const entriesGained = entriesPerClick * combo.multiplier;
+      // Only apply combo multiplier if combo is active and totalEntries >= 10
+      const comboMultiplier = (state.totalEntries >= 10 && combo.active) ? combo.multiplier : 1;
+      const entriesGained = entriesPerClick * comboMultiplier;
 
       return {
         ...state,
@@ -495,26 +497,31 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case "PRESTIGE": {
-      const potentialPoints = calculatePrestigePoints(state.totalEntries, state.prestige.objectives);
-      if (potentialPoints <= state.prestige.points) return state;
+      if (state.entries < state.prestige.cost) {
+        return state;
+      }
 
-      const baseState = {
+      const prestigePoints = Math.floor(Math.log10(state.entries / state.prestige.cost));
+      const currentMultiplier = state.prestige.multiplier;
+      const currentTotalResets = state.prestige.totalResets;
+
+      // Reset the game state but keep certain progress
+      const newState = {
         ...initialGameState,
         prestige: {
-          ...state.prestige,
-          points: potentialPoints,
-          totalResets: state.prestige.totalResets + 1,
-          specializations: state.prestige.specializations,
-          objectives: state.prestige.objectives.map(obj => ({ ...obj, completed: false })),
+          ...initialGameState.prestige,
+          points: state.prestige.points + prestigePoints,
+          multiplier: currentMultiplier * 1.1, // Increase multiplier by 10%
+          totalResets: currentTotalResets + 1,
+          upgrades: state.prestige.upgrades // Keep prestige upgrades
         },
-        achievements: state.achievements,
+        debugMode: state.debugMode, // Keep debug mode setting
+        gameStartedAt: state.gameStartedAt, // Keep original start time
+        lastSavedAt: Date.now(),
+        lastTickAt: Date.now()
       };
 
-      toast.success("🌟 Prestige effectué !", {
-        description: `Vous avez gagné ${potentialPoints - state.prestige.points} Points d'Expertise Fiscale !`,
-      });
-
-      return baseState;
+      return newState;
     }
 
     case "BUY_SPECIALIZATION": {

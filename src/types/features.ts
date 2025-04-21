@@ -1,6 +1,6 @@
 import { GameState } from "./game";
 
-export type FeatureId = "taxOptimizer" | "autoFiling";
+export type FeatureId = "taxOptimizer" | "autoFiling" | "linkedinPremium";
 
 export interface FeatureRequirement {
   type: "totalEntries" | "prestigePoints" | "achievements";

@@ -1113,66 +1113,26 @@ export const initialAchievements: Achievement[] = [
 
 export const fiscalSeasons: FiscalSeason[] = [
   {
-    id: "season_1",
+    id: "declarations",
     name: "Saison des Déclarations",
-    description: "La période la plus chargée de l'année ! Les deadlines s'enchaînent, mais votre expertise fait la différence.",
+    description: "La période la plus chargée de l'année : TVA, charges sociales, tout s'enchaîne !",
     active: false,
-    timeLeft: 0,
-    multiplier: 1.2,
+    objectives: [],
     specializations: [],
-    objectives: [
-      {
-        id: "obj_1",
-        name: "Premier Pas",
-        description: "Atteignez 1,000 entrées totales",
-        requirement: 1000,
-        reward: 1,
-        completed: false
-      },
-      {
-        id: "obj_2",
-        name: "En Bonne Voie",
-        description: "Atteignez 10,000 entrées totales",
-        requirement: 10000,
-        reward: 2,
-        completed: false
-      },
-      {
-        id: "obj_3",
-        name: "Expert Comptable",
-        description: "Atteignez 100,000 entrées totales",
-        requirement: 100000,
-        reward: 5,
-        completed: false
-      }
-    ]
+    multiplier: 1.2,
+    duration: 604800,
+    timeLeft: 0
   },
   {
-    id: "season_2",
+    id: "bilans",
     name: "Saison des Bilans",
-    description: "L'heure des clôtures annuelles a sonné ! Votre cabinet croît à vue d'œil.",
+    description: "L'heure des clôtures annuelles a sonné. Les dossiers s'empilent sur les bureaux !",
     active: false,
-    timeLeft: 0,
-    multiplier: 1.5,
+    objectives: [],
     specializations: [],
-    objectives: [
-      {
-        id: "obj_4",
-        name: "Cabinet Reconnu",
-        description: "Atteignez 500,000 entrées totales",
-        requirement: 500000,
-        reward: 10,
-        completed: false
-      },
-      {
-        id: "obj_5",
-        name: "Cabinet Prestigieux",
-        description: "Atteignez 1,000,000 entrées totales",
-        requirement: 1000000,
-        reward: 20,
-        completed: false
-      }
-    ]
+    multiplier: 1.5,
+    duration: 604800,
+    timeLeft: 0
   }
 ];
 
@@ -1272,66 +1232,46 @@ export const initialGameState: GameState = {
   totalEntries: 0,
   entriesPerSecond: 0,
   entriesPerClick: 1,
-  clickPower: 1,
   clickCount: 0,
   lastTickAt: Date.now(),
   lastSavedAt: Date.now(),
   gameStartedAt: Date.now(),
-  debugMode: true,
+  debugMode: false,
   collaborators: initialCollaborators,
   upgrades: initialUpgrades,
-  prestigeUpgrades: initialPrestigeUpgrades,
   achievements: initialAchievements,
   prestige: {
-    id: "base_prestige",
-    name: "Prestige de Base",
-    description: "Votre niveau de prestige actuel",
-    cost: 0,
-    unlocked: true,
-    purchased: false,
+    id: "prestige",
+    name: "Prestige",
+    description: "Reset your progress to gain prestige points",
     points: 0,
-    multiplier: 1,
-    totalResets: 0,
-    currentSeason: fiscalSeasons[0],
+    upgrades: [],
     objectives: [],
     specializations: [],
-    upgrades: []
+    currentSeason: fiscalSeasons[0],
+    multiplier: 1,
+    totalResets: 0,
+    cost: 1e6
   },
-  multiplier: 1,
-  talentTree: initialTalentTree[0],
   talents: {
     points: 0,
-    tree: initialTalentTree
+    tree: []
   },
-  miniGames: miniGames,
-  famousAccountants: famousAccountants,
+  famousAccountants: [],
   fiscalSeasons: fiscalSeasons,
-  fiscalObjectives: fiscalObjectives,
-  fiscalSpecializations: fiscalSpecializations,
-  comboSystem: {
-    active: false,
-    clicksInCombo: 0,
-    multiplier: 1,
-    lastClickTime: 0,
-    maxMultiplier: 2,
-    comboTimeWindow: 3000
-  },
   combo: {
     active: false,
-    multiplier: 1,
     clicksInCombo: 0,
+    multiplier: 1,
     lastClickTime: 0,
     maxMultiplier: 2,
     comboTimeWindow: 3000
   },
   powerUps: [],
   activePowerUps: [],
-  features: Object.values(initialFeaturesState),
+  features: Object.fromEntries(
+    Object.values(initialFeaturesState).map(feature => [feature.id, feature])
+  ),
   cabinetUnlocked: false,
-  improvements: [],
-  level: {
-    current: 1,
-    xp: 0,
-    nextLevelXp: 100
-  }
+  miniGames: miniGames
 };
