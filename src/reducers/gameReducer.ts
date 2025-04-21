@@ -1,4 +1,4 @@
-import { GameState, GameAction, FiscalObjective, FiscalSeason, FiscalSpecialization, GameCollaborator, Achievement, Feature } from "@/types/game";
+import { GameState, GameAction, FiscalObjective, FiscalSeason, FiscalSpecialization, GameCollaborator, Achievement, Feature, Upgrade, MiniGame } from "@/types/game";
 import { toast } from "sonner";
 import { initialGameState, fiscalSeasons, playerProgression } from "@/data/gameInitialState";
 import { featureReducer } from "./features/featureReducer";
@@ -86,10 +86,13 @@ const checkObjectives = (state: GameState): FiscalObjective[] => {
   });
 };
 
-const calculatePrestigeMultiplier = (prestigeUpgrades: GameState["prestige"]["upgrades"]): number => {
+const calculatePrestigeMultiplier = (prestigeUpgrades: Upgrade[]): number => {
   return prestigeUpgrades
     .filter(u => u.purchased)
-    .reduce((total, upgrade) => total * upgrade.multiplier, 1);
+    .reduce((total, upgrade) => {
+      const effect = upgrade.effect({ ...initialGameState });
+      return total * (effect.prestige?.multiplier || 1);
+    }, 1);
 };
 
 const calculateTalentCost = (talent: GameState["talents"]["tree"][0]) => {
@@ -120,20 +123,37 @@ const checkMiniGameUnlock = (state: GameState): GameState["miniGames"] => {
 
 const checkFamousAccountantUnlock = (state: GameState): GameState["famousAccountants"] => {
   return state.famousAccountants.map(accountant => {
-    if (accountant.unlocked) return accountant;
+    if (accountant.unlocked) {
+      return accountant;
+    }
     
     // Conditions de déblocage des comptables célèbres
     switch (accountant.id) {
-      case "jean_compta_van_damme":
+      case "jean_compta_van_damme": {
         return {
           ...accountant,
           unlocked: state.debugMode ? state.clickCount >= 10 : state.clickCount >= 5000
         };
-      case "debit_vador":
+      }
+      case "debit_vador": {
         return {
           ...accountant,
           unlocked: state.totalEntries >= 1000000
         };
+      }
+      case "credit_suisse": {
+        return {
+          ...accountant,
+          unlocked: state.totalEntries >= 100000
+        };
+      }
+      case "warren_buffeuille": {
+        const totalCollabs = state.collaborators.reduce((total, collab) => total + collab.count, 0);
+        return {
+          ...accountant,
+          unlocked: totalCollabs >= 50
+        };
+      }
       default:
         return accountant;
     }
@@ -253,6 +273,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const newEntries = state.entries + entriesGained;
       const newTotalEntries = state.totalEntries + entriesGained;
 
+      // Vérification des comptables célèbres
+      const updatedFamousAccountants = checkFamousAccountantUnlock({
+        ...state,
+        entries: newEntries,
+        totalEntries: newTotalEntries
+      });
+
       // Mise à jour du combo
       const combo = state.combo.active ? {
         ...state.combo,
@@ -263,20 +290,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       } : state.combo;
 
       // Vérification des mini-jeux
-      const updatedMiniGames = state.miniGames.map(game => {
-        if (!game.active) return game;
+      const updatedMiniGames = state.miniGames.map((game: MiniGame) => {
         return {
           ...game,
-          timeLeft: Math.max(0, (game.timeLeft || 0) - deltaTime)
-        };
-      });
-
-      // Vérification des comptables célèbres
-      const updatedFamousAccountants = state.famousAccountants.map(accountant => {
-        if (!accountant.active) return accountant;
-        return {
-          ...accountant,
-          cooldown: Math.max(0, accountant.cooldown - deltaTime)
+          timeLeft: game.reward.type === "multiplier" ? Math.max(0, (game.reward.value || 0) - deltaTime) : 0
         };
       });
 
@@ -595,7 +612,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case "UPGRADE_TALENT": {
-      const { talentIndex } = action;
+      const { id } = action;
+      const talentIndex = state.talents.tree.findIndex(t => t.id === id);
       const talent = state.talents?.tree?.[talentIndex];
       if (!talent) return state;
 

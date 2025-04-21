@@ -81,6 +81,8 @@ export type MiniGame = {
   description: string;
   unlocked: boolean;
   completed: boolean;
+  active: boolean;
+  timeLeft: number;
   reward: {
     type: "multiplier" | "resource" | "talent_points";
     value: number;
@@ -93,6 +95,7 @@ export type FamousAccountant = {
   description: string;
   unlocked: boolean;
   purchased: boolean;
+  active: boolean;
   power: {
     type: "click" | "generator" | "global" | "cost" | "upgrade";
     multiplier: number;
