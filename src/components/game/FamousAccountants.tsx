@@ -9,6 +9,7 @@ const FamousAccountants: React.FC = () => {
   const { state, dispatch } = useGameState();
   const now = Date.now();
   const [activePowers, setActivePowers] = React.useState<{[key: string]: number}>({});
+  const [remainingCooldowns, setRemainingCooldowns] = React.useState<{[key: string]: number}>({});
 
   React.useEffect(() => {
     const interval = setInterval(() => {
@@ -24,6 +25,22 @@ const FamousAccountants: React.FC = () => {
     }, 1000);
     return () => clearInterval(interval);
   }, []);
+
+  const calculateRemainingCooldowns = React.useCallback(() => {
+    const now = Date.now();
+    return state.famousAccountants.reduce((acc, accountant) => {
+      if (!accountant.lastUsed) return acc;
+      const remainingTime = Math.max(
+        0,
+        accountant.cooldown - (now - accountant.lastUsed) / 1000
+      );
+      return { ...acc, [accountant.id]: remainingTime };
+    }, {});
+  }, [state.famousAccountants]);
+
+  React.useEffect(() => {
+    setRemainingCooldowns(calculateRemainingCooldowns());
+  }, [calculateRemainingCooldowns]);
 
   const activateAccountant = (id: string) => {
     dispatch({ type: "ACTIVATE_ACCOUNTANT", id });
