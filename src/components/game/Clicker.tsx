@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useGameState } from "@/context";
 import { Button } from "@/components/ui/button";
 import { formatEntries } from "@/utils/formatters";
@@ -6,18 +6,74 @@ import { Badge } from "@/components/ui/badge";
 import { calculateClickMultiplier } from "@/reducers/gameReducer";
 import { Flame, Zap, Trophy } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { motion, AnimatePresence } from "framer-motion";
+
+interface AccountingEntry {
+  debit: string;
+  credit: string;
+}
+
+// Définition des écritures comptables possibles
+const ACCOUNTING_ENTRIES: readonly AccountingEntry[] = [
+  // Ventes et encaissements
+  { debit: "411 - Clients", credit: "706 - Prestations de services" },
+  { debit: "512 - Banque", credit: "411 - Clients" },
+  { debit: "411 - Clients", credit: "707 - Ventes de marchandises" },
+  { debit: "531 - Caisse", credit: "411 - Clients" },
+  
+  // Achats et paiements
+  { debit: "607 - Achats de marchandises", credit: "401 - Fournisseurs" },
+  { debit: "401 - Fournisseurs", credit: "512 - Banque" },
+  { debit: "602 - Achats stockés", credit: "401 - Fournisseurs" },
+  { debit: "401 - Fournisseurs", credit: "531 - Caisse" },
+  
+  // Charges externes
+  { debit: "6227 - Frais d'actes", credit: "512 - Banque" },
+  { debit: "626 - Frais postaux", credit: "512 - Banque" },
+  { debit: "613 - Locations", credit: "401 - Fournisseurs" },
+  { debit: "615 - Entretien", credit: "512 - Banque" },
+  { debit: "622 - Honoraires", credit: "401 - Fournisseurs" },
+  { debit: "625 - Déplacements", credit: "512 - Banque" },
+  
+  // Charges de personnel
+  { debit: "641 - Rémunérations", credit: "421 - Personnel" },
+  { debit: "645 - Charges sociales", credit: "431 - Sécurité sociale" },
+  { debit: "421 - Personnel", credit: "512 - Banque" },
+  
+  // Opérations diverses
+  { debit: "512 - Banque", credit: "701 - Ventes de produits finis" },
+  { debit: "681 - Amortissements", credit: "281 - Amortissements" },
+  { debit: "661 - Charges d'intérêts", credit: "512 - Banque" },
+  { debit: "601 - Achats stockés", credit: "401 - Fournisseurs" },
+  
+  // TVA
+  { debit: "44566 - TVA déductible", credit: "401 - Fournisseurs" },
+  { debit: "411 - Clients", credit: "44571 - TVA collectée" },
+  { debit: "44551 - TVA à décaisser", credit: "512 - Banque" }
+] as const;
+
+interface EntryAnimation {
+  id: number;
+  entry: (typeof ACCOUNTING_ENTRIES)[number];
+  position: {
+    x: number;
+    y: number;
+  };
+}
 
 const Clicker: React.FC = () => {
   const { state, dispatch } = useGameState();
   const comboSoundRef = useRef<HTMLAudioElement | null>(null);
   const tierUpSoundRef = useRef<HTMLAudioElement | null>(null);
+  const [entries, setEntries] = useState<EntryAnimation[]>([]);
+  const [nextId, setNextId] = useState(0);
 
   useEffect(() => {
     comboSoundRef.current = new Audio("/sounds/combo.mp3");
     tierUpSoundRef.current = new Audio("/sounds/tier-up.mp3");
   }, []);
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     dispatch({ type: "CLICK" });
     
     // Jouer le son du combo si actif
@@ -27,6 +83,30 @@ const Clicker: React.FC = () => {
         comboSoundRef.current.play().catch(() => {});
       }
     }
+
+    // Créer une nouvelle entrée avec une position relative au clic
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    // Sélectionner une écriture comptable aléatoire
+    const randomIndex = Math.floor(Math.random() * ACCOUNTING_ENTRIES.length);
+    // L'index sera toujours valide car ACCOUNTING_ENTRIES est une constante non vide
+    const randomEntry = ACCOUNTING_ENTRIES[randomIndex]!;
+    
+    const newEntry: EntryAnimation = {
+      id: nextId,
+      entry: randomEntry,
+      position: { x, y }
+    };
+    
+    setEntries(prev => [...prev, newEntry]);
+    setNextId(prev => prev + 1);
+
+    // Nettoyer les anciennes entrées après 2 secondes
+    setTimeout(() => {
+      setEntries(prev => prev.filter(entry => entry.id !== nextId));
+    }, 2000);
   };
 
   const clickMultiplier = calculateClickMultiplier(state);
@@ -76,16 +156,43 @@ const Clicker: React.FC = () => {
         <div className="text-4xl font-bold">
           {formatEntries(state.entries)}
         </div>
-        <Button
-          size="lg"
-          className="w-full h-24 text-xl relative overflow-hidden"
-          onClick={handleClick}
-        >
-          Créer une écriture
-          {hasSpeedBonus && (
-            <Zap className="absolute top-2 right-2 w-4 h-4 text-yellow-400 animate-pulse" />
-          )}
-        </Button>
+        <div className="relative w-full">
+          <Button
+            size="lg"
+            className="w-full h-24 text-xl relative overflow-visible"
+            onClick={handleClick}
+          >
+            Créer une écriture
+            {hasSpeedBonus && (
+              <Zap className="absolute top-2 right-2 w-4 h-4 text-yellow-400 animate-pulse" />
+            )}
+          </Button>
+          
+          <AnimatePresence>
+            {entries.map(({ id, entry, position }) => (
+              <motion.div
+                key={id}
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: -20 }}
+                exit={{ opacity: 0, y: -40 }}
+                transition={{ duration: 1.5, ease: "easeOut" }}
+                className="absolute pointer-events-none text-sm font-medium whitespace-nowrap bg-transparent"
+                style={{ 
+                  left: position.x, 
+                  bottom: 0,
+                  color: "#00916e",
+                  transform: "translateX(-50%)" // Centre l'écriture par rapport au clic
+                }}
+              >
+                <div className="flex items-center gap-2 bg-transparent">
+                  <span className="bg-transparent">{entry.debit}</span>
+                  <span className="opacity-75 text-xs bg-transparent">à</span>
+                  <span className="bg-transparent">{entry.credit}</span>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
       </div>
 
       {/* Combo indicator with fixed height */}
