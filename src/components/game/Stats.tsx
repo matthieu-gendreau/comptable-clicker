@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useGameState } from "@/context";
 import { formatEntries } from "@/utils/formatters";
 import {
@@ -75,50 +75,27 @@ interface HistoryDataPoint {
   entriesPerSecond: number;
 }
 
-const MAX_HISTORY_POINTS = 300; // 10 minutes à 2 secondes d'intervalle
-
 const Stats = () => {
   const { state } = useGameState();
-  const [historyData, setHistoryData] = useState<HistoryDataPoint[]>(() => {
-    const now = Date.now();
-    return [{
-      timestamp: now,
-      entries: state.entries,
-      entriesFromClicks: 0,
-      entriesFromCollaborators: 0,
-      entriesPerSecond: state.entriesPerSecond,
-    }];
-  });
+  const [historyData, setHistoryData] = useState<HistoryDataPoint[]>([]);
 
-  // Fonction pour ajouter un point de données
-  const addDataPoint = () => {
-    const now = Date.now();
-    const lastPoint = historyData[historyData.length - 1];
-    
-    if (!lastPoint) return;
-    
-    // Calculer les entrées depuis le dernier point
-    const entriesGained = state.entries - lastPoint.entries;
-    const timeDiff = (now - lastPoint.timestamp) / 1000; // en secondes
-    
-    // Les entrées des collaborateurs sont basées sur le taux par seconde
-    const collaboratorEntries = Math.floor(state.entriesPerSecond * timeDiff);
-    
-    // Les entrées des clics sont la différence
-    const clickEntries = entriesGained - collaboratorEntries;
-
-    setHistoryData(prev => {
-      const newPoint: HistoryDataPoint = {
-        timestamp: now,
+  const addDataPoint = useCallback(() => {
+    setHistoryData(prevData => {
+      const newData = [...prevData, {
+        timestamp: Date.now(),
         entries: state.entries,
-        entriesFromClicks: clickEntries,
-        entriesFromCollaborators: collaboratorEntries,
+        entriesFromClicks: state.clickCount * state.entriesPerClick,
+        entriesFromCollaborators: state.entriesPerSecond,
         entriesPerSecond: state.entriesPerSecond,
-      };
-      
-      return [...prev.slice(-(MAX_HISTORY_POINTS - 1)), newPoint];
+      }];
+
+      // Keep only the last 300 points (10 minutes at 2s intervals)
+      if (newData.length > 300) {
+        return newData.slice(-300);
+      }
+      return newData;
     });
-  };
+  }, [state.entries, state.entriesPerClick, state.entriesPerSecond, state.clickCount]);
 
   useEffect(() => {
     // Ajouter un point immédiatement
@@ -128,7 +105,7 @@ const Stats = () => {
     const interval = setInterval(addDataPoint, 2000);
 
     return () => clearInterval(interval);
-  }, [state.entries, state.entriesPerSecond]);
+  }, [state.entries, state.entriesPerSecond, addDataPoint]);
 
   const stats = [
     {

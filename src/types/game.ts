@@ -62,20 +62,6 @@ export type Prestige = {
   purchased: boolean;
 };
 
-export type TalentTree = {
-  id: string;
-  name: string;
-  description: string;
-  cost: number;
-  level: number;
-  maxLevel: number;
-  effect: (state: GameState) => GameState;
-  parent?: string;
-  requirements?: {
-    type: "PARENT";
-  }[];
-};
-
 export type MiniGame = {
   id: string;
   name: string;
@@ -85,7 +71,7 @@ export type MiniGame = {
   active: boolean;
   timeLeft: number;
   reward: {
-    type: "multiplier" | "resource" | "talent_points";
+    type: "multiplier" | "resource";
     value: number;
   };
 };
@@ -172,6 +158,19 @@ export type Improvement = {
   requirements?: Requirement[];
 };
 
+export type TalentTree = {
+  id: string;
+  name: string;
+  description: string;
+  cost: number;
+  unlocked: boolean;
+  purchased: boolean;
+  effects: {
+    type: string;
+    value: number;
+  }[];
+};
+
 export interface GameState {
   entries: number;
   totalEntries: number;
@@ -206,10 +205,6 @@ export interface GameState {
     objectives: FiscalObjective[];
     currentSeason: FiscalSeason;
   };
-  talents: {
-    points: number;
-    tree: TalentTree[];
-  };
   features: Record<string, Feature>;
   activePowerUps: PowerUp[];
 }
@@ -223,7 +218,6 @@ export type GameAction =
   | { type: "COMPLETE_OBJECTIVE"; id: string }
   | { type: "CHANGE_SEASON"; id: string }
   | { type: "BUY_PRESTIGE_UPGRADE"; id: string }
-  | { type: "UPGRADE_TALENT"; id: string }
   | { type: "START_MINIGAME"; id: string }
   | { type: "COMPLETE_MINIGAME"; id: string }
   | { type: "ACTIVATE_ACCOUNTANT"; id: string }

@@ -1,4 +1,4 @@
-import type { GameCollaborator, Upgrade, Achievement, GameState, TalentTree, MiniGame, FamousAccountant, FiscalSeason, FiscalObjective, FiscalSpecialization } from "@/types/game";
+import type { GameCollaborator, Upgrade, Achievement, GameState, MiniGame, FamousAccountant, FiscalSeason, FiscalObjective, FiscalSpecialization } from "@/types/game";
 import { initialFeaturesState } from "@/reducers/features/featureReducer";
 
 // Configuration du joueur débutant
@@ -161,21 +161,6 @@ export const initialPrestigeUpgrades: Upgrade[] = [
   }
 ];
 
-export const initialTalentTree: TalentTree[] = [
-  {
-    id: "efficiency_expert",
-    name: "Efficiency Expert",
-    description: "Increase your base click power",
-    cost: 1,
-    level: 0,
-    maxLevel: 5,
-    effect: (state: GameState) => ({
-      ...state,
-      entriesPerClick: state.entriesPerClick * 1.25
-    })
-  }
-];
-
 export const miniGames: MiniGame[] = [
   {
     id: "balance_puzzle",
@@ -212,8 +197,8 @@ export const miniGames: MiniGame[] = [
     active: false,
     timeLeft: 0,
     reward: {
-      type: "talent_points",
-      value: 1
+      type: "resource",
+      value: 1000
     }
   }
 ];
@@ -309,11 +294,7 @@ export const initialUpgrades: Upgrade[] = [
       ...state,
       cabinetUnlocked: true,
       entriesPerSecond: state.entriesPerSecond * 1.5,
-      entriesPerClick: state.entriesPerClick * 1.5,
-      talents: {
-        ...state.talents,
-        points: state.talents.points + 100
-      }
+      entriesPerClick: state.entriesPerClick * 1.5
     }),
     multiplier: 1
   },
@@ -1096,14 +1077,6 @@ export const initialAchievements: Achievement[] = [
     condition: (state) => state.prestige.points > 0,
   },
   {
-    id: "talent_collector",
-    name: "Comptable Renaissance",
-    description: "Débloquez tous les talents. Vous êtes le Léonard de Vinci de la comptabilité moderne !",
-    unlocked: false,
-    hidden: true,
-    condition: (state) => state.talents?.tree?.every(t => t.level === t.maxLevel) || false,
-  },
-  {
     id: "famous_friend",
     name: "Célébrité Comptable",
     description: "Débloquez tous les comptables célèbres. Votre réseau LinkedIn fait pâlir d'envie !",
@@ -1259,10 +1232,6 @@ export const initialGameState: GameState = {
     specializations: [],
     objectives: [],
     currentSeason: fiscalSeasons[0]!
-  },
-  talents: {
-    points: 0,
-    tree: []
   },
   famousAccountants: famousAccountants,
   combo: {

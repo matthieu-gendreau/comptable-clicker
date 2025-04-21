@@ -98,10 +98,6 @@ const calculatePrestigeMultiplier = (prestigeUpgrades: Upgrade[]): number => {
     }, 1);
 };
 
-const calculateTalentCost = (talent: GameState["talents"]["tree"][0]) => {
-  return Math.floor(talent.cost);
-};
-
 export const checkMiniGameUnlock = (state: GameState): MiniGame[] => {
   return state.miniGames.map(game => {
     if (game.unlocked) return game;
@@ -216,15 +212,6 @@ const applyFeatureEffects = (state: GameState): GameState => {
             ...updatedState,
             entriesPerClick: updatedState.entriesPerClick * effect.value,
             entriesPerSecond: updatedState.entriesPerSecond * effect.value
-          };
-          break;
-        case "bonus":
-          updatedState = {
-            ...updatedState,
-            talents: {
-              ...updatedState.talents,
-              points: updatedState.talents.points + effect.value
-            }
           };
           break;
         case "automation":
@@ -593,36 +580,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       };
     }
 
-    case "UPGRADE_TALENT": {
-      const { id } = action;
-      const talentIndex = state.talents.tree.findIndex(t => t.id === id);
-      const talent = state.talents?.tree?.[talentIndex];
-      if (!talent) return state;
-
-      if (state.entries < calculateTalentCost(talent)) return state;
-
-      const parentTalent = state.talents?.tree?.find(t => t.id === talent.parent);
-      const hasRequirements = talent.requirements?.every(req => {
-        if (req.type === "PARENT") {
-          return parentTalent;
-        }
-        return true;
-      });
-
-      if (!hasRequirements) return state;
-
-      return {
-        ...state,
-        entries: state.entries - calculateTalentCost(talent),
-        talents: {
-          ...state.talents,
-          tree: state.talents?.tree?.map((t, i) =>
-            i === talentIndex ? { ...t } : t
-          ),
-        },
-      };
-    }
-
     case "START_MINIGAME": {
       const gameIndex = state.miniGames.findIndex(g => g.id === action.id);
       const game = state.miniGames[gameIndex];
@@ -656,15 +613,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             updatedState = {
               ...updatedState,
               entries: state.entries + (game.reward.value || 0)
-            };
-            break;
-          case "talent_points":
-            updatedState = {
-              ...updatedState,
-              talents: {
-                ...state.talents,
-                points: state.talents.points + (game.reward.value || 0)
-              }
             };
             break;
         }
