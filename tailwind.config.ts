@@ -64,7 +64,7 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				pennylane: {
+				comptableClicker: {
 					purple: '#9b87f5',
 					'dark-purple': '#7E69AB',
 					gray: '#8E9196',

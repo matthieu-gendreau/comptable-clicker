@@ -52,9 +52,9 @@ export const initialCollaborators: GameCollaborator[] = [
     baseOutput: 6,
     count: 0,
     unlocked: false,
-    pennylaneFeature: {
+    comptableClickerFeature: {
       title: "Interface Intuitive",
-      description: "Pennylane propose une interface moderne et intuitive pour la saisie comptable.",
+      description: "Comptable Clicker propose une interface moderne et intuitive pour la saisie comptable.",
       shown: false
     }
   },
@@ -79,9 +79,9 @@ export const initialCollaborators: GameCollaborator[] = [
     baseOutput: 50,
     count: 0,
     unlocked: false,
-    pennylaneFeature: {
+    comptableClickerFeature: {
       title: "OCR Intelligent",
-      description: "L'OCR de Pennylane extrait automatiquement les informations de vos documents.",
+      description: "L'OCR de Comptable Clicker extrait automatiquement les informations de vos documents.",
       shown: false
     }
   },
@@ -107,9 +107,9 @@ export const initialCollaborators: GameCollaborator[] = [
     baseOutput: 400,
     count: 0,
     unlocked: false,
-    pennylaneFeature: {
+    comptableClickerFeature: {
       title: "Multi-Banques",
-      description: "Pennylane se connecte à toutes vos banques pour une réconciliation automatique.",
+      description: "Comptable Clicker se connecte à toutes vos banques pour une réconciliation automatique.",
       shown: false
     }
   },
@@ -134,9 +134,9 @@ export const initialCollaborators: GameCollaborator[] = [
     baseOutput: 2500,
     count: 0,
     unlocked: false,
-    pennylaneFeature: {
+    comptableClickerFeature: {
       title: "IA Comptable",
-      description: "L'IA de Pennylane automatise les tâches répétitives et détecte les anomalies.",
+      description: "L'IA de Comptable Clicker automatise les tâches répétitives et détecte les anomalies.",
       shown: false
     }
   }

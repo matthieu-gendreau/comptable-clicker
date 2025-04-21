@@ -896,8 +896,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         return {
           ...state,
           collaborators: state.collaborators.map(g => 
-            g.id === id && g.pennylaneFeature 
-              ? { ...g, pennylaneFeature: { ...g.pennylaneFeature, shown: true }} 
+            g.id === id && g.comptableClickerFeature 
+              ? { ...g, comptableClickerFeature: { ...g.comptableClickerFeature, shown: true }} 
               : g
           )
         };
@@ -907,8 +907,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         return {
           ...state,
           upgrades: state.upgrades.map(u => 
-            u.id === id && u.pennylaneFeature 
-              ? { ...u, pennylaneFeature: { ...u.pennylaneFeature, shown: true }} 
+            u.id === id && u.comptableClickerFeature 
+              ? { ...u, comptableClickerFeature: { ...u.comptableClickerFeature, shown: true }} 
               : u
           )
         };

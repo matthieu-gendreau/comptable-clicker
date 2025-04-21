@@ -41,13 +41,13 @@ const Collaborators: React.FC = () => {
               const cost = calculateCollaboratorCost(collaborator.baseCost, collaborator.count);
               const canBuy = state.entries >= cost;
               const output = collaborator.baseOutput * collaborator.count;
-              const hasFeature = collaborator.pennylaneFeature;
-              const featureShown = hasFeature && collaborator.pennylaneFeature?.shown;
+              const hasFeature = collaborator.comptableClickerFeature;
+              const featureShown = hasFeature && collaborator.comptableClickerFeature?.shown;
 
               return (
                 <motion.div 
                   key={collaborator.id} 
-                  className={`p-3 rounded-md border ${canBuy ? "border-pennylane-light-gray" : "border-gray-200 opacity-80"}`}
+                  className={`p-3 rounded-md border ${canBuy ? "border-comptableClicker-light-gray" : "border-gray-200 opacity-80"}`}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
@@ -68,7 +68,7 @@ const Collaborators: React.FC = () => {
                           </button>
                         )}
                       </div>
-                      <p className="text-xs text-pennylane-gray">{collaborator.description}</p>
+                      <p className="text-xs text-comptableClicker-gray">{collaborator.description}</p>
                       <div className="text-sm mt-1">
                         <span className="font-medium">{collaborator.count}</span> possédés
                         {output > 0 && (
@@ -107,7 +107,7 @@ const Collaborators: React.FC = () => {
 
                   {hasFeature && featureShown && (
                     <motion.div 
-                      className="mt-3 p-2 bg-pennylane-yellow rounded border border-yellow-300 text-sm relative"
+                      className="mt-3 p-2 bg-comptableClicker-yellow rounded border border-yellow-300 text-sm relative"
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
                       transition={{ duration: 0.3 }}
@@ -122,9 +122,9 @@ const Collaborators: React.FC = () => {
                         <X size={14} />
                       </button>
                       <div className="font-medium text-[#003d3d]">
-                        ✨ {collaborator.pennylaneFeature?.title}
+                        ✨ {collaborator.comptableClickerFeature?.title}
                       </div>
-                      <div className="text-xs mt-1">{collaborator.pennylaneFeature?.description}</div>
+                      <div className="text-xs mt-1">{collaborator.comptableClickerFeature?.description}</div>
                     </motion.div>
                   )}
                 </motion.div>

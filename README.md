@@ -1,19 +1,19 @@
-# Pennylane Clicker Game
+# Comptable Clicker Game
 
 ## Description
-Un jeu incrémental (clicker game) basé sur le thème de la comptabilité, servant d'outil marketing pour Pennylane (https://www.pennylane.com/fr).
+Un jeu incrémental (clicker game) basé sur le thème de la comptabilité, servant d'outil marketing pour Comptable Clicker.
 
 ## Objectif
 Créer une expérience de jeu engageante qui :
 - Utilise la mécanique addictive des jeux "clicker"
-- Introduit progressivement les fonctionnalités de Pennylane
+- Introduit progressivement les fonctionnalités de Comptable Clicker
 - Éduque les joueurs sur les avantages de la comptabilité moderne
 - S'inspire des meilleurs jeux du genre (Universal Paperclips, Exponential Idle, Cookie Clicker)
 
 ## Thème
 - Basé sur la comptabilité et la gestion d'entreprise
-- Progression parallèle entre le jeu et la découverte des fonctionnalités Pennylane
-- Design moderne et professionnel reflétant l'image de marque Pennylane
+- Progression parallèle entre le jeu et la découverte des fonctionnalités Comptable Clicker
+- Design moderne et professionnel reflétant l'image de marque Comptable Clicker
 
 ## Inspirations
 - Universal Paperclips : Pour sa progression narrative et ses mécaniques d'automatisation

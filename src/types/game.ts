@@ -14,7 +14,7 @@ export type GameCollaborator = {
     boost?: number;
     training?: number;
   };
-  pennylaneFeature?: {
+  comptableClickerFeature?: {
     title: string;
     description: string;
     shown: boolean;
@@ -36,7 +36,7 @@ export type Upgrade = {
     id: string;
     count: number;
   };
-  pennylaneFeature?: {
+  comptableClickerFeature?: {
     title: string;
     description: string;
     shown: boolean;
