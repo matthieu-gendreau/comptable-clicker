@@ -1,5 +1,4 @@
 import React, { useReducer, useEffect } from 'react'
-import type { GameState, GameAction } from '@/types/game'
 import { gameReducer } from '@/reducers/gameReducer'
 import { initialGameState } from '@/data/gameInitialState'
 import { GameStateContext, useGameState } from './game-state-utils'
