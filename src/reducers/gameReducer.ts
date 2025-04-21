@@ -188,14 +188,42 @@ export const calculateComboMultiplier = (state: GameState): number => {
   
   if (!state.combo.active) return 1;
   
-  const timeSinceLastClick = Date.now() - state.combo.lastClickTime;
+  const now = Date.now();
+  const timeSinceLastClick = now - state.combo.lastClickTime;
+  
+  // Si le temps depuis le dernier clic dépasse la fenêtre, pas de combo
   if (timeSinceLastClick > state.combo.comboTimeWindow) {
     return 1;
   }
+
+  // Calculer la dégradation depuis la dernière mise à jour
+  const timeSinceLastDegradation = now - state.combo.lastDegradationTime;
+  const degradationSteps = Math.floor(timeSinceLastDegradation / state.combo.degradationInterval);
+  let currentMultiplier = state.combo.multiplier;
   
+  if (degradationSteps > 0) {
+    // Appliquer la dégradation
+    const degradationFactor = Math.pow(1 - state.combo.degradationRate, degradationSteps);
+    currentMultiplier = Math.max(1, currentMultiplier * degradationFactor);
+  }
+
+  // Trouver le palier actuel
+  const currentTier = state.combo.tiers.reduce((maxTier, tier, index) => {
+    return state.combo.clicksInCombo >= tier.clickThreshold ? index : maxTier;
+  }, -1);
+
+  // Calculer le multiplicateur de base avec le palier
+  const tierMultiplier = currentTier >= 0 && currentTier < state.combo.tiers.length
+    ? state.combo.tiers[currentTier].multiplier
+    : 1;
+  
+  // Appliquer le bonus de vitesse si les clics sont rapprochés
+  const speedBonus = timeSinceLastClick < 200 ? 1.5 : 1;
+
+  // Calculer le multiplicateur final
   return Math.min(
     state.combo.maxMultiplier,
-    1 + (state.combo.clicksInCombo * 0.1)
+    currentMultiplier * state.combo.baseMultiplier * tierMultiplier * speedBonus
   );
 };
 
@@ -351,27 +379,53 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case "CLICK": {
       const now = Date.now();
       const clickMultiplier = calculateClickMultiplier(state);
-      // Apply debug multiplier to clicks
       const baseEntriesPerClick = state.entriesPerClick * clickMultiplier;
       const entriesPerClick = state.debugMode ? baseEntriesPerClick * DEBUG_MULTIPLIER : baseEntriesPerClick;
 
       // Update combo system
       let combo = { ...state.combo };
-      if (!combo.active || now - combo.lastClickTime <= combo.comboTimeWindow) {
+      const timeSinceLastClick = now - combo.lastClickTime;
+
+      if (!combo.active || timeSinceLastClick <= combo.comboTimeWindow) {
+        // Mise à jour du combo
+        const newClicksInCombo = combo.active ? combo.clicksInCombo + 1 : 1;
+        
+        // Trouver le nouveau palier
+        const newTier = combo.tiers.reduce((maxTier, tier, index) => {
+          return newClicksInCombo >= tier.clickThreshold ? index : maxTier;
+        }, -1);
+
+        // Calculer le nouveau multiplicateur
+        const tierMultiplier = newTier >= 0 && newTier < combo.tiers.length
+          ? combo.tiers[newTier].multiplier
+          : 1;
+        const speedBonus = timeSinceLastClick < 200 ? 1.5 : 1;
+        const newMultiplier = Math.min(
+          combo.maxMultiplier,
+          (combo.active ? combo.multiplier : 1) * combo.baseMultiplier * tierMultiplier * speedBonus
+        );
+
         combo = {
           ...combo,
           active: true,
-          multiplier: Math.min(combo.multiplier + 0.1, combo.maxMultiplier),
-          clicksInCombo: combo.clicksInCombo + 1,
-          lastClickTime: now
+          multiplier: newMultiplier,
+          clicksInCombo: newClicksInCombo,
+          lastClickTime: now,
+          currentTier: newTier,
+          speedBonus: speedBonus,
+          lastDegradationTime: now
         };
       } else {
+        // Réinitialiser le combo
         combo = {
           ...combo,
           active: true,
-          multiplier: 1,
+          multiplier: combo.baseMultiplier,
           clicksInCombo: 1,
-          lastClickTime: now
+          lastClickTime: now,
+          currentTier: 0,
+          speedBonus: 1,
+          lastDegradationTime: now
         };
       }
 
@@ -899,6 +953,47 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return {
         ...state,
         features: featureReducer(state.features, action)
+      };
+    }
+
+    case "UNLOCK_TAB": {
+      switch (action.id) {
+        case "upgrades":
+          return {
+            ...state,
+            upgradesTabUnlocked: true
+          };
+        case "stats":
+          return {
+            ...state,
+            statsTabUnlocked: true
+          };
+        case "achievements":
+          return {
+            ...state,
+            achievementsTabUnlocked: true
+          };
+        case "prestige":
+          return {
+            ...state,
+            prestigeTabUnlocked: true
+          };
+        default:
+          return state;
+      }
+    }
+
+    case "CHECK_UNLOCKS": {
+      return {
+        ...state,
+        // L'onglet des améliorations est déverrouillé à partir de 30 entrées
+        upgradesTabUnlocked: state.upgradesTabUnlocked || state.entries >= 30,
+        // L'onglet des statistiques est déverrouillé quand l'amélioration stats_unlock est achetée
+        statsTabUnlocked: state.statsTabUnlocked || state.upgrades.some(u => u.id === 'stats_unlock' && u.purchased),
+        // L'onglet des succès est déverrouillé quand au moins un succès est débloqué
+        achievementsTabUnlocked: state.achievementsTabUnlocked || state.achievements.some(a => a.unlocked),
+        // L'onglet de prestige est déverrouillé à 1M d'entrées ou quand des points de prestige existent
+        prestigeTabUnlocked: state.prestigeTabUnlocked || state.totalEntries >= 1_000_000 || state.prestige.points > 0
       };
     }
 

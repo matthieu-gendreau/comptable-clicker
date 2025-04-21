@@ -131,6 +131,16 @@ export interface ComboSystem {
   lastClickTime: number;
   maxMultiplier: number;
   comboTimeWindow: number;
+  baseMultiplier: number;
+  speedBonus: number;
+  currentTier: number;
+  degradationRate: number;
+  degradationInterval: number;
+  lastDegradationTime: number;
+  tiers: Array<{
+    clickThreshold: number;
+    multiplier: number;
+  }>;
 }
 
 export type PowerUp = {
@@ -187,14 +197,7 @@ export interface GameState {
   achievements: Achievement[];
   miniGames: MiniGame[];
   famousAccountants: FamousAccountant[];
-  combo: {
-    active: boolean;
-    multiplier: number;
-    maxMultiplier: number;
-    clicksInCombo: number;
-    lastClickTime: number;
-    comboTimeWindow: number;
-  };
+  combo: ComboSystem;
   prestige: {
     points: number;
     multiplier: number;
@@ -207,6 +210,10 @@ export interface GameState {
   };
   features: Record<string, Feature>;
   activePowerUps: PowerUp[];
+  upgradesTabUnlocked: boolean;
+  statsTabUnlocked: boolean;
+  achievementsTabUnlocked: boolean;
+  prestigeTabUnlocked: boolean;
 }
 
 export type GameAction =
@@ -229,4 +236,6 @@ export type GameAction =
   | { type: "TOGGLE_DEBUG_MODE" }
   | { type: "UNLOCK_FEATURE"; featureId: FeatureId }
   | { type: "ACTIVATE_FEATURE"; featureId: FeatureId }
-  | { type: "DEACTIVATE_FEATURE"; featureId: FeatureId };
+  | { type: "DEACTIVATE_FEATURE"; featureId: FeatureId }
+  | { type: "UNLOCK_TAB"; id: "upgrades" | "stats" | "achievements" | "prestige" }
+  | { type: "CHECK_UNLOCKS" };

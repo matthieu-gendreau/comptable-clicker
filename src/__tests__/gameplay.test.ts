@@ -14,20 +14,66 @@ describe('Gameplay Mechanics', () => {
     
     // Reset state before each test
     state = {
-      ...initialGameState,
-      lastTickAt: now,
-      prestige: {
-        ...initialGameState.prestige,
-        cost: 1e6
-      },
+      entries: 0,
+      totalEntries: 0,
+      entriesPerClick: 1,
+      entriesPerSecond: 0,
+      clickCount: 0,
+      debugMode: false,
+      cabinetUnlocked: false,
+      gameStartedAt: Date.now(),
+      lastSavedAt: Date.now(),
+      lastTickAt: Date.now(),
+      collaborators: [],
+      upgrades: [],
+      achievements: [],
+      miniGames: [],
+      famousAccountants: [],
       combo: {
         active: false,
         clicksInCombo: 0,
         multiplier: 1,
         lastClickTime: 0,
-        maxMultiplier: 2,
-        comboTimeWindow: 3000
-      }
+        maxMultiplier: 10,
+        comboTimeWindow: 3000,
+        baseMultiplier: 1.2,
+        speedBonus: 1,
+        currentTier: -1,
+        degradationRate: 0.2,
+        degradationInterval: 500,
+        lastDegradationTime: 0,
+        tiers: [
+          { clickThreshold: 10, multiplier: 2 },
+          { clickThreshold: 25, multiplier: 3 },
+          { clickThreshold: 50, multiplier: 5 }
+        ]
+      },
+      prestige: {
+        points: 0,
+        multiplier: 1,
+        cost: 1000000,
+        totalResets: 0,
+        upgrades: [],
+        specializations: [],
+        objectives: [],
+        currentSeason: {
+          id: "season_1",
+          name: "Saison 1",
+          description: "Première saison",
+          multiplier: 1,
+          objectives: [],
+          active: true,
+          specializations: [],
+          duration: 0,
+          timeLeft: 0
+        }
+      },
+      features: {},
+      activePowerUps: [],
+      upgradesTabUnlocked: false,
+      statsTabUnlocked: false,
+      achievementsTabUnlocked: false,
+      prestigeTabUnlocked: false
     };
   });
 
@@ -399,6 +445,49 @@ describe('Gameplay Mechanics', () => {
       // Verify stats tab is still unlocked after loading
       const hasStatsUnlocked = newState.upgrades.some(u => u.id === 'stats_unlock' && u.purchased);
       expect(hasStatsUnlocked).toBe(true);
+    });
+  });
+
+  describe('Tab Unlocking System', () => {
+    it('should unlock upgrades tab permanently once unlocked', () => {
+      // Initial state with enough entries to unlock upgrades
+      state.entries = 30;
+      let newState = gameReducer(state, { type: 'CHECK_UNLOCKS' });
+      expect(newState.upgradesTabUnlocked).toBe(true);
+
+      // Entries drop below threshold
+      newState.entries = 20;
+      newState = gameReducer(newState, { type: 'CHECK_UNLOCKS' });
+      expect(newState.upgradesTabUnlocked).toBe(true);
+    });
+
+    it('should unlock stats tab when stats upgrade is purchased', () => {
+      state.upgrades = state.upgrades.map(u => 
+        u.id === 'stats_unlock' ? { ...u, purchased: true } : u
+      );
+      const newState = gameReducer(state, { type: 'CHECK_UNLOCKS' });
+      expect(newState.statsTabUnlocked).toBe(true);
+    });
+
+    it('should unlock achievements tab when first achievement is unlocked', () => {
+      state.achievements = state.achievements.map((a, i) => 
+        i === 0 ? { ...a, unlocked: true } : a
+      );
+      const newState = gameReducer(state, { type: 'CHECK_UNLOCKS' });
+      expect(newState.achievementsTabUnlocked).toBe(true);
+    });
+
+    it('should unlock prestige tab at 1M entries or when prestige points exist', () => {
+      // Test with 1M entries
+      state.totalEntries = 1_000_000;
+      let newState = gameReducer(state, { type: 'CHECK_UNLOCKS' });
+      expect(newState.prestigeTabUnlocked).toBe(true);
+
+      // Test with prestige points
+      state.totalEntries = 0;
+      state.prestige.points = 1;
+      newState = gameReducer(state, { type: 'CHECK_UNLOCKS' });
+      expect(newState.prestigeTabUnlocked).toBe(true);
     });
   });
 });

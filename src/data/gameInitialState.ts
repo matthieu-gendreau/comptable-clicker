@@ -1239,13 +1239,28 @@ export const initialGameState: GameState = {
     clicksInCombo: 0,
     multiplier: 1,
     lastClickTime: 0,
-    maxMultiplier: 2,
-    comboTimeWindow: 3000
+    maxMultiplier: 10,
+    comboTimeWindow: 3000,
+    baseMultiplier: 1.2,
+    speedBonus: 1,
+    currentTier: -1,
+    degradationRate: 0.2,
+    degradationInterval: 500,
+    lastDegradationTime: 0,
+    tiers: [
+      { clickThreshold: 10, multiplier: 2 },
+      { clickThreshold: 25, multiplier: 3 },
+      { clickThreshold: 50, multiplier: 5 }
+    ]
   },
   activePowerUps: [],
   features: Object.fromEntries(
     Object.values(initialFeaturesState).map(feature => [feature.id, feature])
   ),
   cabinetUnlocked: false,
-  miniGames: miniGames
+  miniGames: miniGames,
+  upgradesTabUnlocked: false,
+  statsTabUnlocked: false,
+  achievementsTabUnlocked: false,
+  prestigeTabUnlocked: false
 };
