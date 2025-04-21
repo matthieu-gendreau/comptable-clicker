@@ -74,14 +74,14 @@ export const initialCollaborators: GameCollaborator[] = [
   {
     id: "ocr_system",
     name: "Expert-Comptable Junior",
-    description: "Un jeune expert-comptable dynamique. La technique au service de la comptabilité !",
+    description: "Pense qu'OCR signifie 'Oh Ciel, Rien ne marche'. Mais il a un costard Sandro, donc ça passe.",
     baseCost: 25000,
     baseOutput: 200,
     count: 0,
     unlocked: false,
     comptableClickerFeature: {
       title: "OCR Intelligent",
-      description: "L'OCR de Comptable Clicker extrait automatiquement les informations de vos documents.",
+      description: "L'OCR qui transforme magiquement vos tickets de kebab en notes de frais 5 étoiles.",
       shown: false
     }
   },
@@ -89,7 +89,7 @@ export const initialCollaborators: GameCollaborator[] = [
   {
     id: "senior_accountant",
     name: "Expert-Comptable Senior",
-    description: "Un expert-comptable expérimenté qui forme les juniors. Un vrai mentor !",
+    description: "A tellement révisé le PCG qu'il récite les numéros de compte dans son sommeil. Sa femme s'inquiète.",
     baseCost: 100000,
     baseOutput: 600,
     count: 0,
@@ -102,14 +102,14 @@ export const initialCollaborators: GameCollaborator[] = [
   {
     id: "bank_sync",
     name: "Directeur de Mission",
-    description: "Un directeur qui gère les missions complexes. L'expertise à son plus haut niveau !",
+    description: "Jongle entre 15 dossiers, 3 cafés et 1 burn-out imminent. Mais ses PowerPoints sont magnifiques.",
     baseCost: 250000,
     baseOutput: 1600,
     count: 0,
     unlocked: false,
     comptableClickerFeature: {
       title: "Multi-Banques",
-      description: "Comptable Clicker se connecte à toutes vos banques pour une réconciliation automatique.",
+      description: "Synchronise vos comptes plus vite que vous ne synchronisez votre vie professionnelle et personnelle.",
       shown: false
     }
   },
@@ -117,7 +117,7 @@ export const initialCollaborators: GameCollaborator[] = [
   {
     id: "accounting_team",
     name: "Équipe Comptable",
-    description: "Une équipe complète et bien rodée. La force du collectif !",
+    description: "Une équipe si soudée qu'ils ont créé un groupe WhatsApp 'Les Mercredis du PCG'. Ils ont besoin d'aide.",
     baseCost: 1000000,
     baseOutput: 4000,
     count: 0,
@@ -129,14 +129,14 @@ export const initialCollaborators: GameCollaborator[] = [
   {
     id: "ai_assistant",
     name: "Cabinet Comptable",
-    description: "Un cabinet entier à votre service. L'excellence comptable incarnée !",
+    description: "Un cabinet entier qui pense que 'travail/vie personnelle' est une notion de débutant. Efficacité maximale !",
     baseCost: 5000000,
     baseOutput: 10000,
     count: 0,
     unlocked: false,
     comptableClickerFeature: {
       title: "IA Comptable",
-      description: "L'IA de Comptable Clicker automatise les tâches répétitives et détecte les anomalies.",
+      description: "Une IA tellement avancée qu'elle fait même les pauses café à votre place.",
       shown: false
     }
   }
