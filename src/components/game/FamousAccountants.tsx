@@ -26,7 +26,14 @@ const FamousAccountants: React.FC = () => {
   }, [now]);
 
   const activateAccountant = (id: string) => {
-    dispatch({ type: "ACTIVATE_ACCOUNTANT", id });
+    const accountant = state.famousAccountants.find(a => a.id === id);
+    if (accountant) {
+      setActivePowers(prev => ({
+        ...prev,
+        [id]: Date.now() + accountant.power.duration * 1000
+      }));
+      dispatch({ type: "ACTIVATE_ACCOUNTANT", id });
+    }
   };
 
   const purchasedAccountants = state.famousAccountants.filter((a: FamousAccountant) => a.purchased);
