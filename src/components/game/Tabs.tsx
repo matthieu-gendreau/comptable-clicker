@@ -1,7 +1,6 @@
 import React from "react";
 import { useGameState } from "@/context";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Lock } from "lucide-react";
 import Clicker from "./Clicker";
 import Stats from "./Stats";
 import Collaborators from "./Collaborators";
@@ -13,7 +12,7 @@ import AccountantShop from "./AccountantShop";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { calculatePrestigePoints } from "@/reducers/gameReducer";
-import type { Upgrade, FamousAccountant } from "@/types/game";
+import type { FamousAccountant } from "@/types/game";
 
 const GameTabs: React.FC = () => {
   const { state, dispatch } = useGameState();
@@ -30,6 +29,33 @@ const GameTabs: React.FC = () => {
   const availableAccountants = state.famousAccountants.filter((a: FamousAccountant) => a.unlocked && !a.purchased).length;
   const purchasedAccountants = state.famousAccountants.filter((a: FamousAccountant) => a.purchased).length;
   const hasPurchasedAccountants = purchasedAccountants > 0;
+
+  // Check for new tab unlocks
+  React.useEffect(() => {
+    if (!state.upgradesTabUnlocked && state.entries >= 25) {
+      dispatch({ type: "UNLOCK_TAB", id: "upgrades" });
+    }
+    if (!state.statsTabUnlocked && state.upgrades.some(u => u.id === "stats_unlock" && u.purchased)) {
+      dispatch({ type: "UNLOCK_TAB", id: "stats" });
+    }
+    if (!state.achievementsTabUnlocked && state.achievements.some(a => a.unlocked)) {
+      dispatch({ type: "UNLOCK_TAB", id: "achievements" });
+    }
+    if (!state.prestigeTabUnlocked && (state.totalEntries >= 1_000_000 || state.prestige.points > 0)) {
+      dispatch({ type: "UNLOCK_TAB", id: "prestige" });
+    }
+  }, [
+    state.entries,
+    state.upgrades,
+    state.achievements,
+    state.totalEntries,
+    state.prestige.points,
+    state.upgradesTabUnlocked,
+    state.statsTabUnlocked,
+    state.achievementsTabUnlocked,
+    state.prestigeTabUnlocked,
+    dispatch
+  ]);
 
   const tabs = [
     {
@@ -65,7 +91,7 @@ const GameTabs: React.FC = () => {
           <Upgrades />
         </div>
       ),
-      unlocked: state.entries >= 25,
+      unlocked: state.upgradesTabUnlocked,
     },
     {
       id: "accountants",
@@ -94,7 +120,7 @@ const GameTabs: React.FC = () => {
           <Stats />
         </div>
       ),
-      unlocked: state.upgrades.some((u: Upgrade) => u.id === "stats_unlock" && u.purchased),
+      unlocked: state.statsTabUnlocked,
     },
     {
       id: "prestige",
@@ -113,7 +139,7 @@ const GameTabs: React.FC = () => {
           <Prestige />
         </div>
       ),
-      unlocked: state.totalEntries >= 1_000_000 || state.prestige.points > 0,
+      unlocked: state.prestigeTabUnlocked,
     },
     {
       id: "achievements",
@@ -123,9 +149,12 @@ const GameTabs: React.FC = () => {
           <Achievements />
         </div>
       ),
-      unlocked: state.achievements.some(a => a.unlocked),
+      unlocked: state.achievementsTabUnlocked,
     },
   ];
+
+  // Filter only unlocked tabs
+  const unlockedTabs = tabs.filter(tab => tab.unlocked);
 
   const handleReset = () => {
     if (window.confirm("Êtes-vous sûr de vouloir réinitialiser votre progression ? Cette action est irréversible.")) {
@@ -137,14 +166,12 @@ const GameTabs: React.FC = () => {
     <Tabs defaultValue="main" className="w-full">
       <div className="flex items-center justify-between mb-6">
         <TabsList>
-          {tabs.map((tab) => (
+          {unlockedTabs.map((tab) => (
             <TabsTrigger
               key={tab.id}
               value={tab.id}
-              disabled={!tab.unlocked}
               className="relative"
             >
-              {!tab.unlocked && <Lock className="w-4 h-4 mr-2" />}
               {tab.label}
             </TabsTrigger>
           ))}
@@ -159,7 +186,7 @@ const GameTabs: React.FC = () => {
         </Button>
       </div>
 
-      {tabs.map((tab) => (
+      {unlockedTabs.map((tab) => (
         <TabsContent
           key={tab.id}
           value={tab.id}
