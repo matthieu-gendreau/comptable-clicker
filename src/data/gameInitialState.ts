@@ -332,6 +332,16 @@ export const initialUpgrades: Upgrade[] = [
     multiplier: 1
   },
   {
+    id: "stats_unlock",
+    name: "Tableau de Bord",
+    description: "Débloque l'onglet des statistiques pour suivre votre progression",
+    cost: 100,
+    unlocked: true,
+    purchased: false,
+    effect: (state: GameState): GameState => state,
+    multiplier: 1
+  },
+  {
     id: "coffee_basics",
     name: "Machine à Café Basique",
     description: "Le carburant de base du comptable. Gains de clic +25%",

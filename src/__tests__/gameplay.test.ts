@@ -337,6 +337,70 @@ describe('Gameplay Mechanics', () => {
       expect(completedMiniGame?.completed).toBe(true);
     });
   });
+
+  describe('Upgrade System', () => {
+    it('should unlock statistics tab when buying stats_unlock upgrade', () => {
+      // Setup initial state with enough entries to buy the upgrade
+      state.entries = 200;
+      
+      // Find the stats_unlock upgrade
+      const statsUpgrade = state.upgrades.find(u => u.id === 'stats_unlock');
+      expect(statsUpgrade).toBeDefined();
+      expect(statsUpgrade?.unlocked).toBe(true);
+      expect(statsUpgrade?.purchased).toBe(false);
+      
+      // Verify stats tab is locked initially
+      const hasStatsUnlocked = state.upgrades.some(u => u.id === 'stats_unlock' && u.purchased);
+      expect(hasStatsUnlocked).toBe(false);
+      
+      // Buy the upgrade
+      const newState = gameReducer(state, { 
+        type: 'BUY_UPGRADE',
+        id: 'stats_unlock'
+      });
+      
+      // Verify the upgrade was purchased
+      const updatedUpgrade = newState.upgrades.find(u => u.id === 'stats_unlock');
+      expect(updatedUpgrade?.purchased).toBe(true);
+      
+      // Verify entries were deducted
+      expect(newState.entries).toBe(100); // 200 - 100 (upgrade cost)
+      
+      // Verify stats tab is now unlocked
+      const hasStatsUnlockedAfter = newState.upgrades.some(u => u.id === 'stats_unlock' && u.purchased);
+      expect(hasStatsUnlockedAfter).toBe(true);
+    });
+  });
+
+  describe('Game State Management', () => {
+    it('should correctly save and load purchased upgrades', () => {
+      // Setup initial state with enough entries to buy the upgrade
+      state.entries = 200;
+      
+      // Buy the stats_unlock upgrade
+      let newState = gameReducer(state, { 
+        type: 'BUY_UPGRADE',
+        id: 'stats_unlock'
+      });
+      
+      // Verify the upgrade was purchased
+      expect(newState.upgrades.find(u => u.id === 'stats_unlock')?.purchased).toBe(true);
+      
+      // Simulate saving and loading the game
+      newState = gameReducer(state, {
+        type: 'LOAD_GAME',
+        state: newState
+      });
+      
+      // Verify the upgrade is still marked as purchased after loading
+      const loadedUpgrade = newState.upgrades.find(u => u.id === 'stats_unlock');
+      expect(loadedUpgrade?.purchased).toBe(true);
+      
+      // Verify stats tab is still unlocked after loading
+      const hasStatsUnlocked = newState.upgrades.some(u => u.id === 'stats_unlock' && u.purchased);
+      expect(hasStatsUnlocked).toBe(true);
+    });
+  });
 });
 
 describe('BUY_COLLABORATOR action', () => {
