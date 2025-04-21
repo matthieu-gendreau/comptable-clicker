@@ -51,12 +51,7 @@ export const initialCollaborators: GameCollaborator[] = [
     baseCost: 2000,
     baseOutput: 24,
     count: 0,
-    unlocked: false,
-    comptableClickerFeature: {
-      title: "Interface Intuitive",
-      description: "Aussi intuitive qu'un parcours du combattant dans le noir.",
-      shown: false
-    }
+    unlocked: false
   },
   // PHASE 3 : COMPTABLE CONFIRMÉ
   {
@@ -78,12 +73,7 @@ export const initialCollaborators: GameCollaborator[] = [
     baseCost: 25000,
     baseOutput: 200,
     count: 0,
-    unlocked: false,
-    comptableClickerFeature: {
-      title: "OCR Intelligent",
-      description: "L'OCR qui transforme magiquement vos tickets de kebab en notes de frais 5 étoiles.",
-      shown: false
-    }
+    unlocked: false
   },
   // PHASE 4 : CHEF COMPTABLE
   {
@@ -106,12 +96,7 @@ export const initialCollaborators: GameCollaborator[] = [
     baseCost: 250000,
     baseOutput: 1600,
     count: 0,
-    unlocked: false,
-    comptableClickerFeature: {
-      title: "Multi-Banques",
-      description: "Synchronise vos comptes plus vite que vous ne synchronisez votre vie professionnelle et personnelle.",
-      shown: false
-    }
+    unlocked: false
   },
   // PHASE 5 : EXPERT-COMPTABLE
   {
@@ -133,12 +118,7 @@ export const initialCollaborators: GameCollaborator[] = [
     baseCost: 5000000,
     baseOutput: 10000,
     count: 0,
-    unlocked: false,
-    comptableClickerFeature: {
-      title: "IA Comptable",
-      description: "Une IA tellement avancée qu'elle fait même les pauses café à votre place.",
-      shown: false
-    }
+    unlocked: false
   }
 ];
 
@@ -1080,12 +1060,7 @@ export const initialUpgrades: Upgrade[] = [
         baseOutput: g.baseOutput * 1.5
       }))
     }),
-    multiplier: 1,
-    comptableClickerFeature: {
-      title: "Crash EBP",
-      description: "Votre F5 a des ampoules.",
-      shown: false
-    }
+    multiplier: 1
   },
   {
     id: "sage_update",
@@ -1106,12 +1081,7 @@ export const initialUpgrades: Upgrade[] = [
         baseOutput: g.baseOutput * 1.75
       }))
     }),
-    multiplier: 1,
-    comptableClickerFeature: {
-      title: "Mise à Jour Surprise",
-      description: "C'est comme un escape game, mais avec votre logiciel comptable !",
-      shown: false
-    }
+    multiplier: 1
   },
   {
     id: "ciel_compta_bug",
@@ -1132,12 +1102,7 @@ export const initialUpgrades: Upgrade[] = [
         baseOutput: g.baseOutput * 2
       }))
     }),
-    multiplier: 1,
-    comptableClickerFeature: {
-      title: "Bug Mystérieux",
-      description: "La connexion reviendra... un jour...",
-      shown: false
-    }
+    multiplier: 1
   }
 ];
 

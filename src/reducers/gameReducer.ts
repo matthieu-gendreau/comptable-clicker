@@ -889,34 +889,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         debugMode: true,
       };
       
-    case "SHOW_FEATURE": {
-      const [type, id] = action.id.split(":");
-      
-      if (type === "generator") {
-        return {
-          ...state,
-          collaborators: state.collaborators.map(g => 
-            g.id === id && g.comptableClickerFeature 
-              ? { ...g, comptableClickerFeature: { ...g.comptableClickerFeature, shown: true }} 
-              : g
-          )
-        };
-      }
-      
-      if (type === "upgrade") {
-        return {
-          ...state,
-          upgrades: state.upgrades.map(u => 
-            u.id === id && u.comptableClickerFeature 
-              ? { ...u, comptableClickerFeature: { ...u.comptableClickerFeature, shown: true }} 
-              : u
-          )
-        };
-      }
-      
-      return state;
-    }
-
     case "TOGGLE_DEBUG_MODE": {
       const newState = {
         ...state,
@@ -942,7 +914,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         features: updatedFeatures
       };
       
-      // Appliquer les effets immédiatement
       updatedState = applyFeatureEffects(updatedState);
       
       return updatedState;

@@ -14,11 +14,6 @@ export type GameCollaborator = {
     boost?: number;
     training?: number;
   };
-  comptableClickerFeature?: {
-    title: string;
-    description: string;
-    shown: boolean;
-  };
   requiresPrestige?: boolean;
 };
 
@@ -35,11 +30,6 @@ export type Upgrade = {
     type: string;
     id: string;
     count: number;
-  };
-  comptableClickerFeature?: {
-    title: string;
-    description: string;
-    shown: boolean;
   };
 };
 
