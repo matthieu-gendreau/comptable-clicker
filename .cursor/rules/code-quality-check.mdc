@@ -1,0 +1,82 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Code Quality Check Rule
+
+This rule ensures code quality through systematic verification using [package.json](mdc:package.json) scripts.
+
+## When to Apply
+
+After any series of code modifications including:
+- Adding or modifying features
+- Bug fixes
+- Refactoring
+- Project structure changes
+- Adding or modifying tests
+
+## Verification Process
+
+### 1. Run Quality Checks
+
+Execute the check script which runs all verifications:
+```bash
+npm run check
+```
+
+This command runs sequentially:
+- TypeScript verification (`tsc --noEmit`)
+- ESLint checks (`eslint .`)
+- Vitest tests (`vitest --run`)
+
+### 2. Verification Requirements
+
+All checks must pass with:
+- ✅ No TypeScript errors
+- ✅ No ESLint warnings
+- ✅ No ESLint errors
+- ✅ All tests passing
+
+### 3. Strict Prohibitions
+
+❌ The following practices are strictly forbidden:
+- Modifying ESLint configuration to hide errors/warnings
+- Disabling TypeScript rules
+- Using error-suppressing comments (`// @ts-ignore`, `// eslint-disable`, etc.)
+- Committing code that fails verifications
+
+## Resolution Process
+
+When `npm run check` reveals issues:
+
+1. Document all detected problems
+2. Fix each issue at its source
+3. Re-run verification until all checks pass
+4. Only then proceed with git operations
+
+## Correct Workflow Example
+
+```bash
+# 1. Make necessary changes to code
+
+# 2. Run all verifications
+npm run check
+
+# 3. If issues are found:
+#    - Fix each issue
+#    - Re-run npm run check
+#    - Repeat until all checks pass
+
+# 4. When all checks pass:
+git add .
+git commit -m "feat: description of changes"
+```
+
+## Responsibility
+
+Each team member must ensure their code passes all verifications before committing. This rule is critical for:
+- Maintaining code quality
+- Preventing technical debt
+- Ensuring consistent codebase standards
+- Facilitating code review process
