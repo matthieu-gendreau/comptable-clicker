@@ -250,7 +250,7 @@ export const famousAccountants: FamousAccountant[] = [
   {
     id: "bilan_gates",
     name: "Bilan Gates",
-    description: "Le génie de la comptabilité numérique",
+    description: "Le gourou de la compta numérique. Sa calculette a plus de RAM que votre PC.",
     unlocked: true,
     purchased: false,
     active: false,
@@ -264,7 +264,7 @@ export const famousAccountants: FamousAccountant[] = [
   {
     id: "jean_compta_van_damme",
     name: "Jean-Compta Van Damme",
-    description: "Ses clics sont aussi puissants que ses coups",
+    description: "Ses splits divisent les comptes plus vite que l'éclair. 'Aware is not aware.'",
     unlocked: false,
     purchased: false,
     active: false,
@@ -278,7 +278,7 @@ export const famousAccountants: FamousAccountant[] = [
   {
     id: "credit_suisse",
     name: "Crédit Suisse",
-    description: "Expert en optimisation des coûts",
+    description: "Tellement discret qu'il fait disparaître les charges comme par magie. Ne posez pas de questions.",
     unlocked: false,
     purchased: false,
     active: false,
@@ -292,7 +292,7 @@ export const famousAccountants: FamousAccountant[] = [
   {
     id: "warren_buffeuille",
     name: "Warren Buffeuille",
-    description: "Le sage de l'investissement comptable",
+    description: "Le sage de la compta analytique. Médite 2h par jour sur les provisions pour risques.",
     unlocked: false,
     purchased: false,
     active: false,
@@ -307,7 +307,7 @@ export const famousAccountants: FamousAccountant[] = [
   {
     id: "debit_vador",
     name: "Débit Vador",
-    description: "Le côté obscur de la comptabilité",
+    description: "A basculé du côté obscur de la compta. Son grand livre est plus noir que son casque.",
     unlocked: false,
     purchased: false,
     active: false,
@@ -1216,8 +1216,8 @@ export const initialAchievements: Achievement[] = [
   },
   {
     id: "famous_friend",
-    name: "Star de la Compta",
-    description: "Tous les comptables célèbres débloqués. Votre LinkedIn fait plus de vues que Netflix !",
+    name: "Maître des Légendes",
+    description: "Toutes les Légendes de la Compta débloquées. Même Chuck Norris fait appel à vous pour sa déclaration d'impôts !",
     unlocked: false,
     hidden: true,
     condition: (state) => state.famousAccountants?.every(a => a.unlocked) || false,
