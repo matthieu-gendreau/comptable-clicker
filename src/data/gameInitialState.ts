@@ -324,7 +324,7 @@ export const initialUpgrades: Upgrade[] = [
   {
     id: "linkedin_premium",
     name: "LinkedIn Premium",
-    description: "Débloque le Cabinet de Recrutement et permet d'embaucher des comptables célèbres",
+    description: "Débloque le Cabinet de Recrutement et permet d'embaucher des Légendes de la Compta",
     cost: 1000,
     unlocked: false,
     purchased: false,

@@ -25,7 +25,7 @@ const GameTabs: React.FC = () => {
   // Vérifie si on peut faire un prestige
   const canPrestige = calculatePrestigePoints(state.totalEntries, state.prestige.objectives) > state.prestige.points;
 
-  // Vérifie si des comptables célèbres sont disponibles
+  // Vérifie si des Légendes de la Compta sont disponibles
   const availableAccountants = state.famousAccountants.filter((a: FamousAccountant) => a.unlocked && !a.purchased).length;
   const purchasedAccountants = state.famousAccountants.filter((a: FamousAccountant) => a.purchased).length;
   const hasPurchasedAccountants = purchasedAccountants > 0;

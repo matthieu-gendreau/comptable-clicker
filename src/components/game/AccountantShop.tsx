@@ -18,7 +18,7 @@ const AccountantShop: React.FC = () => {
     <Card>
       <CardHeader>
         <CardTitle>Cabinet de Recrutement</CardTitle>
-        <CardDescription>Recrutez des comptables célèbres pour booster votre productivité</CardDescription>
+        <CardDescription>Recrutez des Légendes de la Compta pour booster votre productivité</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {state.famousAccountants.map((accountant: FamousAccountant) => (

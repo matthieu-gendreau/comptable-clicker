@@ -5,7 +5,7 @@ export const initialFeaturesState: Record<FeatureId, Feature> = {
   linkedinPremium: {
     id: "linkedinPremium",
     name: "LinkedIn Premium",
-    description: "Débloque le Cabinet de Recrutement et permet d'embaucher des comptables célèbres",
+    description: "Débloque le Cabinet de Recrutement et permet d'embaucher des Légendes de la Compta",
     unlocked: false,
     active: false,
     requirements: [
@@ -82,7 +82,7 @@ export const featureReducer = (
       
       if (feature.id === "linkedinPremium") {
         toast.success("💼 LinkedIn Premium activé !", {
-          description: "Le Cabinet de Recrutement est maintenant disponible. Vous pouvez recruter des comptables célèbres !"
+          description: "Le Cabinet de Recrutement est maintenant disponible. Vous pouvez recruter des Légendes de la Compta !"
         });
       } else {
         toast.success(`✨ Fonctionnalité activée : ${feature.name}`);

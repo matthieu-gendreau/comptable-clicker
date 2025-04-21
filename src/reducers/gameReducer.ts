@@ -126,7 +126,7 @@ const checkFamousAccountantUnlock = (state: GameState): GameState["famousAccount
       return accountant;
     }
     
-    // Conditions de déblocage des comptables célèbres
+    // Conditions de déblocage des Légendes de la Compta
     switch (accountant.id) {
       case "jean_compta_van_damme": {
         return {
@@ -301,7 +301,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // Check collaborator unlocking with updated state
       const updatedCollaborators = checkCollaboratorUnlock(updatedState);
 
-      // Vérification des comptables célèbres
+      // Vérification des Légendes de la Compta
       const updatedFamousAccountants = checkFamousAccountantUnlock({
         ...updatedState,
         collaborators: updatedCollaborators,
