@@ -30,6 +30,9 @@ export const checkAchievements = (state: GameState, updates: Partial<GameState>)
 
     try {
       if (achievement.condition(testState)) {
+        toast.success(`🏆 Trophée débloqué : ${achievement.name}`, {
+          description: achievement.description,
+        });
         return {
           ...achievement,
           unlocked: true
