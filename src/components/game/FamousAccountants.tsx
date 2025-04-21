@@ -100,9 +100,6 @@ const FamousAccountants: React.FC = () => {
         const cooldownProgress = accountant.lastUsed 
           ? ((now - accountant.lastUsed) / (accountant.cooldown * 1000)) * 100 
           : 100;
-        const remainingTime = accountant.lastUsed 
-          ? Math.ceil((accountant.cooldown * 1000 - (now - accountant.lastUsed)) / 1000) 
-          : 0;
 
         const powerActive = activePowers[accountant.id];
         const powerTimeRemaining = powerActive ? Math.ceil((powerActive - now) / 1000) : 0;
@@ -131,10 +128,6 @@ const FamousAccountants: React.FC = () => {
                   {powerActive ? (
                     <div className="text-emerald-300 text-xs font-medium">
                       {powerTimeRemaining}s actif
-                    </div>
-                  ) : isOnCooldown ? (
-                    <div className="text-slate-300 text-xs">
-                      {remainingTime}s recharge
                     </div>
                   ) : null}
                   {/* Barre de progression du cooldown */}
