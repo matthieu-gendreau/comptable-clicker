@@ -213,7 +213,7 @@ export const calculateComboMultiplier = (state: GameState): number => {
   }, -1);
 
   // Calculer le multiplicateur de base avec le palier
-  const tierMultiplier = currentTier >= 0 && currentTier < state.combo.tiers.length
+  const tierMultiplier = currentTier >= 0 && currentTier < state.combo.tiers.length && state.combo.tiers[currentTier]
     ? state.combo.tiers[currentTier].multiplier
     : 1;
   
@@ -396,7 +396,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         }, -1);
 
         // Calculer le nouveau multiplicateur
-        const tierMultiplier = newTier >= 0 && newTier < combo.tiers.length
+        const tierMultiplier = newTier >= 0 && newTier < combo.tiers.length && combo.tiers[newTier]
           ? combo.tiers[newTier].multiplier
           : 1;
         const speedBonus = timeSinceLastClick < 200 ? 1.5 : 1;
@@ -420,7 +420,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         combo = {
           ...combo,
           active: true,
-          multiplier: combo.baseMultiplier,
+          multiplier: 1,
           clicksInCombo: 1,
           lastClickTime: now,
           currentTier: 0,

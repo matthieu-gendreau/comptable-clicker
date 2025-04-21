@@ -25,7 +25,18 @@ describe('Gameplay Mechanics', () => {
       lastSavedAt: Date.now(),
       lastTickAt: Date.now(),
       collaborators: [],
-      upgrades: [],
+      upgrades: [
+        {
+          id: "stats_unlock",
+          name: "Tableau de Bord",
+          description: "Débloque l'onglet des statistiques pour suivre votre progression",
+          cost: 100,
+          unlocked: true,
+          purchased: false,
+          effect: (state: GameState): GameState => state,
+          multiplier: 1
+        }
+      ],
       achievements: [],
       miniGames: [],
       famousAccountants: [],
@@ -42,34 +53,30 @@ describe('Gameplay Mechanics', () => {
         degradationRate: 0.2,
         degradationInterval: 500,
         lastDegradationTime: 0,
-        tiers: [
-          { clickThreshold: 10, multiplier: 2 },
-          { clickThreshold: 25, multiplier: 3 },
-          { clickThreshold: 50, multiplier: 5 }
-        ]
+        tiers: []
       },
+      activePowerUps: [],
+      features: {},
       prestige: {
         points: 0,
         multiplier: 1,
-        cost: 1000000,
+        cost: 1e6,
         totalResets: 0,
         upgrades: [],
         specializations: [],
         objectives: [],
         currentSeason: {
-          id: "season_1",
-          name: "Saison 1",
-          description: "Première saison",
-          multiplier: 1,
-          objectives: [],
+          id: "declarations",
+          name: "Saison des Déclarations",
+          description: "",
           active: true,
+          objectives: [],
           specializations: [],
-          duration: 0,
+          multiplier: 1.2,
+          duration: 604800,
           timeLeft: 0
         }
       },
-      features: {},
-      activePowerUps: [],
       upgradesTabUnlocked: false,
       statsTabUnlocked: false,
       achievementsTabUnlocked: false,
@@ -470,10 +477,21 @@ describe('Gameplay Mechanics', () => {
     });
 
     it('should unlock achievements tab when first achievement is unlocked', () => {
-      state.achievements = state.achievements.map((a, i) => 
-        i === 0 ? { ...a, unlocked: true } : a
-      );
-      const newState = gameReducer(state, { type: 'CHECK_UNLOCKS' });
+      // Ajouter un succès débloqué à l'état
+      const stateWithAchievement = {
+        ...state,
+        achievements: [
+          {
+            id: "first_entry",
+            name: "Mind the GAAP",
+            description: "Votre première écriture automatisée",
+            unlocked: true,
+            hidden: false,
+            condition: (state: GameState) => state.totalEntries >= 1,
+          }
+        ]
+      };
+      const newState = gameReducer(stateWithAchievement, { type: 'CHECK_UNLOCKS' });
       expect(newState.achievementsTabUnlocked).toBe(true);
     });
 

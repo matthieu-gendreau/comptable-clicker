@@ -90,15 +90,15 @@ const Clicker: React.FC = () => {
 
       {/* Combo indicator with fixed height */}
       <div className="h-[80px] flex flex-col justify-center">
-        {state.totalEntries >= 10 && (
+        {state.totalEntries >= 10 && state.combo.comboTimeWindow > 0 && (
           <div className={`flex flex-col gap-2 p-3 rounded-lg transition-colors w-full ${
-            comboActive ? "bg-orange-100 text-orange-700" : "bg-gray-100 text-gray-500"
+            comboActive && comboMultiplier > 1 && timeLeft > 0 ? "bg-orange-100 text-orange-700" : "bg-gray-100 text-gray-500"
           }`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Flame className={`w-5 h-5 ${comboActive ? "animate-pulse" : ""}`} />
+                <Flame className={`w-5 h-5 ${comboActive && comboMultiplier > 1 && timeLeft > 0 ? "animate-pulse" : ""}`} />
                 <div className="text-sm font-medium">
-                  {comboActive ? (
+                  {comboActive && comboMultiplier > 1 && timeLeft > 0 ? (
                     <>
                       <span className="font-bold">Combo x{comboMultiplier.toFixed(1)}</span>
                       <span className="mx-2">•</span>
@@ -111,12 +111,12 @@ const Clicker: React.FC = () => {
                   )}
                 </div>
               </div>
-              {currentTier >= 0 && (
+              {currentTier >= 0 && comboMultiplier > 1 && timeLeft > 0 && (
                 <Trophy className="w-5 h-5 text-yellow-600" />
               )}
             </div>
             
-            {comboActive && nextTier && (
+            {comboActive && comboMultiplier > 1 && timeLeft > 0 && nextTier && (
               <div className="flex flex-col gap-1">
                 <div className="flex justify-between text-xs">
                   <span>Prochain palier : x{nextTier.multiplier}</span>

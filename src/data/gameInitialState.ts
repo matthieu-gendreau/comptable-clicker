@@ -872,43 +872,60 @@ export const initialUpgrades: Upgrade[] = [
 
   // COMBO IMPROVEMENTS
   {
-    id: "combo_duration",
-    name: "Durée du Combo",
-    description: "Gardez votre combo plus longtemps. +5 secondes de combo",
-    cost: 150000,
-    unlocked: false,
+    id: "combo_tier_1",
+    name: "Combo Débutant",
+    description: "Débloque le premier palier de combo (x2 à 10 clics)",
+    cost: 1000,
+    unlocked: true,
     purchased: false,
-    requirement: {
-      type: "clickCount",
-      id: "click_count_15k",
-      count: 15000
-    },
     effect: (state: GameState): GameState => ({
       ...state,
       combo: {
         ...state.combo,
-        comboTimeWindow: state.combo.comboTimeWindow + 5000
+        comboTimeWindow: 3000,
+        tiers: [...state.combo.tiers, { clickThreshold: 10, multiplier: 2 }]
       }
     }),
     multiplier: 1
   },
   {
-    id: "combo_power",
-    name: "Puissance du Combo",
-    description: "Des combos plus puissants. Multiplicateur maximum +2",
-    cost: 300000,
+    id: "combo_tier_2",
+    name: "Combo Intermédiaire",
+    description: "Débloque le deuxième palier de combo (x3 à 25 clics)",
+    cost: 5000,
     unlocked: false,
     purchased: false,
     requirement: {
       type: "clickCount",
-      id: "click_count_20k",
-      count: 20000
+      id: "click_count_500",
+      count: 500
     },
     effect: (state: GameState): GameState => ({
       ...state,
       combo: {
         ...state.combo,
-        maxMultiplier: state.combo.maxMultiplier + 2
+        tiers: [...state.combo.tiers, { clickThreshold: 25, multiplier: 3 }]
+      }
+    }),
+    multiplier: 1
+  },
+  {
+    id: "combo_tier_3",
+    name: "Combo Expert",
+    description: "Débloque le troisième palier de combo (x5 à 50 clics)",
+    cost: 15000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "clickCount",
+      id: "click_count_1000",
+      count: 1000
+    },
+    effect: (state: GameState): GameState => ({
+      ...state,
+      combo: {
+        ...state.combo,
+        tiers: [...state.combo.tiers, { clickThreshold: 50, multiplier: 5 }]
       }
     }),
     multiplier: 1
@@ -1240,18 +1257,14 @@ export const initialGameState: GameState = {
     multiplier: 1,
     lastClickTime: 0,
     maxMultiplier: 10,
-    comboTimeWindow: 3000,
+    comboTimeWindow: 0,
     baseMultiplier: 1.2,
     speedBonus: 1,
     currentTier: -1,
     degradationRate: 0.2,
     degradationInterval: 500,
     lastDegradationTime: 0,
-    tiers: [
-      { clickThreshold: 10, multiplier: 2 },
-      { clickThreshold: 25, multiplier: 3 },
-      { clickThreshold: 50, multiplier: 5 }
-    ]
+    tiers: []
   },
   activePowerUps: [],
   features: Object.fromEntries(
