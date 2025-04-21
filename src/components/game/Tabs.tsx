@@ -32,16 +32,16 @@ const GameTabs: React.FC = () => {
 
   // Check for new tab unlocks
   React.useEffect(() => {
-    if (!state.upgradesTabUnlocked && state.entries >= 25) {
+    if (!state.upgradesTabUnlocked && state.entries >= 15) {
       dispatch({ type: "UNLOCK_TAB", id: "upgrades" });
     }
     if (!state.statsTabUnlocked && state.upgrades.some(u => u.id === "stats_unlock" && u.purchased)) {
       dispatch({ type: "UNLOCK_TAB", id: "stats" });
     }
-    if (!state.achievementsTabUnlocked && state.achievements.some(a => a.unlocked)) {
+    if (!state.achievementsTabUnlocked && state.totalEntries >= 500) {
       dispatch({ type: "UNLOCK_TAB", id: "achievements" });
     }
-    if (!state.prestigeTabUnlocked && (state.totalEntries >= 1_000_000 || state.prestige.points > 0)) {
+    if (!state.prestigeTabUnlocked && (state.totalEntries >= 500_000 || state.prestige.points > 0)) {
       dispatch({ type: "UNLOCK_TAB", id: "prestige" });
     }
   }, [

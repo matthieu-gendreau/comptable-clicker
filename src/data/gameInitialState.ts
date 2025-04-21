@@ -5,7 +5,7 @@ import { initialFeaturesState } from "@/reducers/features/featureReducer";
 export const playerProgression = {
   // Configuration de base du joueur
   baseClickValue: 1,
-  baseMultiplier: 1
+  baseMultiplier: 1.2
 };
 
 export const initialCollaborators: GameCollaborator[] = [
@@ -15,11 +15,11 @@ export const initialCollaborators: GameCollaborator[] = [
     name: "Stagiaire",
     description: "Un stagiaire motivé pour vous aider. Deux cerveaux valent mieux qu'un !",
     baseCost: 25,
-    baseOutput: 0.2,
+    baseOutput: 0.5,
     count: 0,
     unlocked: true,
     effects: {
-      training: 0.1 // Bonus d'apprentissage mutuel
+      training: 0.1
     }
   },
   {
@@ -27,7 +27,7 @@ export const initialCollaborators: GameCollaborator[] = [
     name: "Assistant Administratif",
     description: "Un assistant pour gérer les tâches administratives. La paperasse n'attend pas !",
     baseCost: 100,
-    baseOutput: 0.5,
+    baseOutput: 2,
     count: 0,
     unlocked: false
   },
@@ -37,11 +37,11 @@ export const initialCollaborators: GameCollaborator[] = [
     name: "Comptable Débutant",
     description: "Un jeune comptable qui maîtrise Excel. La puissance des tableaux croisés dynamiques !",
     baseCost: 500,
-    baseOutput: 2,
+    baseOutput: 8,
     count: 0,
     unlocked: false,
     effects: {
-      boost: 1.05 // Améliore légèrement tout le monde
+      boost: 1.05
     }
   },
   {
@@ -49,7 +49,7 @@ export const initialCollaborators: GameCollaborator[] = [
     name: "Comptable Confirmé",
     description: "Un comptable expérimenté qui maîtrise les logiciels. Fini les erreurs d'arrondi !",
     baseCost: 2000,
-    baseOutput: 6,
+    baseOutput: 24,
     count: 0,
     unlocked: false,
     comptableClickerFeature: {
@@ -64,7 +64,7 @@ export const initialCollaborators: GameCollaborator[] = [
     name: "Chef Comptable",
     description: "Un chef comptable qui supervise l'équipe. Son expertise fait la différence !",
     baseCost: 10000,
-    baseOutput: 20,
+    baseOutput: 80,
     count: 0,
     unlocked: false,
     effects: {
@@ -76,7 +76,7 @@ export const initialCollaborators: GameCollaborator[] = [
     name: "Expert-Comptable Junior",
     description: "Un jeune expert-comptable dynamique. La technique au service de la comptabilité !",
     baseCost: 25000,
-    baseOutput: 50,
+    baseOutput: 200,
     count: 0,
     unlocked: false,
     comptableClickerFeature: {
@@ -91,7 +91,7 @@ export const initialCollaborators: GameCollaborator[] = [
     name: "Expert-Comptable Senior",
     description: "Un expert-comptable expérimenté qui forme les juniors. Un vrai mentor !",
     baseCost: 100000,
-    baseOutput: 150,
+    baseOutput: 600,
     count: 0,
     unlocked: false,
     effects: {
@@ -104,7 +104,7 @@ export const initialCollaborators: GameCollaborator[] = [
     name: "Directeur de Mission",
     description: "Un directeur qui gère les missions complexes. L'expertise à son plus haut niveau !",
     baseCost: 250000,
-    baseOutput: 400,
+    baseOutput: 1600,
     count: 0,
     unlocked: false,
     comptableClickerFeature: {
@@ -119,7 +119,7 @@ export const initialCollaborators: GameCollaborator[] = [
     name: "Équipe Comptable",
     description: "Une équipe complète et bien rodée. La force du collectif !",
     baseCost: 1000000,
-    baseOutput: 1000,
+    baseOutput: 4000,
     count: 0,
     unlocked: false,
     effects: {
@@ -131,7 +131,7 @@ export const initialCollaborators: GameCollaborator[] = [
     name: "Cabinet Comptable",
     description: "Un cabinet entier à votre service. L'excellence comptable incarnée !",
     baseCost: 5000000,
-    baseOutput: 2500,
+    baseOutput: 10000,
     count: 0,
     unlocked: false,
     comptableClickerFeature: {
@@ -146,16 +146,59 @@ export const initialPrestigeUpgrades: Upgrade[] = [
   {
     id: "prestige_multiplier_1",
     name: "Prestige Boost I",
-    description: "Increase your prestige multiplier by 10%",
+    description: "Augmente votre multiplicateur de prestige de 25%",
     cost: 1,
     purchased: false,
     unlocked: true,
-    multiplier: 1.1,
+    multiplier: 1.25,
     effect: (state: GameState) => ({
       ...state,
       prestige: {
         ...state.prestige,
-        multiplier: state.prestige.multiplier * 1.1
+        multiplier: state.prestige.multiplier * 1.25
+      }
+    })
+  },
+  {
+    id: "prestige_click_power",
+    name: "Pouvoir du Clic Prestigieux",
+    description: "Vos clics sont 50% plus puissants après un prestige",
+    cost: 2,
+    purchased: false,
+    unlocked: true,
+    multiplier: 1.5,
+    effect: (state: GameState) => ({
+      ...state,
+      entriesPerClick: state.entriesPerClick * 1.5
+    })
+  },
+  {
+    id: "prestige_auto_click",
+    name: "Auto-Clic de Prestige",
+    description: "Gagne automatiquement 1 clic par seconde pour chaque prestige effectué",
+    cost: 3,
+    purchased: false,
+    unlocked: true,
+    multiplier: 1,
+    effect: (state: GameState) => ({
+      ...state,
+      autoClickRate: (state.autoClickRate || 0) + 1
+    })
+  },
+  {
+    id: "prestige_combo_master",
+    name: "Maître du Combo Prestigieux",
+    description: "Les combos durent 50% plus longtemps et leur multiplicateur maximum est augmenté de 25%",
+    cost: 5,
+    purchased: false,
+    unlocked: true,
+    multiplier: 1.75,
+    effect: (state: GameState) => ({
+      ...state,
+      combo: {
+        ...state.combo,
+        comboTimeWindow: state.combo.comboTimeWindow * 1.5,
+        maxMultiplier: state.combo.maxMultiplier * 1.25
       }
     })
   }
@@ -316,7 +359,7 @@ export const initialUpgrades: Upgrade[] = [
     id: "stats_unlock",
     name: "Tableau de Bord",
     description: "Débloque l'onglet des statistiques pour suivre votre progression",
-    cost: 100,
+    cost: 500,
     unlocked: true,
     purchased: false,
     effect: (state: GameState): GameState => state,
@@ -1227,11 +1270,19 @@ export const fiscalSpecializations: FiscalSpecialization[] = [
   },
 ];
 
+export const comboTiers = [
+  { clickThreshold: 10, multiplier: 1.5 },
+  { clickThreshold: 25, multiplier: 2.5 },
+  { clickThreshold: 50, multiplier: 4 },
+  { clickThreshold: 100, multiplier: 7 }
+];
+
 export const initialGameState: GameState = {
   entries: 0,
   totalEntries: 0,
   entriesPerSecond: 0,
-  entriesPerClick: 1,
+  entriesPerClick: playerProgression.baseClickValue,
+  autoClickRate: 0,
   clickCount: 0,
   lastTickAt: Date.now(),
   lastSavedAt: Date.now(),
