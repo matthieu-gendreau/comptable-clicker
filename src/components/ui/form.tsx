@@ -1,42 +1,37 @@
 import * as React from "react"
-import * as LabelPrimitive from "@radix-ui/react-label"
+import type * as LabelPrimitive from "@radix-ui/react-label"
 import { Slot } from "@radix-ui/react-slot"
-import {
-  Controller,
+import type {
   ControllerProps,
   FieldPath,
-  FieldValues,
+  FieldValues} from "react-hook-form";
+import {
+  Controller,
   FormProvider,
-  useFormContext,
 } from "react-hook-form"
 
 import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
-import {
-  FormFieldContextValue,
-  FormItemContextValue,
+import type {
   FormItemProps,
   FormLabelProps,
   FormControlProps,
   FormDescriptionProps,
-  FormMessageProps,
+  FormMessageProps} from "./form-utils";
+import {
+  FormFieldContextValue,
+  FormItemContextValue,
   formItemClasses,
   formLabelClasses,
   formControlClasses,
   formDescriptionClasses,
   formMessageClasses,
-  formFieldContextClasses,
+  FormFieldContext,
+  FormItemContext,
+  useFormField,
 } from "./form-utils"
 
 const Form = FormProvider
-
-const FormFieldContext = React.createContext<FormFieldContextValue>(
-  {} as FormFieldContextValue
-)
-
-const FormItemContext = React.createContext<FormItemContextValue>(
-  {} as FormItemContextValue
-)
 
 const FormField = <
   TFieldValues extends FieldValues = FieldValues,
@@ -49,29 +44,6 @@ const FormField = <
       <Controller {...props} />
     </FormFieldContext.Provider>
   )
-}
-
-const useFormField = () => {
-  const fieldContext = React.useContext(FormFieldContext)
-  const itemContext = React.useContext(FormItemContext)
-  const { getFieldState, formState } = useFormContext()
-
-  const fieldState = getFieldState(fieldContext.name, formState)
-
-  if (!fieldContext) {
-    throw new Error("useFormField should be used within <FormField>")
-  }
-
-  const { id } = itemContext
-
-  return {
-    id,
-    name: fieldContext.name,
-    formItemId: `${id}-form-item`,
-    formDescriptionId: `${id}-form-item-description`,
-    formMessageId: `${id}-form-item-message`,
-    ...fieldState,
-  }
 }
 
 const FormItem = React.forwardRef<HTMLDivElement, FormItemProps>(
@@ -167,7 +139,6 @@ const FormMessage = React.forwardRef<HTMLParagraphElement, FormMessageProps>(
 FormMessage.displayName = "FormMessage"
 
 export {
-  useFormField,
   Form,
   FormItem,
   FormLabel,

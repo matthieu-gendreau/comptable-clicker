@@ -1,4 +1,4 @@
-import { Feature, FeatureId } from "./features";
+import type { Feature, FeatureId } from "./features";
 
 export type { Feature, FeatureId };
 
@@ -29,6 +29,7 @@ export type Upgrade = {
   cost: number;
   purchased: boolean;
   unlocked: boolean;
+  multiplier: number;
   effect: (state: GameState) => GameState;
   requirement?: {
     type: string;
@@ -112,6 +113,10 @@ export type FiscalSeason = {
   description: string;
   multiplier: number;
   objectives: FiscalObjective[];
+  active: boolean;
+  specializations: FiscalSpecialization[];
+  duration: number;
+  timeLeft: number;
 };
 
 export type FiscalObjective = {
@@ -173,35 +178,40 @@ export interface GameState {
   entriesPerClick: number;
   entriesPerSecond: number;
   clickCount: number;
+  debugMode: boolean;
+  cabinetUnlocked: boolean;
+  gameStartedAt: number;
+  lastSavedAt: number;
   lastTickAt: number;
   collaborators: GameCollaborator[];
   upgrades: Upgrade[];
   achievements: Achievement[];
+  miniGames: MiniGame[];
+  famousAccountants: FamousAccountant[];
+  combo: {
+    active: boolean;
+    multiplier: number;
+    maxMultiplier: number;
+    clicksInCombo: number;
+    lastClickTime: number;
+    comboTimeWindow: number;
+  };
   prestige: {
     points: number;
-    upgrades: Upgrade[];
-    objectives: FiscalObjective[];
-    specializations: FiscalSpecialization[];
-    currentSeason: FiscalSeason;
     multiplier: number;
-    totalResets: number;
     cost: number;
+    totalResets: number;
+    upgrades: Upgrade[];
+    specializations: FiscalSpecialization[];
+    objectives: FiscalObjective[];
+    currentSeason: FiscalSeason;
   };
   talents: {
     points: number;
     tree: TalentTree[];
   };
-  miniGames: MiniGame[];
-  famousAccountants: FamousAccountant[];
-  fiscalSeasons: FiscalSeason[];
-  combo: ComboSystem;
-  powerUps: PowerUp[];
-  activePowerUps: PowerUp[];
   features: Record<string, Feature>;
-  debugMode: boolean;
-  cabinetUnlocked: boolean;
-  gameStartedAt: number;
-  lastSavedAt: number;
+  activePowerUps: PowerUp[];
 }
 
 export type GameAction =

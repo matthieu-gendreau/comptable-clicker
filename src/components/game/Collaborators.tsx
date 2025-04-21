@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useGameState } from "@/context/GameStateContext";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -12,8 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { calculateCollaboratorCost } from "@/reducers/gameReducer";
-import { GameCollaborator } from "@/types/game";
+import { calculateCollaboratorCost } from "@/reducers/calculations/collaboratorCalculations";
 
 const Collaborators: React.FC = () => {
   const { state, dispatch } = useGameState();

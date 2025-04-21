@@ -1,4 +1,4 @@
-import { GameState } from "@/types/game";
+import type { GameState } from "@/types/game";
 
 export const calculatePrestigePoints = (totalEntries: number, objectives: GameState["prestige"]["objectives"]): number => {
   // Points de base : plus difficile à obtenir

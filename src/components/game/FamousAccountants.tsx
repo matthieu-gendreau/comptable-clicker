@@ -1,7 +1,5 @@
 import React from "react";
 import { useGameState } from "@/context/GameStateContext";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Crown, Zap, Target } from "lucide-react";
 
@@ -9,14 +7,14 @@ const FamousAccountants: React.FC = () => {
   const { state, dispatch } = useGameState();
   const now = Date.now();
   const [activePowers, setActivePowers] = React.useState<{[key: string]: number}>({});
-  const [remainingCooldowns, setRemainingCooldowns] = React.useState<{[key: string]: number}>({});
 
   React.useEffect(() => {
     const interval = setInterval(() => {
       setActivePowers(prev => {
         const newPowers = { ...prev };
         Object.keys(newPowers).forEach(id => {
-          if (now > newPowers[id]) {
+          const power = newPowers[id];
+          if (power && now > power) {
             delete newPowers[id];
           }
         });
@@ -24,23 +22,7 @@ const FamousAccountants: React.FC = () => {
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, []);
-
-  const calculateRemainingCooldowns = React.useCallback(() => {
-    const now = Date.now();
-    return state.famousAccountants.reduce((acc, accountant) => {
-      if (!accountant.lastUsed) return acc;
-      const remainingTime = Math.max(
-        0,
-        accountant.cooldown - (now - accountant.lastUsed) / 1000
-      );
-      return { ...acc, [accountant.id]: remainingTime };
-    }, {});
-  }, [state.famousAccountants]);
-
-  React.useEffect(() => {
-    setRemainingCooldowns(calculateRemainingCooldowns());
-  }, [calculateRemainingCooldowns]);
+  }, [now]);
 
   const activateAccountant = (id: string) => {
     dispatch({ type: "ACTIVATE_ACCOUNTANT", id });
@@ -113,11 +95,11 @@ const FamousAccountants: React.FC = () => {
   return (
     <div className="flex flex-wrap gap-3">
       {purchasedAccountants.map((accountant) => {
-        const isOnCooldown = accountant.lastUsed && (now - accountant.lastUsed) < accountant.cooldown * 1000;
-        const cooldownProgress = isOnCooldown 
+        const isOnCooldown = accountant.lastUsed ? (now - accountant.lastUsed) < accountant.cooldown * 1000 : false;
+        const cooldownProgress = accountant.lastUsed 
           ? ((now - accountant.lastUsed) / (accountant.cooldown * 1000)) * 100 
           : 100;
-        const remainingTime = isOnCooldown 
+        const remainingTime = accountant.lastUsed 
           ? Math.ceil((accountant.cooldown * 1000 - (now - accountant.lastUsed)) / 1000) 
           : 0;
 
@@ -132,7 +114,7 @@ const FamousAccountants: React.FC = () => {
               <TooltipTrigger asChild>
                 <button
                   onClick={() => activateAccountant(accountant.id)}
-                  disabled={isOnCooldown}
+                  disabled={isOnCooldown || false}
                   className={`
                     relative w-24 h-24 rounded-xl border-2 transition-all duration-200
                     bg-gradient-to-br ${styles.background} ${styles.border}

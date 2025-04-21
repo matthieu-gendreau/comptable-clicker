@@ -1,4 +1,4 @@
-import { GameState } from "./game";
+import type { GameState } from "./game";
 
 export type FeatureId = "taxOptimizer" | "autoFiling" | "linkedinPremium";
 

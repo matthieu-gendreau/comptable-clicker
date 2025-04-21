@@ -1,14 +1,11 @@
-import { GameState, GameAction, FiscalObjective, FiscalSeason, FiscalSpecialization, GameCollaborator, Achievement, Feature, Upgrade, MiniGame } from "@/types/game";
+import type { GameState, GameAction, Achievement, FiscalObjective, MiniGame, Upgrade, GameCollaborator } from "@/types/game";
 import { toast } from "sonner";
-import { initialGameState, fiscalSeasons, playerProgression } from "@/data/gameInitialState";
-import { featureReducer } from "./features/featureReducer";
+import { initialGameState, fiscalSeasons } from "@/data/gameInitialState";
+import { featureReducer } from "@/reducers/features/featureReducer";
 import { checkFeatureRequirements } from "@/types/features";
+import { calculateCollaboratorBoost, calculateCollaboratorCost } from "@/reducers/calculations/collaboratorCalculations";
 
 const DEBUG_MULTIPLIER = 1000;
-
-export const calculateCollaboratorCost = (baseCost: number, count: number): number => {
-  return Math.floor(baseCost * Math.pow(1.15, count));
-};
 
 export const calculateEntriesPerSecond = (state: GameState): number => {
   const baseEntriesPerSecond = state.collaborators?.reduce(
@@ -19,7 +16,7 @@ export const calculateEntriesPerSecond = (state: GameState): number => {
   return state.debugMode ? baseEntriesPerSecond * DEBUG_MULTIPLIER : baseEntriesPerSecond;
 };
 
-function checkAchievements(state: GameState, updates: Partial<GameState>): Achievement[] {
+export const checkAchievements = (state: GameState, updates: Partial<GameState>): Achievement[] => {
   return state.achievements.map(achievement => {
     if (achievement.unlocked) return achievement;
 
@@ -41,7 +38,7 @@ function checkAchievements(state: GameState, updates: Partial<GameState>): Achie
 
     return achievement;
   });
-}
+};
 
 // Nouvelle formule de calcul des points de prestige
 export const calculatePrestigePoints = (totalEntries: number, objectives: GameState["prestige"]["objectives"]): number => {
@@ -57,7 +54,7 @@ export const calculatePrestigePoints = (totalEntries: number, objectives: GameSt
 };
 
 // Calcul du multiplicateur total ajusté
-const calculateTotalMultiplier = (state: GameState): number => {
+export const calculateTotalMultiplier = (state: GameState): number => {
   const seasonMultiplier = state.prestige.currentSeason.multiplier;
   
   // Multiplicateur des spécialisations réduit
@@ -73,7 +70,7 @@ const calculateTotalMultiplier = (state: GameState): number => {
 };
 
 // Vérification des objectifs
-const checkObjectives = (state: GameState): FiscalObjective[] => {
+export const checkObjectives = (state: GameState): FiscalObjective[] => {
   return state.prestige.objectives.map(objective => {
     if (objective.completed) return objective;
     if (state.totalEntries >= objective.requirement) {
@@ -99,7 +96,7 @@ const calculateTalentCost = (talent: GameState["talents"]["tree"][0]) => {
   return Math.floor(talent.cost);
 };
 
-const checkMiniGameUnlock = (state: GameState): GameState["miniGames"] => {
+export const checkMiniGameUnlock = (state: GameState): MiniGame[] => {
   return state.miniGames.map(game => {
     if (game.unlocked) return game;
     
@@ -160,19 +157,6 @@ const checkFamousAccountantUnlock = (state: GameState): GameState["famousAccount
   });
 };
 
-const initialUpgrades = [
-  {
-    id: "stats_unlock",
-    name: "Tableau de bord",
-    description: "Débloque l'accès aux statistiques détaillées de votre cabinet",
-    cost: 1000,
-    unlocked: true,
-    purchased: false,
-    type: "click",
-    multiplier: 1,
-  },
-];
-
 // Calcul du multiplicateur de clic
 export const calculateClickMultiplier = (state: GameState): number => {
   const baseMultiplier = 1;
@@ -188,19 +172,6 @@ export const calculateClickMultiplier = (state: GameState): number => {
     .reduce((total, spec) => total * spec.multiplier, 1);
   
   return baseMultiplier * clickSpecializationMultiplier * globalSpecializationMultiplier;
-};
-
-export const calculateCollaboratorBoost = (state: GameState, collaborator: GameCollaborator): number => {
-  let boost = 1;
-  
-  // Apply boosts from collaborators with boost effects
-  state.collaborators
-    .filter(g => g.effects?.boost && g.count > 0)
-    .forEach(boostCollaborator => {
-      boost *= 1 + (boostCollaborator.effects.boost || 0) * boostCollaborator.count;
-    });
-
-  return boost;
 };
 
 export const calculateTrainingPoints = (state: GameState): number => {
@@ -260,6 +231,27 @@ const applyFeatureEffects = (state: GameState): GameState => {
   return updatedState;
 };
 
+const checkCollaboratorUnlock = (state: GameState): GameCollaborator[] => {
+  return state.collaborators.map((collaborator, index) => {
+    if (collaborator.unlocked) return collaborator;
+    
+    // If it's the first collaborator, it's always unlocked
+    if (index === 0) return { ...collaborator, unlocked: true };
+    
+    // Get the previous collaborator
+    const previousCollaborator = state.collaborators[index - 1];
+    if (!previousCollaborator) return collaborator;
+    
+    // Unlock only if the previous collaborator has at least 5 units
+    const shouldUnlock = previousCollaborator.unlocked && previousCollaborator.count >= 5;
+    
+    return {
+      ...collaborator,
+      unlocked: shouldUnlock
+    };
+  });
+};
+
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case "TICK": {
@@ -273,11 +265,19 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const newEntries = state.entries + entriesGained;
       const newTotalEntries = state.totalEntries + entriesGained;
 
+      // Check collaborator unlocking
+      const updatedCollaborators = checkCollaboratorUnlock({
+        ...state,
+        entries: newEntries,
+        totalEntries: newTotalEntries
+      });
+
       // Vérification des comptables célèbres
       const updatedFamousAccountants = checkFamousAccountantUnlock({
         ...state,
         entries: newEntries,
-        totalEntries: newTotalEntries
+        totalEntries: newTotalEntries,
+        collaborators: updatedCollaborators
       });
 
       // Mise à jour du combo
@@ -352,7 +352,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         famousAccountants: updatedFamousAccountants,
         upgrades: updatedUpgrades,
         features: updatedFeatures,
-        activePowerUps: state.activePowerUps.filter(p => p.expiresAt > now)
+        activePowerUps: state.activePowerUps.filter(p => p.expiresAt ? p.expiresAt > now : false),
+        collaborators: updatedCollaborators
       };
 
       // Appliquer les effets des fonctionnalités actives
@@ -410,80 +411,41 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case "BUY_COLLABORATOR": {
-      const collaboratorIndex = state.collaborators.findIndex((g) => g.id === action.id);
-      if (collaboratorIndex === -1) return state;
+      const collaborator = state.collaborators.find(c => c.id === action.id);
+      if (!collaborator) return state;
 
-      const collaborator = state.collaborators[collaboratorIndex];
       const cost = calculateCollaboratorCost(collaborator.baseCost, collaborator.count);
-
-      if (state.entries < cost) return state;
-
-      const updatedCollaborators = [...state.collaborators];
-      updatedCollaborators[collaboratorIndex] = {
-        ...collaborator,
-        count: collaborator.count + 1,
-      };
-
-      const entriesPerSecond = calculateEntriesPerSecond({
-        ...state,
-        collaborators: updatedCollaborators
-      });
-
-      // Unlock next collaborator if this is the first purchase
-      if (collaborator.count === 0) {
-        const nextIndex = collaboratorIndex + 1;
-        if (nextIndex < updatedCollaborators.length && !updatedCollaborators[nextIndex].unlocked) {
-          updatedCollaborators[nextIndex] = {
-            ...updatedCollaborators[nextIndex],
-            unlocked: true,
-          };
-        }
+      if (state.entries < cost) {
+        toast.error("Not enough entries!", { duration: 2000 });
+        return state;
       }
 
-      // Count unique collaborators after this purchase
-      const uniqueCollaboratorsCount = updatedCollaborators.filter(g => g.count > 0).length;
-
-      const updatedUpgrades = state.upgrades.map((upgrade) => {
-        if (upgrade.unlocked || upgrade.purchased) return upgrade;
-        
-        if (upgrade.requirement?.type === "collaborator" && 
-            upgrade.requirement.id === collaborator.id && 
-            collaborator.count + 1 >= upgrade.requirement.count) {
-          return { ...upgrade, unlocked: true };
+      // Unlock next collaborator if this is the first purchase
+      const updatedCollaborators = state.collaborators.map((c, index, array) => {
+        if (c.id === action.id) {
+          // If this is the first purchase and there's a next collaborator
+          if (c.count === 0 && index + 1 < array.length) {
+            const nextCollaborator = array[index + 1];
+            if (nextCollaborator) {
+              nextCollaborator.unlocked = true;
+            }
+          }
+          return { ...c, count: c.count + 1 };
         }
-
-        // Check for uniqueCollaborators requirement
-        if (upgrade.requirement?.type === "uniqueCollaborators" && 
-            uniqueCollaboratorsCount >= upgrade.requirement.count) {
-          return { ...upgrade, unlocked: true };
-        }
-
-        return upgrade;
-      });
-
-      const updatedAchievements = checkAchievements(state, {
-        entries: state.entries - cost,
-        collaborators: updatedCollaborators,
-        entriesPerSecond,
-        upgrades: updatedUpgrades,
+        return c;
       });
 
       return {
         ...state,
         entries: state.entries - cost,
         collaborators: updatedCollaborators,
-        entriesPerSecond,
-        upgrades: updatedUpgrades,
-        achievements: updatedAchievements,
       };
     }
 
     case "BUY_UPGRADE": {
       const upgradeIndex = state.upgrades.findIndex((u) => u.id === action.id);
-      if (upgradeIndex === -1) return state;
-
       const upgrade = state.upgrades[upgradeIndex];
-      if (upgrade.purchased || !upgrade.unlocked || state.entries < upgrade.cost) {
+      if (!upgrade || upgrade.purchased || !upgrade.unlocked || state.entries < upgrade.cost) {
         return state;
       }
 
@@ -602,10 +564,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case "BUY_PRESTIGE_UPGRADE": {
       const upgradeIndex = state.prestige.upgrades.findIndex(u => u.id === action.id);
-      if (upgradeIndex === -1) return state;
-
       const upgrade = state.prestige.upgrades[upgradeIndex];
-      if (upgrade.purchased || !upgrade.unlocked || state.prestige.points < upgrade.cost) {
+      if (!upgrade || upgrade.purchased || !upgrade.unlocked || state.prestige.points < upgrade.cost) {
         return state;
       }
 
@@ -666,18 +626,16 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case "START_MINIGAME": {
       const gameIndex = state.miniGames.findIndex(g => g.id === action.id);
-      if (gameIndex === -1 || !state.miniGames[gameIndex].unlocked) return state;
+      const game = state.miniGames[gameIndex];
+      if (!game || !game.unlocked) return state;
 
-      // La logique du mini-jeu elle-même sera gérée par un composant séparé
       return state;
     }
 
     case "COMPLETE_MINIGAME": {
       const gameIndex = state.miniGames.findIndex(g => g.id === action.id);
-      if (gameIndex === -1) return state;
-
       const game = state.miniGames[gameIndex];
-      if (game.completed) return state;
+      if (!game || game.completed) return state;
 
       let updatedState = {
         ...state,
@@ -686,29 +644,31 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         )
       };
 
-      // Appliquer la récompense
-      switch (game.reward.type) {
-        case "multiplier":
-          updatedState = {
-            ...updatedState,
-            entriesPerClick: state.entriesPerClick * game.reward.value
-          };
-          break;
-        case "resource":
-          updatedState = {
-            ...updatedState,
-            entries: state.entries + game.reward.value
-          };
-          break;
-        case "talent_points":
-          updatedState = {
-            ...updatedState,
-            talents: {
-              ...state.talents,
-              points: state.talents.points + game.reward.value
-            }
-          };
-          break;
+      // Apply reward if it exists
+      if (game.reward) {
+        switch (game.reward.type) {
+          case "multiplier":
+            updatedState = {
+              ...updatedState,
+              entriesPerClick: state.entriesPerClick * (game.reward.value || 1)
+            };
+            break;
+          case "resource":
+            updatedState = {
+              ...updatedState,
+              entries: state.entries + (game.reward.value || 0)
+            };
+            break;
+          case "talent_points":
+            updatedState = {
+              ...updatedState,
+              talents: {
+                ...state.talents,
+                points: state.talents.points + (game.reward.value || 0)
+              }
+            };
+            break;
+        }
       }
 
       const updatedAchievements = checkAchievements(state, updatedState);
@@ -717,10 +677,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case "ACTIVATE_ACCOUNTANT": {
       const accountantIndex = state.famousAccountants.findIndex(a => a.id === action.id);
-      if (accountantIndex === -1) return state;
-
       const accountant = state.famousAccountants[accountantIndex];
-      if (!accountant.unlocked || !accountant.purchased) return state;
+      if (!accountant || !accountant.unlocked || !accountant.purchased) return state;
 
       const now = Date.now();
       if (accountant.lastUsed && now - accountant.lastUsed < accountant.cooldown * 1000) {
@@ -733,6 +691,65 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           i === accountantIndex ? { ...a, lastUsed: now } : a
         )
       };
+
+      // Apply power if it exists
+      if (accountant.power) {
+        switch (accountant.power.type) {
+          case "click": {
+            updatedState = {
+              ...updatedState,
+              entriesPerClick: state.entriesPerClick * accountant.power.multiplier
+            };
+            setTimeout(() => {
+              updatedState = {
+                ...updatedState,
+                entriesPerClick: state.entriesPerClick
+              };
+            }, accountant.power.duration * 1000);
+            break;
+          }
+          case "generator": {
+            const boostedGenerators = state.collaborators.map(g => ({
+              ...g,
+              baseOutput: g.baseOutput * accountant.power.multiplier
+            }));
+            updatedState = {
+              ...updatedState,
+              collaborators: boostedGenerators,
+              entriesPerSecond: calculateEntriesPerSecond({
+                ...state,
+                collaborators: boostedGenerators
+              })
+            };
+            setTimeout(() => {
+              updatedState = {
+                ...updatedState,
+                collaborators: state.collaborators,
+                entriesPerSecond: calculateEntriesPerSecond(state)
+              };
+            }, accountant.power.duration * 1000);
+            break;
+          }
+          case "global": {
+            updatedState = {
+              ...updatedState,
+              entriesPerClick: state.entriesPerClick * accountant.power.multiplier,
+              collaborators: state.collaborators.map(g => ({
+                ...g,
+                baseOutput: g.baseOutput * accountant.power.multiplier
+              }))
+            };
+            setTimeout(() => {
+              updatedState = {
+                ...updatedState,
+                entriesPerClick: state.entriesPerClick,
+                collaborators: state.collaborators
+              };
+            }, accountant.power.duration * 1000);
+            break;
+          }
+        }
+      }
 
       // Appliquer le pouvoir
       switch (accountant.power.type) {
@@ -803,10 +820,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case "PURCHASE_ACCOUNTANT": {
       const accountantIndex = state.famousAccountants.findIndex(a => a.id === action.id);
-      if (accountantIndex === -1) return state;
-
       const accountant = state.famousAccountants[accountantIndex];
-      if (!accountant.unlocked || accountant.purchased) return state;
+      if (!accountant || !accountant.unlocked || accountant.purchased) return state;
 
       return {
         ...state,
@@ -816,8 +831,53 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       };
     }
 
-    case "LOAD_GAME":
-      return action.state;
+    case "LOAD_GAME": {
+      // Create a map of achievement conditions from initialGameState
+      const conditionMap = new Map(
+        initialGameState.achievements.map(a => [a.id, a.condition])
+      );
+
+      // Create a map of upgrade effects from initialGameState
+      const effectMap = new Map(
+        initialGameState.upgrades.map(u => [u.id, u.effect])
+      );
+
+      // Reattach achievement conditions and upgrade effects from initialGameState
+      const loadedState = {
+        ...action.state,
+        achievements: action.state.achievements.map((achievement: Achievement) => {
+          const condition = conditionMap.get(achievement.id);
+          if (!condition) {
+            console.error(`No condition found for achievement: ${achievement.id}`);
+            // Return the achievement with a default condition that always returns false
+            return {
+              ...achievement,
+              condition: () => false
+            };
+          }
+          return {
+            ...achievement,
+            condition
+          };
+        }),
+        upgrades: action.state.upgrades.map((upgrade: Upgrade) => {
+          const effect = effectMap.get(upgrade.id);
+          if (!effect) {
+            console.error(`No effect found for upgrade: ${upgrade.id}`);
+            // Return the upgrade with a default effect that returns the state unchanged
+            return {
+              ...upgrade,
+              effect: (state: GameState) => state
+            };
+          }
+          return {
+            ...upgrade,
+            effect
+          };
+        })
+      };
+      return loadedState;
+    }
 
     case "RESET_GAME":
       return {
@@ -898,5 +958,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     default:
       return state;
   }
+}
+
+export function calculateCollaboratorOutput(state: GameState, collaborator: GameCollaborator): number {
+  const boost = calculateCollaboratorBoost(state);
+  return collaborator.baseOutput * collaborator.count * boost;
 }
 

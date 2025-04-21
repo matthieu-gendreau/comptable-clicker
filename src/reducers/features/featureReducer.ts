@@ -1,6 +1,5 @@
-import { Feature, FeatureAction, FeatureId } from "@/types/features";
+import type { Feature, FeatureAction, FeatureId } from "@/types/features";
 import { toast } from "sonner";
-import { playerProgression } from "@/data/gameInitialState";
 
 export const initialFeaturesState: Record<FeatureId, Feature> = {
   linkedinPremium: {

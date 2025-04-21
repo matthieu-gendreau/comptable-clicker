@@ -1,4 +1,4 @@
-import { GameCollaborator, Upgrade, Achievement, GameState, Prestige, TalentTree, MiniGame, FamousAccountant, FiscalSeason, FiscalObjective, FiscalSpecialization } from "@/types/game";
+import type { GameCollaborator, Upgrade, Achievement, GameState, TalentTree, MiniGame, FamousAccountant, FiscalSeason, FiscalObjective, FiscalSpecialization } from "@/types/game";
 import { initialFeaturesState } from "@/reducers/features/featureReducer";
 
 // Configuration du joueur débutant
@@ -305,7 +305,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "total_entries_1k",
       count: 1000
     },
-    effect: (state: GameState) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       cabinetUnlocked: true,
       entriesPerSecond: state.entriesPerSecond * 1.5,
@@ -325,7 +325,7 @@ export const initialUpgrades: Upgrade[] = [
     cost: 50,
     unlocked: true,
     purchased: false,
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       entriesPerClick: state.entriesPerClick * 1.5
     }),
@@ -338,7 +338,7 @@ export const initialUpgrades: Upgrade[] = [
     cost: 100,
     unlocked: true,
     purchased: false,
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       entriesPerClick: state.entriesPerClick * 1.25
     }),
@@ -356,7 +356,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "click_count_100",
       count: 100
     },
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       entriesPerClick: state.entriesPerClick * 1.75
     }),
@@ -376,7 +376,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "intern_colleague",
       count: 3
     },
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       collaborators: state.collaborators.map(g =>
         g.id === "intern_colleague" ? { ...g, baseOutput: g.baseOutput * 1.5 } : g
@@ -396,7 +396,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "basic_calculator",
       count: 2
     },
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       collaborators: state.collaborators.map(g =>
         g.id === "basic_calculator" ? { ...g, baseOutput: g.baseOutput * 1.75 } : g
@@ -418,7 +418,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "total_entries_5k",
       count: 5000
     },
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       collaborators: state.collaborators.map(g => ({
         ...g,
@@ -439,7 +439,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "total_entries_10k",
       count: 10000
     },
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       collaborators: state.collaborators.map(g => ({
         ...g,
@@ -462,7 +462,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "total_entries_20k",
       count: 20000
     },
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       entriesPerClick: state.entriesPerClick * 2
     }),
@@ -480,7 +480,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "total_entries_50k",
       count: 50000
     },
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       collaborators: state.collaborators.map(g => ({
         ...g,
@@ -503,7 +503,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "total_entries_200k",
       count: 200000
     },
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       collaborators: state.collaborators.map(g => ({
         ...g,
@@ -524,7 +524,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "total_entries_1m",
       count: 1000000
     },
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       collaborators: state.collaborators.map(g => ({
         ...g,
@@ -547,7 +547,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "click_count_5k",
       count: 5000
     },
-    effect: (state) => state,
+    effect: (state: GameState): GameState => state,
     multiplier: 1
   },
   {
@@ -562,7 +562,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "total_entries_100k",
       count: 100000
     },
-    effect: (state) => state,
+    effect: (state: GameState): GameState => state,
     multiplier: 1
   },
 
@@ -579,7 +579,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "click_count_1k",
       count: 1000
     },
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       combo: {
         ...state.combo,
@@ -597,10 +597,10 @@ export const initialUpgrades: Upgrade[] = [
     purchased: false,
     requirement: {
       type: "clickCount",
-      id: "click_count_5k",
-      count: 5000
+      id: "click_count_2k",
+      count: 2000
     },
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       combo: {
         ...state.combo,
@@ -623,7 +623,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "click_count_10k",
       count: 10000
     },
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       entriesPerClick: state.entriesPerClick * 2
     }),
@@ -641,7 +641,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "total_entries_500k",
       count: 500000
     },
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       collaborators: state.collaborators.map(g => ({
         ...g,
@@ -664,7 +664,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "total_entries_150k",
       count: 150000
     },
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       collaborators: state.collaborators.map(g => ({
         ...g,
@@ -685,7 +685,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "total_entries_300k",
       count: 300000
     },
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       collaborators: state.collaborators.map(g => ({
         ...g,
@@ -712,7 +712,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "total_entries_400k",
       count: 400000
     },
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       collaborators: state.collaborators.map(g => ({
         ...g,
@@ -733,7 +733,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "total_entries_600k",
       count: 600000
     },
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       collaborators: state.collaborators.map(g => ({
         ...g,
@@ -756,7 +756,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "total_entries_800k",
       count: 800000
     },
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       collaborators: state.collaborators.map(g => ({
         ...g,
@@ -781,7 +781,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "total_entries_1m",
       count: 1000000
     },
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       collaborators: state.collaborators.map(g => ({
         ...g,
@@ -804,7 +804,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "total_entries_1.5m",
       count: 1500000
     },
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       collaborators: state.collaborators.map(g => ({
         ...g,
@@ -827,7 +827,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "total_entries_200k",
       count: 200000
     },
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       collaborators: state.collaborators.map(g => ({
         ...g,
@@ -848,7 +848,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "total_entries_400k",
       count: 400000
     },
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       collaborators: state.collaborators.map(g => ({
         ...g,
@@ -869,7 +869,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "total_entries_800k",
       count: 800000
     },
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       collaborators: state.collaborators.map(g => ({
         ...g,
@@ -892,7 +892,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "click_count_15k",
       count: 15000
     },
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       combo: {
         ...state.combo,
@@ -913,7 +913,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "click_count_20k",
       count: 20000
     },
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       combo: {
         ...state.combo,
@@ -936,7 +936,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "total_entries_500k",
       count: 500000
     },
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       collaborators: state.collaborators.map(g => ({
         ...g,
@@ -957,7 +957,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "total_entries_1m",
       count: 1000000
     },
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       collaborators: state.collaborators.map(g => ({
         ...g,
@@ -980,7 +980,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "total_entries_2m",
       count: 2000000
     },
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       prestige: {
         ...state.prestige,
@@ -1001,7 +1001,7 @@ export const initialUpgrades: Upgrade[] = [
       id: "total_entries_5m",
       count: 5000000
     },
-    effect: (state) => ({
+    effect: (state: GameState): GameState => ({
       ...state,
       prestige: {
         ...state.prestige,
@@ -1116,7 +1116,7 @@ export const fiscalSeasons: FiscalSeason[] = [
     id: "declarations",
     name: "Saison des Déclarations",
     description: "La période la plus chargée de l'année : TVA, charges sociales, tout s'enchaîne !",
-    active: false,
+    active: true,
     objectives: [],
     specializations: [],
     multiplier: 1.2,
@@ -1241,24 +1241,20 @@ export const initialGameState: GameState = {
   upgrades: initialUpgrades,
   achievements: initialAchievements,
   prestige: {
-    id: "prestige",
-    name: "Prestige",
-    description: "Reset your progress to gain prestige points",
     points: 0,
-    upgrades: [],
-    objectives: [],
-    specializations: [],
-    currentSeason: fiscalSeasons[0],
     multiplier: 1,
+    cost: 1e6,
     totalResets: 0,
-    cost: 1e6
+    upgrades: [],
+    specializations: [],
+    objectives: [],
+    currentSeason: fiscalSeasons[0]!
   },
   talents: {
     points: 0,
     tree: []
   },
-  famousAccountants: [],
-  fiscalSeasons: fiscalSeasons,
+  famousAccountants: famousAccountants,
   combo: {
     active: false,
     clicksInCombo: 0,
@@ -1267,7 +1263,6 @@ export const initialGameState: GameState = {
     maxMultiplier: 2,
     comboTimeWindow: 3000
   },
-  powerUps: [],
   activePowerUps: [],
   features: Object.fromEntries(
     Object.values(initialFeaturesState).map(feature => [feature.id, feature])

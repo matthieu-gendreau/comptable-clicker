@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { gameReducer, calculateCollaboratorCost, calculateEntriesPerSecond } from '../reducers/gameReducer';
+import { gameReducer, calculateEntriesPerSecond } from '../reducers/gameReducer';
+import { calculateCollaboratorCost } from '../reducers/calculations/collaboratorCalculations';
 import { initialGameState } from '../data/gameInitialState';
-import { GameState, FiscalSpecialization, Upgrade, GameCollaborator, Achievement, MiniGame } from '../types/game';
+import type { GameState, FiscalSpecialization, Upgrade, GameCollaborator, Achievement, MiniGame } from '../types/game';
 
 describe('Gameplay Mechanics', () => {
   let state: GameState;
@@ -122,7 +123,9 @@ describe('Gameplay Mechanics', () => {
         id: 'test_collaborator'
       });
       
-      expect(newState.collaborators[0].count).toBe(1);
+      const boughtCollaborator = newState.collaborators[0];
+      expect(boughtCollaborator).toBeDefined();
+      expect(boughtCollaborator?.count).toBe(1);
       expect(newState.entries).toBeLessThan(20);
     });
 
@@ -172,7 +175,9 @@ describe('Gameplay Mechanics', () => {
         id: 'first'
       });
       
-      expect(newState.collaborators[1].unlocked).toBe(true);
+      const nextCollaborator = newState.collaborators[1];
+      expect(nextCollaborator).toBeDefined();
+      expect(nextCollaborator?.unlocked).toBe(true);
     });
   });
 
@@ -279,7 +284,9 @@ describe('Gameplay Mechanics', () => {
       } as Achievement];
       
       const newState = gameReducer(state, { type: 'CLICK' });
-      expect(newState.achievements[0].unlocked).toBe(true);
+      const clickAchievement = newState.achievements[0];
+      expect(clickAchievement).toBeDefined();
+      expect(clickAchievement?.unlocked).toBe(true);
     });
 
     it('should keep achievements unlocked after prestige', () => {
@@ -294,7 +301,9 @@ describe('Gameplay Mechanics', () => {
       } as Achievement];
       
       const newState = gameReducer(state, { type: 'PRESTIGE' });
-      expect(newState.achievements[0].unlocked).toBe(true);
+      const prestigeAchievement = newState.achievements[0];
+      expect(prestigeAchievement).toBeDefined();
+      expect(prestigeAchievement?.unlocked).toBe(true);
     });
   });
 
@@ -323,7 +332,154 @@ describe('Gameplay Mechanics', () => {
       });
       
       expect(newState.entriesPerClick).toBe(2);
-      expect(newState.miniGames[0].completed).toBe(true);
+      const completedMiniGame = newState.miniGames[0];
+      expect(completedMiniGame).toBeDefined();
+      expect(completedMiniGame?.completed).toBe(true);
     });
+  });
+});
+
+describe('BUY_COLLABORATOR action', () => {
+  it('should buy a collaborator when enough entries', () => {
+    const state: GameState = {
+      ...initialGameState,
+      entries: 100,
+      collaborators: [
+        {
+          id: 'test',
+          name: 'Test',
+          description: 'Test',
+          baseCost: 50,
+          baseOutput: 1,
+          count: 0,
+          unlocked: true,
+        },
+      ],
+    };
+
+    const newState = gameReducer(state, {
+      type: 'BUY_COLLABORATOR',
+      id: 'test',
+    });
+
+    const collaborator = newState.collaborators[0]!;
+    expect(newState.entries).toBe(50);
+    expect(collaborator.count).toBe(1);
+  });
+});
+
+describe('Collaborator unlocking', () => {
+  it('should unlock collaborators based on total entries', () => {
+    const state: GameState = {
+      ...initialGameState,
+      totalEntries: 1000,
+      collaborators: [
+        {
+          id: 'test1',
+          name: 'Test 1',
+          description: 'Test 1',
+          baseCost: 50,
+          baseOutput: 1,
+          count: 0,
+          unlocked: false,
+        },
+        {
+          id: 'test2',
+          name: 'Test 2',
+          description: 'Test 2',
+          baseCost: 100,
+          baseOutput: 2,
+          count: 0,
+          unlocked: false,
+        },
+      ],
+    };
+
+    const newState = gameReducer(state, { 
+      type: 'TICK',
+      timestamp: Date.now()
+    });
+
+    const collaborator = newState.collaborators[1]!;
+    expect(collaborator.unlocked).toBe(true);
+  });
+});
+
+describe('Achievement unlocking', () => {
+  it('should unlock achievements based on conditions', () => {
+    const state: GameState = {
+      ...initialGameState,
+      totalEntries: 1000,
+      achievements: [
+        {
+          id: 'test',
+          name: 'Test',
+          description: 'Test',
+          unlocked: false,
+          hidden: false,
+          condition: (state: GameState) => state.totalEntries >= 1000,
+        },
+      ],
+    };
+
+    const newState = gameReducer(state, { 
+      type: 'TICK',
+      timestamp: Date.now()
+    });
+
+    const achievement = newState.achievements[0]!;
+    expect(achievement.unlocked).toBe(true);
+  });
+
+  it('should unlock achievements on click', () => {
+    const state: GameState = {
+      ...initialGameState,
+      achievements: [
+        {
+          id: 'test',
+          name: 'Test',
+          description: 'Test',
+          unlocked: false,
+          hidden: false,
+          condition: (state: GameState) => state.clickCount >= 1,
+        },
+      ],
+    };
+
+    const newState = gameReducer(state, { type: 'CLICK' });
+
+    const clickAchievement = newState.achievements[0]!;
+    expect(clickAchievement.unlocked).toBe(true);
+  });
+});
+
+describe('Mini-game completion', () => {
+  it('should complete mini-games and apply rewards', () => {
+    const state: GameState = {
+      ...initialGameState,
+      miniGames: [
+        {
+          id: 'test',
+          name: 'Test',
+          description: 'Test',
+          unlocked: true,
+          completed: false,
+          active: false,
+          timeLeft: 0,
+          reward: {
+            type: 'multiplier',
+            value: 2,
+          },
+        },
+      ],
+    };
+
+    const newState = gameReducer(state, {
+      type: 'COMPLETE_MINIGAME',
+      id: 'test',
+    });
+
+    const completedMiniGame = newState.miniGames[0]!;
+    expect(completedMiniGame.completed).toBe(true);
   });
 }); 

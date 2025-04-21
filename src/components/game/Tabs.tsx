@@ -28,7 +28,6 @@ const GameTabs: React.FC = () => {
   // Vérifie si des comptables célèbres sont disponibles
   const availableAccountants = state.famousAccountants.filter(a => a.unlocked && !a.purchased).length;
   const purchasedAccountants = state.famousAccountants.filter(a => a.purchased).length;
-  const hasNewAccountants = availableAccountants > 0;
   const hasPurchasedAccountants = purchasedAccountants > 0;
 
   const tabs = [

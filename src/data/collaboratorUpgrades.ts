@@ -1,4 +1,4 @@
-import { Upgrade, GameState } from "@/types/game";
+import type { Upgrade, GameState } from "@/types/game";
 
 type CollaboratorUpgrades = {
   [key: string]: Upgrade[];
@@ -14,6 +14,7 @@ export const collaboratorUpgrades: CollaboratorUpgrades = {
       cost: 100,
       unlocked: false,
       purchased: false,
+      multiplier: 1.5,
       requirement: {
         type: "collaborator",
         id: "intern_colleague",
@@ -33,6 +34,7 @@ export const collaboratorUpgrades: CollaboratorUpgrades = {
       cost: 250,
       unlocked: false,
       purchased: false,
+      multiplier: 2,
       requirement: {
         type: "collaborator",
         id: "intern_colleague",
@@ -52,6 +54,7 @@ export const collaboratorUpgrades: CollaboratorUpgrades = {
       cost: 500,
       unlocked: false,
       purchased: false,
+      multiplier: 2.5,
       requirement: {
         type: "collaborator",
         id: "intern_colleague",
@@ -71,6 +74,7 @@ export const collaboratorUpgrades: CollaboratorUpgrades = {
       cost: 1000,
       unlocked: false,
       purchased: false,
+      multiplier: 3,
       requirement: {
         type: "collaborator",
         id: "intern_colleague",
@@ -90,6 +94,7 @@ export const collaboratorUpgrades: CollaboratorUpgrades = {
       cost: 2000,
       unlocked: false,
       purchased: false,
+      multiplier: 4,
       requirement: {
         type: "collaborator",
         id: "intern_colleague",
@@ -117,6 +122,7 @@ export const collaboratorUpgrades: CollaboratorUpgrades = {
       cost: 300,
       unlocked: false,
       purchased: false,
+      multiplier: 1.5,
       requirement: {
         type: "collaborator",
         id: "basic_calculator",
@@ -136,6 +142,7 @@ export const collaboratorUpgrades: CollaboratorUpgrades = {
       cost: 750,
       unlocked: false,
       purchased: false,
+      multiplier: 2,
       requirement: {
         type: "collaborator",
         id: "basic_calculator",
@@ -155,6 +162,7 @@ export const collaboratorUpgrades: CollaboratorUpgrades = {
       cost: 1500,
       unlocked: false,
       purchased: false,
+      multiplier: 2.5,
       requirement: {
         type: "collaborator",
         id: "basic_calculator",
@@ -174,6 +182,7 @@ export const collaboratorUpgrades: CollaboratorUpgrades = {
       cost: 3000,
       unlocked: false,
       purchased: false,
+      multiplier: 3,
       requirement: {
         type: "collaborator",
         id: "basic_calculator",
@@ -193,6 +202,7 @@ export const collaboratorUpgrades: CollaboratorUpgrades = {
       cost: 6000,
       unlocked: false,
       purchased: false,
+      multiplier: 4,
       requirement: {
         type: "collaborator",
         id: "basic_calculator",

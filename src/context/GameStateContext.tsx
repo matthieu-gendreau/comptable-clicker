@@ -1,87 +1,49 @@
-import { createContext, useContext, useReducer, useEffect, ReactNode } from "react";
-import { GameState, GameAction, Achievement, Upgrade } from "@/types/game";
-import { gameReducer } from "@/reducers/gameReducer";
-import { initialGameState, initialAchievements, initialUpgrades, initialCollaborators } from "@/data/gameInitialState";
+import React, { useReducer, useEffect } from 'react'
+import type { GameState, GameAction } from '@/types/game'
+import { gameReducer } from '@/reducers/gameReducer'
+import { initialGameState } from '@/data/gameInitialState'
+import { GameStateContext, useGameState } from './game-state-utils'
 
-type GameStateContextType = {
-  state: GameState;
-  dispatch: React.Dispatch<GameAction>;
-};
+export const GameStateProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [state, dispatch] = useReducer(gameReducer, initialGameState)
 
-const GameStateContext = createContext<GameStateContextType | undefined>(undefined);
-
-export const GameStateProvider = ({ children }: { children: ReactNode }) => {
-  const [state, dispatch] = useReducer(gameReducer, initialGameState);
-
-  // Sauvegarde automatique toutes les 5 secondes et à chaque changement d'état important
+  // Sauvegarde automatique toutes les 5 secondes
   useEffect(() => {
-    // Sauvegarde immédiate si changement important
-    if (state.entries !== initialGameState.entries || 
-        state.totalEntries !== initialGameState.totalEntries ||
-        state.clickCount !== initialGameState.clickCount) {
-      localStorage.setItem("gameState", JSON.stringify(state));
-    }
-
-    // Sauvegarde périodique
     const saveInterval = setInterval(() => {
-      localStorage.setItem("gameState", JSON.stringify(state));
-    }, 5000);
+      localStorage.setItem("gameState", JSON.stringify(state))
+    }, 5000)
 
-    return () => clearInterval(saveInterval);
-  }, [state]);
+    return () => clearInterval(saveInterval)
+  }, [state])
 
   // Chargement de la sauvegarde au démarrage
   useEffect(() => {
-    const savedState = localStorage.getItem("gameState");
+    const savedState = localStorage.getItem("gameState")
     if (savedState) {
       try {
-        const parsedState = JSON.parse(savedState);
-        // Restore achievement conditions and upgrade effects from initial state
-        const restoredState = {
-          ...initialGameState, // Start with initial state to ensure all fields exist
-          ...parsedState, // Override with saved values
-          achievements: parsedState.achievements.map((achievement: Omit<Achievement, 'condition'>, index: number) => ({
-            ...achievement,
-            condition: initialAchievements[index].condition
-          })),
-          upgrades: parsedState.upgrades.map((upgrade: Omit<Upgrade, 'effect'>, index: number) => ({
-            ...upgrade,
-            effect: initialUpgrades[index].effect
-          })),
-          // Ensure all required fields are present
-          lastTickAt: Date.now(),
-          lastSavedAt: Date.now(),
-          debugMode: true, // Keep debug mode enabled
-        };
-        dispatch({ type: "LOAD_GAME", state: restoredState });
+        const parsedState = JSON.parse(savedState)
+        dispatch({ type: "LOAD_GAME", state: parsedState })
       } catch (error) {
-        console.error("Erreur lors du chargement de la sauvegarde:", error);
-        // En cas d'erreur, on commence avec l'état initial
-        dispatch({ type: "LOAD_GAME", state: initialGameState });
+        console.error("Erreur lors du chargement de la sauvegarde:", error)
+        dispatch({ type: "LOAD_GAME", state: initialGameState })
       }
     }
-  }, []);
+  }, [])
 
   // Mise à jour du jeu toutes les 100ms
   useEffect(() => {
     const gameLoop = setInterval(() => {
-      dispatch({ type: "TICK", timestamp: Date.now() });
-    }, 100);
+      dispatch({ type: "TICK", timestamp: Date.now() })
+    }, 100)
 
-    return () => clearInterval(gameLoop);
-  }, []);
+    return () => clearInterval(gameLoop)
+  }, [])
 
   return (
     <GameStateContext.Provider value={{ state, dispatch }}>
       {children}
     </GameStateContext.Provider>
-  );
-};
+  )
+}
 
-export const useGameState = () => {
-  const context = useContext(GameStateContext);
-  if (context === undefined) {
-    throw new Error("useGameState must be used within a GameStateProvider");
-  }
-  return context;
-}; 
+export { GameStateContext, useGameState } 
