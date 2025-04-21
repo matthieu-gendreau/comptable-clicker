@@ -134,7 +134,7 @@ const FamousAccountants: React.FC = () => {
                   <div className="text-white font-bold">×{accountant.power.multiplier}</div>
                   {powerActive ? (
                     <div className="text-emerald-300 text-xs font-medium">
-                      {powerTimeRemaining}s actif
+                      {powerTimeRemaining}s
                     </div>
                   ) : null}
                   {/* Barre de progression du cooldown */}
