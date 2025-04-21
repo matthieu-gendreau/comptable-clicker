@@ -18,6 +18,7 @@ describe('Gameplay Mechanics', () => {
       totalEntries: 0,
       entriesPerClick: 1,
       entriesPerSecond: 0,
+      autoClickRate: 0,
       clickCount: 0,
       debugMode: false,
       cabinetUnlocked: false,

@@ -186,6 +186,7 @@ export interface GameState {
   totalEntries: number;
   entriesPerClick: number;
   entriesPerSecond: number;
+  autoClickRate: number;
   clickCount: number;
   debugMode: boolean;
   cabinetUnlocked: boolean;

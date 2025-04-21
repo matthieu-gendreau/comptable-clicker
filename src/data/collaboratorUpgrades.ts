@@ -10,20 +10,20 @@ export const collaboratorUpgrades: CollaboratorUpgrades = {
     {
       id: "intern_desk",
       name: "Bureau Dédié",
-      description: "Un vrai bureau pour le stagiaire. Production +50%",
-      cost: 100,
+      description: "Un vrai bureau pour le stagiaire. Production +75%",
+      cost: 75,
       unlocked: false,
       purchased: false,
-      multiplier: 1.5,
+      multiplier: 1.75,
       requirement: {
         type: "collaborator",
         id: "intern_colleague",
-        count: 2
+        count: 1
       },
       effect: (state: GameState) => ({
         ...state,
         collaborators: state.collaborators.map(g =>
-          g.id === "intern_colleague" ? { ...g, baseOutput: g.baseOutput * 1.5 } : g
+          g.id === "intern_colleague" ? { ...g, baseOutput: g.baseOutput * 1.75 } : g
         )
       })
     },
@@ -50,20 +50,20 @@ export const collaboratorUpgrades: CollaboratorUpgrades = {
     {
       id: "intern_motivation",
       name: "Stage Gratifié",
-      description: "Un stagiaire motivé est un stagiaire productif ! Production +100%",
-      cost: 500,
+      description: "Un stagiaire motivé est un stagiaire productif ! Production +150%",
+      cost: 400,
       unlocked: false,
       purchased: false,
       multiplier: 2.5,
       requirement: {
         type: "collaborator",
         id: "intern_colleague",
-        count: 10
+        count: 5
       },
       effect: (state: GameState) => ({
         ...state,
         collaborators: state.collaborators.map(g =>
-          g.id === "intern_colleague" ? { ...g, baseOutput: g.baseOutput * 2 } : g
+          g.id === "intern_colleague" ? { ...g, baseOutput: g.baseOutput * 2.5 } : g
         )
       })
     },
@@ -118,20 +118,20 @@ export const collaboratorUpgrades: CollaboratorUpgrades = {
     {
       id: "admin_software",
       name: "Logiciel de Gestion",
-      description: "Un vrai logiciel professionnel. Production +50%",
-      cost: 300,
+      description: "Un vrai logiciel professionnel. Production +75%",
+      cost: 200,
       unlocked: false,
       purchased: false,
-      multiplier: 1.5,
+      multiplier: 1.75,
       requirement: {
         type: "collaborator",
         id: "basic_calculator",
-        count: 2
+        count: 1
       },
       effect: (state: GameState) => ({
         ...state,
         collaborators: state.collaborators.map(g =>
-          g.id === "basic_calculator" ? { ...g, baseOutput: g.baseOutput * 1.5 } : g
+          g.id === "basic_calculator" ? { ...g, baseOutput: g.baseOutput * 1.75 } : g
         )
       })
     },
@@ -198,20 +198,24 @@ export const collaboratorUpgrades: CollaboratorUpgrades = {
     {
       id: "admin_certification",
       name: "Certification Administrative",
-      description: "Une expertise reconnue. Production +150%",
-      cost: 6000,
+      description: "Une expertise reconnue. Production +200% et bonus de formation +10%",
+      cost: 5000,
       unlocked: false,
       purchased: false,
-      multiplier: 4,
+      multiplier: 5,
       requirement: {
         type: "collaborator",
         id: "basic_calculator",
-        count: 25
+        count: 15
       },
       effect: (state: GameState) => ({
         ...state,
         collaborators: state.collaborators.map(g =>
-          g.id === "basic_calculator" ? { ...g, baseOutput: g.baseOutput * 2.5 } : g
+          g.id === "basic_calculator" ? {
+            ...g,
+            baseOutput: g.baseOutput * 3,
+            effects: { ...g.effects, training: (g.effects?.training || 0) + 0.1 }
+          } : g
         )
       })
     }
