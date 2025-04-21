@@ -61,6 +61,8 @@ const AccountantShop: React.FC = () => {
                             {accountant.id === "jean_compta_van_damme" && 
                               `Débloqué après ${state.debugMode ? "10" : "5000"} clics`}
                             {accountant.id === "debit_vador" && "Débloqué après 1 million d'écritures"}
+                            {accountant.id === "credit_suisse" && "Débloqué après 100,000 écritures"}
+                            {accountant.id === "warren_buffeuille" && "Débloqué après avoir recruté 50 collaborateurs"}
                           </>
                         )}
                         {accountant.unlocked && !accountant.purchased && "Cliquez pour recruter"}
