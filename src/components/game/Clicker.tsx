@@ -36,28 +36,6 @@ const Clicker: React.FC = () => {
         </Badge>
       </div>
 
-      {/* Combo indicator */}
-      {state.totalEntries >= 10 && (
-        <div className={`flex items-center justify-center gap-2 p-2 rounded-lg transition-colors ${
-          comboActive ? "bg-orange-100 text-orange-700" : "bg-gray-100 text-gray-500"
-        }`}>
-          <Flame className={`w-5 h-5 ${comboActive ? "animate-pulse" : ""}`} />
-          <div className="text-sm">
-            {comboActive ? (
-              <>
-                <span className="font-bold">Combo x{comboMultiplier.toFixed(1)}</span>
-                <span className="mx-2">•</span>
-                <span>{clicksInCombo} clics</span>
-                <span className="mx-2">•</span>
-                <span>{timeLeft.toFixed(1)}s</span>
-              </>
-            ) : (
-              "Cliquez rapidement pour activer le combo !"
-            )}
-          </div>
-        </div>
-      )}
-
       <div className="flex flex-col items-center gap-4">
         <div className="text-4xl font-bold">
           {formatEntries(state.entries)}
@@ -69,6 +47,30 @@ const Clicker: React.FC = () => {
         >
           Créer une écriture
         </Button>
+      </div>
+
+      {/* Combo indicator with fixed height */}
+      <div className="h-[52px] flex items-center justify-center">
+        {state.totalEntries >= 10 && (
+          <div className={`flex items-center justify-center gap-2 p-2 rounded-lg transition-colors w-full ${
+            comboActive ? "bg-orange-100 text-orange-700" : "bg-gray-100 text-gray-500"
+          }`}>
+            <Flame className={`w-5 h-5 ${comboActive ? "animate-pulse" : ""}`} />
+            <div className="text-sm">
+              {comboActive ? (
+                <>
+                  <span className="font-bold">Combo x{comboMultiplier.toFixed(1)}</span>
+                  <span className="mx-2">•</span>
+                  <span>{clicksInCombo} clics</span>
+                  <span className="mx-2">•</span>
+                  <span>{timeLeft.toFixed(1)}s</span>
+                </>
+              ) : (
+                "Cliquez rapidement pour activer le combo !"
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
