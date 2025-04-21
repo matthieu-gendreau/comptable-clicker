@@ -14,13 +14,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { calculateCollaboratorCost } from "@/reducers/calculations/collaboratorCalculations";
 import type { GameCollaborator } from "@/types/game";
+import { formatEntriesPerSecond, formatEntries } from "@/utils/formatters";
 
 const Collaborators: React.FC = () => {
   const { state, dispatch } = useGameState();
-
-  const formatNumber = (num: number) => {
-    return new Intl.NumberFormat("fr-FR").format(num);
-  };
 
   return (
     <Card>
@@ -33,7 +30,7 @@ const Collaborators: React.FC = () => {
             </CardDescription>
           </div>
           <Badge variant="outline" className="text-lg">
-            {formatNumber(state.entriesPerSecond)}/s
+            {formatEntriesPerSecond(state.entriesPerSecond)}/s
           </Badge>
         </div>
       </CardHeader>
@@ -76,7 +73,7 @@ const Collaborators: React.FC = () => {
                         <span className="font-medium">{collaborator.count}</span> possédés
                         {output > 0 && (
                           <span className="ml-2 text-[#003d3d]">
-                            {formatNumber(Math.floor(output))} écritures/sec
+                            {formatEntriesPerSecond(output)} écritures/sec
                           </span>
                         )}
                       </div>
@@ -97,11 +94,11 @@ const Collaborators: React.FC = () => {
                                 : "bg-gray-300 w-full sm:w-auto"
                               }
                             >
-                              {formatNumber(Math.floor(cost))} écritures
+                              {formatEntries(cost)} écritures
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent side="top">
-                            <p>Génère {formatNumber(collaborator.baseOutput)} écritures par seconde</p>
+                            <p>Génère {formatEntriesPerSecond(collaborator.baseOutput)} écritures par seconde</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
