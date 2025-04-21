@@ -392,12 +392,20 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const comboMultiplier = (state.totalEntries >= 10 && combo.active) ? combo.multiplier : 1;
       const entriesGained = entriesPerClick * comboMultiplier;
 
-      return {
+      const updatedState = {
         ...state,
         entries: state.entries + entriesGained,
         totalEntries: state.totalEntries + entriesGained,
         clickCount: state.clickCount + 1,
         combo
+      };
+
+      // Check achievements with updated state
+      const updatedAchievements = checkAchievements(updatedState, {});
+
+      return {
+        ...updatedState,
+        achievements: updatedAchievements
       };
     }
 
@@ -504,6 +512,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const prestigePoints = Math.floor(Math.log10(state.entries / state.prestige.cost));
       const currentMultiplier = state.prestige.multiplier;
       const currentTotalResets = state.prestige.totalResets;
+      const currentAchievements = state.achievements;
 
       // Reset the game state but keep certain progress
       const newState = {
@@ -515,13 +524,20 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           totalResets: currentTotalResets + 1,
           upgrades: state.prestige.upgrades // Keep prestige upgrades
         },
+        achievements: currentAchievements, // Keep achievements
         debugMode: state.debugMode, // Keep debug mode setting
         gameStartedAt: state.gameStartedAt, // Keep original start time
         lastSavedAt: Date.now(),
         lastTickAt: Date.now()
       };
 
-      return newState;
+      // Check for new achievements after prestige
+      const updatedAchievements = checkAchievements(newState, {});
+
+      return {
+        ...newState,
+        achievements: updatedAchievements
+      };
     }
 
     case "BUY_SPECIALIZATION": {

@@ -185,6 +185,7 @@ export interface GameState {
     currentSeason: FiscalSeason;
     multiplier: number;
     totalResets: number;
+    cost: number;
   };
   talents: {
     points: number;

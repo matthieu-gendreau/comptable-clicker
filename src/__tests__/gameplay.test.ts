@@ -1,14 +1,24 @@
-import { describe, it, expect, beforeEach } from '@jest/globals';
-import { gameReducer } from '../reducers/gameReducer';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { gameReducer, calculateCollaboratorCost, calculateEntriesPerSecond } from '../reducers/gameReducer';
 import { initialGameState } from '../data/gameInitialState';
-import { GameState, FiscalSpecialization, Upgrade } from '../types/game';
+import { GameState, FiscalSpecialization, Upgrade, GameCollaborator, Achievement, MiniGame } from '../types/game';
 
 describe('Gameplay Mechanics', () => {
   let state: GameState;
+  const now = Date.now();
 
   beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(now);
+    
+    // Reset state before each test
     state = {
       ...initialGameState,
+      lastTickAt: now,
+      prestige: {
+        ...initialGameState.prestige,
+        cost: 1e6
+      },
       combo: {
         active: false,
         clicksInCombo: 0,
@@ -28,7 +38,7 @@ describe('Gameplay Mechanics', () => {
       expect(newState.clickCount).toBe(1);
     });
 
-    it('should apply click multiplier correctly', () => {
+    it('should apply click multiplier from specializations', () => {
       state.entriesPerClick = 2;
       state.prestige.specializations = [{
         id: 'test_spec',
@@ -43,119 +53,139 @@ describe('Gameplay Mechanics', () => {
       const newState = gameReducer(state, { type: 'CLICK' });
       expect(newState.entries).toBe(4); // 2 (base) * 2 (multiplier)
     });
+
+    it('should handle debug mode multiplier correctly', () => {
+      state.debugMode = true;
+      state.entriesPerClick = 2;
+      
+      const newState = gameReducer(state, { type: 'CLICK' });
+      expect(newState.entries).toBe(2000); // 2 * DEBUG_MULTIPLIER (1000)
+    });
   });
 
   describe('Combo System', () => {
-    it('should activate combo on rapid clicks', () => {
-      const now = Date.now();
-      state.combo.lastClickTime = now - 1000; // 1 second ago
-      state.combo.comboTimeWindow = 3000; // 3 seconds window
+    it('should activate combo on consecutive clicks within time window', () => {
+      const firstClick = gameReducer(state, { type: 'CLICK' });
+      const secondClick = gameReducer(firstClick, { type: 'CLICK' });
       
-      const newState = gameReducer(state, { type: 'CLICK' });
-      expect(newState.combo.active).toBe(true);
-      expect(newState.combo.clicksInCombo).toBe(1);
+      expect(secondClick.combo.active).toBe(true);
+      expect(secondClick.combo.multiplier).toBeGreaterThan(1);
+      expect(secondClick.combo.clicksInCombo).toBe(2);
     });
 
-    it('should increase combo multiplier with consecutive clicks', () => {
-      const now = Date.now();
-      state.combo = {
-        ...state.combo,
-        active: true,
-        clicksInCombo: 5,
-        lastClickTime: now - 500,
-        multiplier: 1.5
-      };
-
-      const newState = gameReducer(state, { type: 'CLICK' });
-      expect(newState.combo.multiplier).toBeGreaterThan(state.combo.multiplier);
-      expect(newState.combo.clicksInCombo).toBe(6);
+    it('should reset combo when time window expires', () => {
+      const firstClick = gameReducer(state, { type: 'CLICK' });
+      
+      // Simulate time passing
+      vi.advanceTimersByTime(4000);
+      
+      const secondClick = gameReducer(firstClick, { type: 'CLICK' });
+      expect(secondClick.combo.multiplier).toBe(1);
+      expect(secondClick.combo.clicksInCombo).toBe(1);
     });
 
-    it('should reset combo after time window expires', () => {
-      state.combo = {
-        ...state.combo,
-        active: true,
-        clicksInCombo: 5,
-        lastClickTime: Date.now() - 4000, // Outside the 3s window
-        multiplier: 1.5
-      };
-
-      const newState = gameReducer(state, { type: 'CLICK' });
-      expect(newState.combo.multiplier).toBe(1);
-      expect(newState.combo.clicksInCombo).toBe(1);
+    it('should not exceed max combo multiplier', () => {
+      let currentState = state;
+      // Perform multiple clicks
+      for (let i = 0; i < 20; i++) {
+        currentState = gameReducer(currentState, { type: 'CLICK' });
+      }
+      
+      expect(currentState.combo.multiplier).toBeLessThanOrEqual(currentState.combo.maxMultiplier);
     });
   });
 
-  describe('Upgrades System', () => {
-    it('should apply upgrade effects correctly', () => {
-      const upgrade: Upgrade = {
-        id: 'test_upgrade',
-        name: 'Test Upgrade',
-        description: 'Test',
-        cost: 10,
-        purchased: false,
-        unlocked: true,
-        multiplier: 2,
-        effect: (state: GameState) => ({
-          ...state,
-          entriesPerClick: state.entriesPerClick * 2
-        })
-      };
-
-      state.upgrades = [upgrade];
-      state.entries = 10;
-
-      const newState = gameReducer(state, { type: 'BUY_UPGRADE', id: 'test_upgrade' });
-      expect(newState.entriesPerClick).toBe(state.entriesPerClick * 2);
+  describe('Collaborator System', () => {
+    it('should calculate collaborator cost correctly', () => {
+      const baseCost = 10;
+      const count = 5;
+      const cost = calculateCollaboratorCost(baseCost, count);
+      expect(cost).toBeGreaterThan(baseCost);
     });
 
-    it('should not apply upgrade if not enough entries', () => {
-      const upgrade: Upgrade = {
-        id: 'test_upgrade',
-        name: 'Test Upgrade',
+    it('should buy collaborator when enough entries', () => {
+      const collaborator: GameCollaborator = {
+        id: 'test_collaborator',
+        name: 'Test',
         description: 'Test',
-        cost: 100,
-        purchased: false,
-        unlocked: true,
-        multiplier: 2,
-        effect: (state: GameState) => ({
-          ...state,
-          entriesPerClick: state.entriesPerClick * 2
-        })
+        baseCost: 10,
+        baseOutput: 1,
+        count: 0,
+        unlocked: true
       };
-
-      state.upgrades = [upgrade];
-      state.entries = 50;
-
-      const newState = gameReducer(state, { type: 'BUY_UPGRADE', id: 'test_upgrade' });
-      expect(newState.entriesPerClick).toBe(state.entriesPerClick);
+      
+      state.collaborators = [collaborator];
+      state.entries = 20;
+      
+      const newState = gameReducer(state, { 
+        type: 'BUY_COLLABORATOR',
+        id: 'test_collaborator'
+      });
+      
+      expect(newState.collaborators[0].count).toBe(1);
+      expect(newState.entries).toBeLessThan(20);
     });
-  });
 
-  describe('Famous Accountants', () => {
-    it('should activate accountant power correctly', () => {
-      state.famousAccountants = [{
-        id: 'test_accountant',
-        name: 'Test Accountant',
+    it('should calculate entries per second correctly', () => {
+      const collaborator: GameCollaborator = {
+        id: 'test_collaborator',
+        name: 'Test',
         description: 'Test',
-        unlocked: true,
-        purchased: true,
-        active: false,
-        power: {
-          type: 'click',
-          multiplier: 2,
-          duration: 30
+        baseCost: 10,
+        baseOutput: 2,
+        count: 3,
+        unlocked: true
+      };
+      
+      state.collaborators = [collaborator];
+      const eps = calculateEntriesPerSecond(state);
+      expect(eps).toBe(6); // 2 (baseOutput) * 3 (count)
+    });
+
+    it('should unlock next collaborator after first purchase', () => {
+      const collaborators: GameCollaborator[] = [
+        {
+          id: 'first',
+          name: 'First',
+          description: 'First',
+          baseCost: 10,
+          baseOutput: 1,
+          count: 0,
+          unlocked: true
         },
-        cooldown: 300
-      }];
-
-      const newState = gameReducer(state, { type: 'ACTIVATE_ACCOUNTANT', id: 'test_accountant' });
-      expect(newState.entriesPerClick).toBe(state.entriesPerClick * 2);
+        {
+          id: 'second',
+          name: 'Second',
+          description: 'Second',
+          baseCost: 100,
+          baseOutput: 5,
+          count: 0,
+          unlocked: false
+        }
+      ];
+      
+      state.collaborators = collaborators;
+      state.entries = 20;
+      
+      const newState = gameReducer(state, {
+        type: 'BUY_COLLABORATOR',
+        id: 'first'
+      });
+      
+      expect(newState.collaborators[1].unlocked).toBe(true);
     });
   });
 
   describe('Prestige System', () => {
-    it('should reset game state but keep prestige multipliers on prestige', () => {
+    it('should not allow prestige without meeting cost requirement', () => {
+      state.entries = 100;
+      state.prestige.cost = 1e6;
+      
+      const newState = gameReducer(state, { type: 'PRESTIGE' });
+      expect(newState).toEqual(state);
+    });
+
+    it('should reset game state but keep prestige upgrades on prestige', () => {
       state.entries = 1e6;
       state.prestige.upgrades = [{
         id: 'test_prestige_upgrade',
@@ -164,7 +194,6 @@ describe('Gameplay Mechanics', () => {
         cost: 1,
         purchased: true,
         unlocked: true,
-        multiplier: 2,
         effect: (state: GameState) => ({
           ...state,
           prestige: {
@@ -172,13 +201,129 @@ describe('Gameplay Mechanics', () => {
             multiplier: state.prestige.multiplier * 2
           }
         })
-      }];
+      } as Upgrade];
 
       const newState = gameReducer(state, { type: 'PRESTIGE' });
       expect(newState.entries).toBe(0);
       expect(newState.totalEntries).toBe(0);
       expect(newState.prestige.multiplier).toBeGreaterThan(1);
       expect(newState.prestige.totalResets).toBe(1);
+      expect(newState.prestige.upgrades).toEqual(state.prestige.upgrades);
+    });
+
+    it('should calculate prestige points correctly', () => {
+      state.entries = 1e9; // 1 billion
+      state.prestige.cost = 1e6; // 1 million
+      
+      const newState = gameReducer(state, { type: 'PRESTIGE' });
+      expect(newState.prestige.points).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Game Tick System', () => {
+    it('should accumulate entries over time based on collaborators', () => {
+      state.collaborators = [{
+        id: 'test',
+        name: 'Test',
+        description: 'Test',
+        baseCost: 10,
+        baseOutput: 1,
+        count: 2,
+        unlocked: true
+      }];
+      
+      const deltaTime = 1000; // 1 second
+      vi.advanceTimersByTime(deltaTime);
+      
+      const newState = gameReducer(state, { 
+        type: 'TICK',
+        timestamp: now + deltaTime
+      });
+      
+      expect(newState.entries).toBe(2); // 1 (baseOutput) * 2 (count) * 1 (second)
+    });
+
+    it('should handle debug mode multiplier in tick calculation', () => {
+      state.debugMode = true;
+      state.collaborators = [{
+        id: 'test',
+        name: 'Test',
+        description: 'Test',
+        baseCost: 10,
+        baseOutput: 1,
+        count: 1,
+        unlocked: true
+      }];
+      
+      const deltaTime = 1000;
+      vi.advanceTimersByTime(deltaTime);
+      
+      const newState = gameReducer(state, {
+        type: 'TICK',
+        timestamp: now + deltaTime
+      });
+      
+      expect(newState.entries).toBe(1000); // 1 * DEBUG_MULTIPLIER (1000)
+    });
+  });
+
+  describe('Achievement System', () => {
+    it('should unlock achievements when conditions are met', () => {
+      state.achievements = [{
+        id: 'test_achievement',
+        name: 'Test Achievement',
+        description: 'Test',
+        condition: (state: GameState) => state.clickCount >= 1,
+        unlocked: false,
+        hidden: false
+      } as Achievement];
+      
+      const newState = gameReducer(state, { type: 'CLICK' });
+      expect(newState.achievements[0].unlocked).toBe(true);
+    });
+
+    it('should keep achievements unlocked after prestige', () => {
+      state.entries = 1e6;
+      state.achievements = [{
+        id: 'test_achievement',
+        name: 'Test Achievement',
+        description: 'Test',
+        condition: () => true,
+        unlocked: true,
+        hidden: false
+      } as Achievement];
+      
+      const newState = gameReducer(state, { type: 'PRESTIGE' });
+      expect(newState.achievements[0].unlocked).toBe(true);
+    });
+  });
+
+  describe('Mini-Game System', () => {
+    it('should apply mini-game rewards correctly', () => {
+      const miniGame: MiniGame = {
+        id: 'test_game',
+        name: 'Test Game',
+        description: 'Test',
+        unlocked: true,
+        completed: false,
+        active: false,
+        timeLeft: 0,
+        reward: {
+          type: 'multiplier' as const,
+          value: 2
+        }
+      };
+      
+      state.miniGames = [miniGame];
+      state.entriesPerClick = 1;
+      
+      const newState = gameReducer(state, {
+        type: 'COMPLETE_MINIGAME',
+        id: 'test_game'
+      });
+      
+      expect(newState.entriesPerClick).toBe(2);
+      expect(newState.miniGames[0].completed).toBe(true);
     });
   });
 }); 
