@@ -13,7 +13,7 @@ export const initialCollaborators: GameCollaborator[] = [
   {
     id: "intern_colleague",
     name: "Stagiaire",
-    description: "Un stagiaire motivé pour vous aider. Deux cerveaux valent mieux qu'un !",
+    description: "Un stagiaire qui pense que le bilan c'est un exercice de yoga. Mais hey, il fait du bon café !",
     baseCost: 25,
     baseOutput: 0.5,
     count: 0,
@@ -25,7 +25,7 @@ export const initialCollaborators: GameCollaborator[] = [
   {
     id: "basic_calculator",
     name: "Assistant Administratif",
-    description: "Un assistant pour gérer les tâches administratives. La paperasse n'attend pas !",
+    description: "Expert en pause café et en discussions machine à café. Accessoirement, fait aussi de la compta.",
     baseCost: 100,
     baseOutput: 2,
     count: 0,
@@ -35,7 +35,7 @@ export const initialCollaborators: GameCollaborator[] = [
   {
     id: "excel_sheets",
     name: "Comptable Débutant",
-    description: "Un jeune comptable qui maîtrise Excel. La puissance des tableaux croisés dynamiques !",
+    description: "Pense que VLOOKUP est une marque de voiture et que Pivot c'est une bière. Mais il apprend vite !",
     baseCost: 500,
     baseOutput: 8,
     count: 0,
@@ -47,14 +47,14 @@ export const initialCollaborators: GameCollaborator[] = [
   {
     id: "accounting_software",
     name: "Comptable Confirmé",
-    description: "Un comptable expérimenté qui maîtrise les logiciels. Fini les erreurs d'arrondi !",
+    description: "A nommé son chat 'Excel' et son chien 'Sage'. Légèrement inquiétant, mais efficace.",
     baseCost: 2000,
     baseOutput: 24,
     count: 0,
     unlocked: false,
     comptableClickerFeature: {
       title: "Interface Intuitive",
-      description: "Comptable Clicker propose une interface moderne et intuitive pour la saisie comptable.",
+      description: "Aussi intuitive qu'un parcours du combattant dans le noir.",
       shown: false
     }
   },
@@ -62,7 +62,7 @@ export const initialCollaborators: GameCollaborator[] = [
   {
     id: "junior_accountant",
     name: "Chef Comptable",
-    description: "Un chef comptable qui supervise l'équipe. Son expertise fait la différence !",
+    description: "A des posters de Warren Buffett dans sa chambre. Ne nous jugeons pas.",
     baseCost: 10000,
     baseOutput: 80,
     count: 0,
@@ -345,7 +345,7 @@ export const initialUpgrades: Upgrade[] = [
   {
     id: "typing_101",
     name: "La Dactylographie pour les Nuls",
-    description: "Enfin vous utilisez plus de deux doigts ! Gains de clic +50%",
+    description: "Félicitations ! Vous utilisez maintenant plus de doigts qu'un T-Rex !",
     cost: 50,
     unlocked: true,
     purchased: false,
@@ -368,7 +368,7 @@ export const initialUpgrades: Upgrade[] = [
   {
     id: "coffee_basics",
     name: "Machine à Café Basique",
-    description: "Le carburant de base du comptable. Gains de clic +25%",
+    description: "Le genre de café qui fait regretter l'eau du robinet. Mais hey, la caféine c'est la caféine !",
     cost: 100,
     unlocked: true,
     purchased: false,
@@ -381,7 +381,7 @@ export const initialUpgrades: Upgrade[] = [
   {
     id: "excel_basics",
     name: "Excel pour les Débutants",
-    description: "Vous découvrez CTRL+C CTRL+V. Révolutionnaire ! Gains de clic +75%",
+    description: "CTRL+Z est votre nouveau meilleur ami. CTRL+ALT+SUPPR sera bientôt le second.",
     cost: 250,
     unlocked: false,
     purchased: false,
@@ -487,7 +487,7 @@ export const initialUpgrades: Upgrade[] = [
   {
     id: "rubber_duck",
     name: "Canard en Plastique",
-    description: "Pour débugger vos écritures. Gains de clic +100% (mais pourquoi ?)",
+    description: "Il ne juge pas vos erreurs de calcul. C'est déjà ça.",
     cost: 10000,
     unlocked: false,
     purchased: false,
@@ -505,7 +505,7 @@ export const initialUpgrades: Upgrade[] = [
   {
     id: "office_cat",
     name: "Chat Comptable",
-    description: "Il dort sur les dossiers importants. Production globale +25% par mignonnerie",
+    description: "S'assoit sur les documents importants et ronronne pendant les appels clients. Parfait !",
     cost: 25000,
     unlocked: false,
     purchased: false,
@@ -528,7 +528,7 @@ export const initialUpgrades: Upgrade[] = [
   {
     id: "quantum_calculator",
     name: "Calculatrice Quantique",
-    description: "Calcule dans plusieurs dimensions fiscales. Production globale +50%",
+    description: "Calcule dans plusieurs dimensions fiscales. Peut aussi ouvrir un portail vers les Enfers.",
     cost: 100000,
     unlocked: false,
     purchased: false,
@@ -572,7 +572,7 @@ export const initialUpgrades: Upgrade[] = [
   {
     id: "rgb_keyboard",
     name: "Clavier RGB Gaming",
-    description: "Parce que même les comptables peuvent être gamers. Style +100%",
+    description: "Parce que les vrais pros font leur compta avec des LEDs multicolores. SWAG !",
     cost: 15000,
     unlocked: false,
     purchased: false,
@@ -587,7 +587,7 @@ export const initialUpgrades: Upgrade[] = [
   {
     id: "golden_calculator",
     name: "Calculatrice en Or",
-    description: "Totalement inutile mais tellement classe. Prestige +100%",
+    description: "Pour quand vous voulez flex sur les autres comptables. Totalement inutile, totalement indispensable.",
     cost: 50000,
     unlocked: false,
     purchased: false,
@@ -648,7 +648,7 @@ export const initialUpgrades: Upgrade[] = [
   {
     id: "coffee_overflow",
     name: "Overdose de Café",
-    description: "Vous vibrez tellement que vous écrivez deux fois plus vite. Gains de clic +100%",
+    description: "Vous vibrez tellement que vous traversez les dimensions. Les chiffres dansent devant vos yeux.",
     cost: 99999,
     unlocked: false,
     purchased: false,
@@ -666,7 +666,7 @@ export const initialUpgrades: Upgrade[] = [
   {
     id: "comic_sans",
     name: "Police Comic Sans",
-    description: "L'ultime péché du design. Tout le monde est horrifié mais travaille 50% plus vite",
+    description: "Le crime ultime contre l'humanité. Même les inspecteurs des impôts fuient en courant.",
     cost: 123456,
     unlocked: false,
     purchased: false,
@@ -1060,98 +1060,194 @@ export const initialUpgrades: Upgrade[] = [
       }
     }),
     multiplier: 1
+  },
+  {
+    id: "ebp_crash",
+    name: "Crash EBP Quotidien",
+    description: "CTRL+S est devenu un tic nerveux. Vous sauvegardez même vos conversations WhatsApp.",
+    cost: 25000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "totalEntries",
+      id: "total_entries_50k",
+      count: 50000
+    },
+    effect: (state: GameState): GameState => ({
+      ...state,
+      collaborators: state.collaborators.map(g => ({
+        ...g,
+        baseOutput: g.baseOutput * 1.5
+      }))
+    }),
+    multiplier: 1,
+    comptableClickerFeature: {
+      title: "Crash EBP",
+      description: "Votre F5 a des ampoules.",
+      shown: false
+    }
+  },
+  {
+    id: "sage_update",
+    name: "Mise à Jour Sage Surprise",
+    description: "Comme un jeu de piste, mais avec vos boutons favoris. Où est passé le menu 'Validation' ?!",
+    cost: 50000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "totalEntries",
+      id: "total_entries_100k",
+      count: 100000
+    },
+    effect: (state: GameState): GameState => ({
+      ...state,
+      collaborators: state.collaborators.map(g => ({
+        ...g,
+        baseOutput: g.baseOutput * 1.75
+      }))
+    }),
+    multiplier: 1,
+    comptableClickerFeature: {
+      title: "Mise à Jour Surprise",
+      description: "C'est comme un escape game, mais avec votre logiciel comptable !",
+      shown: false
+    }
+  },
+  {
+    id: "ciel_compta_bug",
+    name: "Bug Mystérieux Ciel",
+    description: "Le fameux bug 'Impossible de se connecter au serveur' de Ciel vous a appris la patience. Production +100%",
+    cost: 75000,
+    unlocked: false,
+    purchased: false,
+    requirement: {
+      type: "totalEntries",
+      id: "total_entries_150k",
+      count: 150000
+    },
+    effect: (state: GameState): GameState => ({
+      ...state,
+      collaborators: state.collaborators.map(g => ({
+        ...g,
+        baseOutput: g.baseOutput * 2
+      }))
+    }),
+    multiplier: 1,
+    comptableClickerFeature: {
+      title: "Bug Mystérieux",
+      description: "La connexion reviendra... un jour...",
+      shown: false
+    }
   }
 ];
 
 export const initialAchievements: Achievement[] = [
   {
     id: "first_entry",
-    name: "Mind the GAAP",
-    description: "Votre première écriture automatisée. Le début d'une grande aventure comptable !",
+    name: "Plan Comptable Général",
+    description: "Première écriture réussie ! La prochaine fois, essayez de ne pas confondre débit et crédit.",
     unlocked: false,
     hidden: false,
     condition: (state) => state.totalEntries >= 1,
   },
   {
     id: "digital_pioneer",
-    name: "It's an accrual world",
-    description: "100 écritures automatisées. Vous commencez à comprendre que la comptabilité, c'est pas si barbant !",
+    name: "Balance de Génie",
+    description: "100 écritures ! Votre grand-livre est plus équilibré que votre vie personnelle.",
     unlocked: false,
     hidden: false,
     condition: (state) => state.totalEntries >= 100,
   },
   {
     id: "automation_master",
-    name: "Full Stack Accountant",
-    description: "Possédez au moins un exemplaire de chaque générateur. Même les développeurs sont jaloux de votre stack !",
+    name: "Expert-Comptable en Herbe",
+    description: "Tous les générateurs débloqués ! Même l'Ordre des Experts-Comptables est impressionné.",
     unlocked: false,
     hidden: false,
     condition: (state) => state.collaborators?.every(g => g.count > 0) || false,
   },
   {
     id: "efficiency_expert",
-    name: "Over Depreciated",
-    description: "Atteignez 1000 écritures par seconde. Votre productivité est tellement élevée qu'elle devrait être amortie !",
+    name: "Roi de la TVA",
+    description: "1000 écritures par seconde ! Bercy vous surveille avec inquiétude.",
     unlocked: false,
     hidden: false,
     condition: (state) => state.entriesPerSecond >= 1000,
   },
   {
     id: "digital_revolution",
-    name: "Balance Sheet Master",
-    description: "Accumulez 1 million d'écritures automatisées. Vos actifs numériques sont parfaitement équilibrés !",
+    name: "Maître du Bilan",
+    description: "1 million d'écritures ! Votre FEC est plus long que le code des impôts.",
     unlocked: false,
     hidden: false,
     condition: (state) => state.totalEntries >= 1000000,
   },
   {
     id: "tax_season_survivor",
-    name: "Tax Season Hero",
-    description: "Survivez à votre première période fiscale. Vous méritez une médaille (et des vacances) !",
+    name: "Survivant de la Liasse Fiscale",
+    description: "Vous avez survécu à la période fiscale ! Votre CERFA préféré est le 2058-A, avouez-le.",
     unlocked: false,
     hidden: true,
     condition: (state) => state.clickCount >= 10000,
   },
   {
     id: "calculator_master",
-    name: "Calculator Whisperer",
-    description: "Cliquez 100 fois en 10 secondes. Vos doigts sont plus rapides que votre calculette !",
+    name: "Virtuose du Pavé Numérique",
+    description: "Vos doigts sont si rapides que même la DGFiP n'arrive pas à suivre.",
     unlocked: false,
     hidden: true,
     condition: (state) => state.clickCount >= 100,
   },
   {
     id: "audit_ready",
-    name: "Audit-Proof",
-    description: "Accumulez 10 millions d'écritures sans erreur. Même l'URSSAF n'y trouverait rien à redire !",
+    name: "Contrôle URSSAF Ready",
+    description: "10 millions d'écritures sans erreur. Même les inspecteurs demandent des autographes !",
     unlocked: false,
     hidden: true,
     condition: (state) => state.totalEntries >= 10000000,
   },
   {
     id: "prestige_master",
-    name: "Big Four Material",
-    description: "Effectuez votre premier prestige. Vous êtes maintenant dans la cour des grands !",
+    name: "Associé du Cabinet",
+    description: "Premier prestige accompli ! Vous pouvez maintenant porter des boutons de manchette.",
     unlocked: false,
     hidden: true,
     condition: (state) => state.prestige.points > 0,
   },
   {
     id: "famous_friend",
-    name: "Célébrité Comptable",
-    description: "Débloquez tous les comptables célèbres. Votre réseau LinkedIn fait pâlir d'envie !",
+    name: "Star de la Compta",
+    description: "Tous les comptables célèbres débloqués. Votre LinkedIn fait plus de vues que Netflix !",
     unlocked: false,
     hidden: true,
     condition: (state) => state.famousAccountants?.every(a => a.unlocked) || false,
   },
   {
     id: "minigame_champion",
-    name: "Maître du Jeu",
-    description: "Complétez tous les mini-jeux. La comptabilité n'a plus aucun secret pour vous !",
+    name: "As du Grand Livre",
+    description: "Tous les mini-jeux complétés. Le Plan Comptable n'a plus de secrets pour vous !",
     unlocked: false,
     hidden: true,
     condition: (state) => state.miniGames?.every(m => m.completed) || false,
-  }
+  },
+  {
+    id: "software_survivor",
+    name: "Dompteur de Logiciels",
+    description: "Tous les bugs logiciels maîtrisés. Même le support technique vous demande conseil !",
+    unlocked: false,
+    hidden: true,
+    condition: (state) => state.upgrades.filter(u => 
+      ["ebp_crash", "sage_update", "ciel_compta_bug"].includes(u.id)
+    ).every(u => u.purchased),
+  },
+  {
+    id: "zen_master",
+    name: "Maître du Calme",
+    description: "Votre sérénité face aux bugs fait de vous le Bouddha de la compta.",
+    unlocked: false,
+    hidden: true,
+    condition: (state) => state.upgrades.find(u => u.id === "ebp_crash")?.purchased === true && state.clickCount >= 10000,
+  },
 ];
 
 export const fiscalSeasons: FiscalSeason[] = [
