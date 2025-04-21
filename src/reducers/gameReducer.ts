@@ -22,7 +22,10 @@ export const checkAchievements = (state: GameState, updates: Partial<GameState>)
 
     const testState = {
       ...state,
-      ...updates
+      ...updates,
+      totalEntries: updates.totalEntries ?? state.totalEntries,
+      entries: updates.entries ?? state.entries,
+      clickCount: updates.clickCount ?? state.clickCount
     };
 
     try {
@@ -242,12 +245,13 @@ const checkCollaboratorUnlock = (state: GameState): GameCollaborator[] => {
     const previousCollaborator = state.collaborators[index - 1];
     if (!previousCollaborator) return collaborator;
     
-    // Unlock only if the previous collaborator has at least 5 units
-    const shouldUnlock = previousCollaborator.unlocked && previousCollaborator.count >= 5;
+    // Unlock based on previous collaborator count or total entries
+    const shouldUnlockByCount = previousCollaborator.unlocked && previousCollaborator.count >= 5;
+    const shouldUnlockByEntries = state.totalEntries >= 1000; // Unlock when reaching 1000 total entries
     
     return {
       ...collaborator,
-      unlocked: shouldUnlock
+      unlocked: shouldUnlockByCount || shouldUnlockByEntries
     };
   });
 };
@@ -255,7 +259,7 @@ const checkCollaboratorUnlock = (state: GameState): GameCollaborator[] => {
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case "TICK": {
-      const now = Date.now();
+      const now = action.timestamp;
       const deltaTime = now - state.lastTickAt;
       if (deltaTime < 50) return state;
 
@@ -265,19 +269,26 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const newEntries = state.entries + entriesGained;
       const newTotalEntries = state.totalEntries + entriesGained;
 
-      // Check collaborator unlocking
-      const updatedCollaborators = checkCollaboratorUnlock({
-        ...state,
-        entries: newEntries,
-        totalEntries: newTotalEntries
-      });
-
-      // Vérification des comptables célèbres
-      const updatedFamousAccountants = checkFamousAccountantUnlock({
+      // Create updated state for checks
+      const updatedState = {
         ...state,
         entries: newEntries,
         totalEntries: newTotalEntries,
-        collaborators: updatedCollaborators
+        entriesPerSecond,
+        lastTickAt: now
+      };
+
+      // Check achievements with updated state
+      const updatedAchievements = checkAchievements(updatedState, {});
+
+      // Check collaborator unlocking with updated state
+      const updatedCollaborators = checkCollaboratorUnlock(updatedState);
+
+      // Vérification des comptables célèbres
+      const updatedFamousAccountants = checkFamousAccountantUnlock({
+        ...updatedState,
+        collaborators: updatedCollaborators,
+        achievements: updatedAchievements
       });
 
       // Mise à jour du combo
@@ -322,7 +333,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const updatedFeatures = { ...state.features };
       
       Object.entries(state.features).forEach(([id, feature]) => {
-        if (!feature.unlocked && checkFeatureRequirements(state, feature)) {
+        if (!feature.unlocked && checkFeatureRequirements(updatedState, feature)) {
           updatedFeatures[id] = {
             ...feature,
             unlocked: true
@@ -330,22 +341,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         }
       });
 
-      // Check achievements with all updated values
-      const updatedAchievements = checkAchievements(state, {
-        entries: newEntries,
-        totalEntries: newTotalEntries,
-        miniGames: updatedMiniGames,
-        famousAccountants: updatedFamousAccountants,
-        upgrades: updatedUpgrades,
-        features: updatedFeatures
-      });
-
-      let updatedState = {
-        ...state,
-        entries: newEntries,
-        totalEntries: newTotalEntries,
-        entriesPerSecond,
-        lastTickAt: now,
+      let finalState = {
+        ...updatedState,
         combo,
         achievements: updatedAchievements,
         miniGames: updatedMiniGames,
@@ -357,9 +354,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       };
 
       // Appliquer les effets des fonctionnalités actives
-      updatedState = applyFeatureEffects(updatedState);
+      finalState = applyFeatureEffects(finalState);
 
-      return updatedState;
+      return finalState;
     }
 
     case "CLICK": {

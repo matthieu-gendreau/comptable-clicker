@@ -370,9 +370,12 @@ describe('BUY_COLLABORATOR action', () => {
 
 describe('Collaborator unlocking', () => {
   it('should unlock collaborators based on total entries', () => {
+    const now = Date.now();
     const state: GameState = {
       ...initialGameState,
       totalEntries: 1000,
+      entries: 1000,
+      lastTickAt: now,
       collaborators: [
         {
           id: 'test1',
@@ -397,7 +400,7 @@ describe('Collaborator unlocking', () => {
 
     const newState = gameReducer(state, { 
       type: 'TICK',
-      timestamp: Date.now()
+      timestamp: now + 100 // Add 100ms to ensure the tick is processed
     });
 
     const collaborator = newState.collaborators[1]!;
@@ -407,9 +410,12 @@ describe('Collaborator unlocking', () => {
 
 describe('Achievement unlocking', () => {
   it('should unlock achievements based on conditions', () => {
+    const now = Date.now();
     const state: GameState = {
       ...initialGameState,
       totalEntries: 1000,
+      entries: 1000,
+      lastTickAt: now,
       achievements: [
         {
           id: 'test',
@@ -424,7 +430,7 @@ describe('Achievement unlocking', () => {
 
     const newState = gameReducer(state, { 
       type: 'TICK',
-      timestamp: Date.now()
+      timestamp: now + 100 // Add 100ms to ensure the tick is processed
     });
 
     const achievement = newState.achievements[0]!;
