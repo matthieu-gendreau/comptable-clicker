@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Lock } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import type { FamousAccountant } from "@/types/game";
+import { formatMinutes } from "../../utils/formatters";
 
 const AccountantShop: React.FC = () => {
   const { state, dispatch } = useGameState();
@@ -40,9 +41,9 @@ const AccountantShop: React.FC = () => {
                         {accountant.power.type === "generator" && `Multiplie la production par ${accountant.power.multiplier} pendant ${accountant.power.duration} secondes`}
                         {accountant.power.type === "global" && `Multiplie tous les gains par ${accountant.power.multiplier} pendant ${accountant.power.duration} secondes`}
                       </p>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Temps de recharge : {accountant.cooldown / 60} minutes
-                      </p>
+                      <div className="text-sm text-gray-500">
+                        Temps de recharge: {formatMinutes(accountant.cooldown / 60)} minutes
+                      </div>
                     </div>
                   </div>
                   <TooltipProvider>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useGameState } from "@/context";
-import { formatEntries } from "@/utils/formatters";
+import { formatEntries, formatEntriesPerSecond } from "@/utils/formatters";
 import {
   Card,
   CardContent,
@@ -129,7 +129,7 @@ const Stats = () => {
     {
       icon: Timer,
       label: "Entrées par seconde",
-      value: formatEntries(state.entriesPerSecond),
+      value: formatEntriesPerSecond(state.entriesPerSecond),
       description: "Productivité automatique",
     },
     {

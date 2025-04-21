@@ -14,4 +14,11 @@ export const formatEntriesPerSecond = (num: number) => {
     maximumFractionDigits: num < 10 ? 1 : 0,
     minimumFractionDigits: num < 10 ? 1 : 0,
   }).format(num);
+};
+
+export const formatMinutes = (minutes: number) => {
+  return new Intl.NumberFormat("fr-FR", {
+    maximumFractionDigits: 1,
+    minimumFractionDigits: 1,
+  }).format(minutes);
 }; 
