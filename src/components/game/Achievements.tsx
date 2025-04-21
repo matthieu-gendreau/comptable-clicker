@@ -1,5 +1,5 @@
 import React from "react";
-import { useGameState } from "@/context/GameStateContext";
+import { useGameState } from "@/context";
 import {
   Card,
   CardContent,
@@ -8,11 +8,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import type { Achievement } from "@/types/game";
 
 const Achievements: React.FC = () => {
   const { state } = useGameState();
 
-  const unlockedCount = state.achievements.filter((a) => a.unlocked).length;
+  const unlockedCount = state.achievements.filter((a: Achievement) => a.unlocked).length;
   const totalCount = state.achievements.length;
 
   return (
@@ -32,7 +33,7 @@ const Achievements: React.FC = () => {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {state.achievements.map((achievement) => (
+          {state.achievements.map((achievement: Achievement) => (
             <div
               key={achievement.id}
               className={`p-2 border rounded-lg ${

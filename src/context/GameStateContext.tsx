@@ -1,7 +1,7 @@
 import React, { useReducer, useEffect } from 'react'
 import { gameReducer } from '@/reducers/gameReducer'
 import { initialGameState } from '@/data/gameInitialState'
-import { GameStateContext, useGameState } from './game-state-utils'
+import { GameStateContext } from './game-state-utils'
 
 export const GameStateProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(gameReducer, initialGameState)
@@ -43,6 +43,4 @@ export const GameStateProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       {children}
     </GameStateContext.Provider>
   )
-}
-
-export { GameStateContext, useGameState } 
+} 

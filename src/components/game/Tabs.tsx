@@ -1,5 +1,5 @@
 import React from "react";
-import { useGameState } from "@/context/GameStateContext";
+import { useGameState } from "@/context";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Lock } from "lucide-react";
 import Clicker from "./Clicker";
@@ -13,6 +13,7 @@ import AccountantShop from "./AccountantShop";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { calculatePrestigePoints } from "@/reducers/gameReducer";
+import type { Upgrade, FamousAccountant } from "@/types/game";
 
 const GameTabs: React.FC = () => {
   const { state, dispatch } = useGameState();
@@ -26,8 +27,8 @@ const GameTabs: React.FC = () => {
   const canPrestige = calculatePrestigePoints(state.totalEntries, state.prestige.objectives) > state.prestige.points;
 
   // Vérifie si des comptables célèbres sont disponibles
-  const availableAccountants = state.famousAccountants.filter(a => a.unlocked && !a.purchased).length;
-  const purchasedAccountants = state.famousAccountants.filter(a => a.purchased).length;
+  const availableAccountants = state.famousAccountants.filter((a: FamousAccountant) => a.unlocked && !a.purchased).length;
+  const purchasedAccountants = state.famousAccountants.filter((a: FamousAccountant) => a.purchased).length;
   const hasPurchasedAccountants = purchasedAccountants > 0;
 
   const tabs = [
@@ -93,7 +94,7 @@ const GameTabs: React.FC = () => {
           <Stats />
         </div>
       ),
-      unlocked: state.upgrades.some(u => u.id === "stats_unlock" && u.purchased),
+      unlocked: state.upgrades.some((u: Upgrade) => u.id === "stats_unlock" && u.purchased),
     },
     {
       id: "prestige",

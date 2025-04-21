@@ -1,7 +1,8 @@
 import React from "react";
-import { useGameState } from "@/context/GameStateContext";
+import { useGameState } from "@/context";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Crown, Zap, Target } from "lucide-react";
+import type { FamousAccountant } from "@/types/game";
 
 const FamousAccountants: React.FC = () => {
   const { state, dispatch } = useGameState();
@@ -28,7 +29,7 @@ const FamousAccountants: React.FC = () => {
     dispatch({ type: "ACTIVATE_ACCOUNTANT", id });
   };
 
-  const purchasedAccountants = state.famousAccountants.filter(a => a.purchased);
+  const purchasedAccountants = state.famousAccountants.filter((a: FamousAccountant) => a.purchased);
 
   // Fonction pour obtenir l'icône appropriée
   const getAccountantIcon = (id: string) => {
@@ -94,7 +95,7 @@ const FamousAccountants: React.FC = () => {
 
   return (
     <div className="flex flex-wrap gap-3">
-      {purchasedAccountants.map((accountant) => {
+      {purchasedAccountants.map((accountant: FamousAccountant) => {
         const isOnCooldown = accountant.lastUsed ? (now - accountant.lastUsed) < accountant.cooldown * 1000 : false;
         const cooldownProgress = accountant.lastUsed 
           ? ((now - accountant.lastUsed) / (accountant.cooldown * 1000)) * 100 

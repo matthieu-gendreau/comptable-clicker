@@ -1,9 +1,10 @@
 import React from "react";
-import { useGameState } from "@/context/GameStateContext";
+import { useGameState } from "@/context";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Lock } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import type { FamousAccountant } from "@/types/game";
 
 const AccountantShop: React.FC = () => {
   const { state, dispatch } = useGameState();
@@ -19,7 +20,7 @@ const AccountantShop: React.FC = () => {
         <CardDescription>Recrutez des comptables célèbres pour booster votre productivité</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {state.famousAccountants.map((accountant) => (
+        {state.famousAccountants.map((accountant: FamousAccountant) => (
           <div key={accountant.id} className="relative">
             {!accountant.unlocked && (
               <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-10 flex items-center justify-center rounded-lg">

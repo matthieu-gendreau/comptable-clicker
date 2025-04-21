@@ -1,5 +1,5 @@
 import React from "react";
-import { useGameState } from "@/context/GameStateContext";
+import { useGameState } from "@/context";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Info, X } from "lucide-react";
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { calculateCollaboratorCost } from "@/reducers/calculations/collaboratorCalculations";
+import type { GameCollaborator } from "@/types/game";
 
 const Collaborators: React.FC = () => {
   const { state, dispatch } = useGameState();
@@ -38,8 +39,8 @@ const Collaborators: React.FC = () => {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {state.collaborators?.filter((collaborator) => collaborator.unlocked)
-            .map((collaborator) => {
+          {state.collaborators?.filter((collaborator: GameCollaborator) => collaborator.unlocked)
+            .map((collaborator: GameCollaborator) => {
               const cost = calculateCollaboratorCost(collaborator.baseCost, collaborator.count);
               const canBuy = state.entries >= cost;
               const output = collaborator.baseOutput * collaborator.count;

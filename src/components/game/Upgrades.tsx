@@ -1,5 +1,5 @@
 import React from "react";
-import { useGameState } from "@/context/GameStateContext";
+import { useGameState } from "@/context";
 import { Button } from "@/components/ui/button";
 import { PackageOpen, CheckCircle2 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import type { Upgrade } from "@/types/game";
 
 const Upgrades: React.FC = () => {
   const { state, dispatch } = useGameState();
@@ -21,12 +22,12 @@ const Upgrades: React.FC = () => {
   };
 
   const availableUpgrades = state.upgrades
-    .filter((upgrade) => upgrade.unlocked && !upgrade.purchased)
-    .sort((a, b) => a.cost - b.cost);
+    .filter((upgrade: Upgrade) => upgrade.unlocked && !upgrade.purchased)
+    .sort((a: Upgrade, b: Upgrade) => a.cost - b.cost);
 
   const purchasedUpgrades = state.upgrades
-    .filter((upgrade) => upgrade.purchased)
-    .sort((a, b) => a.cost - b.cost);
+    .filter((upgrade: Upgrade) => upgrade.purchased)
+    .sort((a: Upgrade, b: Upgrade) => a.cost - b.cost);
 
   const EmptyState = () => (
     <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -62,7 +63,7 @@ const Upgrades: React.FC = () => {
               <EmptyState />
             ) : (
               <div className="space-y-4">
-                {availableUpgrades.map((upgrade) => (
+                {availableUpgrades.map((upgrade: Upgrade) => (
                   <motion.div
                     key={upgrade.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -103,7 +104,7 @@ const Upgrades: React.FC = () => {
             <div>
               <h3 className="font-medium mb-4">Améliorations achetées</h3>
               <div className="space-y-4">
-                {purchasedUpgrades.map((upgrade) => (
+                {purchasedUpgrades.map((upgrade: Upgrade) => (
                   <motion.div
                     key={upgrade.id}
                     className="flex items-start gap-3 p-4 border rounded-lg bg-accent/5"

@@ -1,5 +1,5 @@
 import React from "react";
-import { useGameState } from "@/context/GameStateContext";
+import { useGameState } from "@/context";
 import { Button } from "@/components/ui/button";
 import { formatEntries } from "@/utils/formatters";
 import { Badge } from "@/components/ui/badge";

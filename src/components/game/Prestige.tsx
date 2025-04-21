@@ -1,5 +1,5 @@
 import React from "react";
-import { useGameState } from "@/context/GameStateContext";
+import { useGameState } from "@/context";
 import { calculatePrestigePoints } from "@/reducers/gameReducer";
 import { formatEntries } from "@/utils/formatters";
 import { fiscalSeasons } from "@/data/gameInitialState";
@@ -21,6 +21,7 @@ import {
   Calendar,
   GraduationCap,
 } from "lucide-react";
+import type { FiscalObjective, FiscalSpecialization } from "@/types/game";
 
 export const Prestige: React.FC = () => {
   const { state, dispatch } = useGameState();
@@ -32,7 +33,7 @@ export const Prestige: React.FC = () => {
   const newPoints = Math.max(0, potentialPoints - state.prestige.points);
 
   const nextObjective = state.prestige.objectives.find(
-    (obj) => !obj.completed
+    (obj: FiscalObjective) => !obj.completed
   );
 
   const progress = nextObjective
@@ -98,7 +99,7 @@ export const Prestige: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {state.prestige.objectives.map((objective) => (
+            {state.prestige.objectives.map((objective: FiscalObjective) => (
               <div
                 key={objective.id}
                 className="flex items-center gap-4 p-4 border rounded-lg"
@@ -137,7 +138,7 @@ export const Prestige: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {state.prestige.specializations.map((spec) => (
+            {state.prestige.specializations.map((spec: FiscalSpecialization) => (
               <div
                 key={spec.id}
                 className="flex items-center gap-4 p-4 border rounded-lg"
