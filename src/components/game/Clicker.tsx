@@ -176,7 +176,7 @@ const Clicker: React.FC = () => {
                 animate={{ opacity: 1, y: -20 }}
                 exit={{ opacity: 0, y: -40 }}
                 transition={{ duration: 1.5, ease: "easeOut" }}
-                className="absolute pointer-events-none text-sm font-medium whitespace-nowrap bg-transparent"
+                className="absolute pointer-events-none text-sm font-medium whitespace-nowrap bg-transparent z-50"
                 style={{ 
                   left: position.x, 
                   bottom: 0,
