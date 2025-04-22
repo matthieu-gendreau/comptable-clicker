@@ -1172,14 +1172,6 @@ export const initialAchievements: Achievement[] = [
     condition: (state) => state.totalEntries >= 10000000,
   },
   {
-    id: "prestige_master",
-    name: "Associé du Cabinet",
-    description: "Premier prestige accompli ! Vous pouvez maintenant porter des boutons de manchette.",
-    unlocked: false,
-    hidden: true,
-    condition: (state) => state.prestige.points > 0,
-  },
-  {
     id: "famous_friend",
     name: "Maître des Légendes",
     description: "Toutes les Légendes de la Compta débloquées. Même Chuck Norris fait appel à vous pour sa déclaration d'impôts !",
