@@ -136,7 +136,7 @@ const checkFamousAccountantUnlock = (state: GameState): GameState["famousAccount
       case "jean_compta_van_damme": {
         return {
           ...accountant,
-          unlocked: state.debugMode ? state.clickCount >= 10 : state.clickCount >= 5000
+          unlocked: state.debugMode ? state.clickCount >= 10 : state.clickCount >= 500
         };
       }
       case "debit_vador": {
