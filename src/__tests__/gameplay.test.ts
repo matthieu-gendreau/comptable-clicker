@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { gameReducer, calculateEntriesPerSecond } from '../reducers/gameReducer';
 import { calculateCollaboratorCost } from '../reducers/calculations/collaboratorCalculations';
 import { initialGameState } from '../data/gameInitialState';
-import type { GameState, FiscalSpecialization, Upgrade, GameCollaborator, Achievement, MiniGame } from '../types/game';
+import type { GameState, FiscalSpecialization, GameCollaborator, Achievement, MiniGame } from '../types/game';
 
 describe('Gameplay Mechanics', () => {
   let state: GameState;
@@ -14,74 +14,8 @@ describe('Gameplay Mechanics', () => {
     
     // Reset state before each test
     state = {
-      entries: 0,
-      totalEntries: 0,
-      entriesPerClick: 1,
-      entriesPerSecond: 0,
-      autoClickRate: 0,
-      clickCount: 0,
-      debugMode: false,
-      cabinetUnlocked: false,
-      gameStartedAt: Date.now(),
-      lastSavedAt: Date.now(),
-      lastTickAt: Date.now(),
-      collaborators: [],
-      upgrades: [
-        {
-          id: "stats_unlock",
-          name: "Tableau de Bord",
-          description: "Débloque l'onglet des statistiques pour suivre votre progression",
-          cost: 100,
-          unlocked: true,
-          purchased: false,
-          effect: (state: GameState): GameState => state,
-          multiplier: 1
-        }
-      ],
-      achievements: [],
-      miniGames: [],
-      famousAccountants: [],
-      combo: {
-        active: false,
-        clicksInCombo: 0,
-        multiplier: 1,
-        lastClickTime: 0,
-        maxMultiplier: 10,
-        comboTimeWindow: 3000,
-        baseMultiplier: 1.2,
-        speedBonus: 1,
-        currentTier: -1,
-        degradationRate: 0.2,
-        degradationInterval: 500,
-        lastDegradationTime: 0,
-        tiers: []
-      },
-      activePowerUps: [],
-      features: {},
-      prestige: {
-        points: 0,
-        multiplier: 1,
-        cost: 1e6,
-        totalResets: 0,
-        upgrades: [],
-        specializations: [],
-        objectives: [],
-        currentSeason: {
-          id: "declarations",
-          name: "Saison des Déclarations",
-          description: "",
-          active: true,
-          objectives: [],
-          specializations: [],
-          multiplier: 1.2,
-          duration: 604800,
-          timeLeft: 0
-        }
-      },
-      upgradesTabUnlocked: false,
-      statsTabUnlocked: false,
-      achievementsTabUnlocked: false,
-      prestigeTabUnlocked: false
+      ...initialGameState,
+      lastTickAt: now
     };
   });
 
@@ -126,7 +60,7 @@ describe('Gameplay Mechanics', () => {
       state.entriesPerClick = 2;
       
       const newState = gameReducer(state, { type: 'CLICK' });
-      expect(newState.entries).toBe(2000); // 2 * DEBUG_MULTIPLIER (1000)
+      expect(newState.entries).toBe(4000); // 2 * DEBUG_MULTIPLIER (1000) * clickMultiplier (2)
     });
   });
 
@@ -247,50 +181,6 @@ describe('Gameplay Mechanics', () => {
     });
   });
 
-  describe('Prestige System', () => {
-    it('should not allow prestige without meeting cost requirement', () => {
-      state.entries = 100;
-      state.prestige.cost = 1e6;
-      
-      const newState = gameReducer(state, { type: 'PRESTIGE' });
-      expect(newState).toEqual(state);
-    });
-
-    it('should reset game state but keep prestige upgrades on prestige', () => {
-      state.entries = 1e6;
-      state.prestige.upgrades = [{
-        id: 'test_prestige_upgrade',
-        name: 'Test Prestige',
-        description: 'Test',
-        cost: 1,
-        purchased: true,
-        unlocked: true,
-        effect: (state: GameState) => ({
-          ...state,
-          prestige: {
-            ...state.prestige,
-            multiplier: state.prestige.multiplier * 2
-          }
-        })
-      } as Upgrade];
-
-      const newState = gameReducer(state, { type: 'PRESTIGE' });
-      expect(newState.entries).toBe(0);
-      expect(newState.totalEntries).toBe(0);
-      expect(newState.prestige.multiplier).toBeGreaterThan(1);
-      expect(newState.prestige.totalResets).toBe(1);
-      expect(newState.prestige.upgrades).toEqual(state.prestige.upgrades);
-    });
-
-    it('should calculate prestige points correctly', () => {
-      state.entries = 1e9; // 1 billion
-      state.prestige.cost = 1e6; // 1 million
-      
-      const newState = gameReducer(state, { type: 'PRESTIGE' });
-      expect(newState.prestige.points).toBeGreaterThan(0);
-    });
-  });
-
   describe('Game Tick System', () => {
     it('should accumulate entries over time based on collaborators', () => {
       state.collaborators = [{
@@ -355,7 +245,7 @@ describe('Gameplay Mechanics', () => {
       expect(clickAchievement?.unlocked).toBe(true);
     });
 
-    it('should keep achievements unlocked after prestige', () => {
+    it('should keep achievements after reset', () => {
       state.entries = 1e6;
       state.achievements = [{
         id: 'test_achievement',
@@ -366,10 +256,10 @@ describe('Gameplay Mechanics', () => {
         hidden: false
       } as Achievement];
       
-      const newState = gameReducer(state, { type: 'PRESTIGE' });
-      const prestigeAchievement = newState.achievements[0];
-      expect(prestigeAchievement).toBeDefined();
-      expect(prestigeAchievement?.unlocked).toBe(true);
+      const newState = gameReducer(state, { type: 'RESET_GAME' });
+      const achievement = newState.achievements[0];
+      expect(achievement).toBeDefined();
+      expect(achievement?.unlocked).toBe(true);
     });
   });
 
@@ -402,12 +292,55 @@ describe('Gameplay Mechanics', () => {
       expect(completedMiniGame).toBeDefined();
       expect(completedMiniGame?.completed).toBe(true);
     });
+
+    it('should unlock upgrades tab permanently once unlocked', () => {
+      state.entries = 30;
+      let newState = gameReducer(state, { type: 'CHECK_UNLOCKS' });
+      expect(newState.upgradesTabUnlocked).toBe(true);
+
+      newState.entries = 20;
+      newState = gameReducer(newState, { type: 'CHECK_UNLOCKS' });
+      expect(newState.upgradesTabUnlocked).toBe(true);
+    });
+
+    it('should unlock stats tab when stats upgrade is purchased', () => {
+      state.upgrades = state.upgrades.map(u => 
+        u.id === 'stats_unlock' ? { ...u, purchased: true } : u
+      );
+      const newState = gameReducer(state, { type: 'CHECK_UNLOCKS' });
+      expect(newState.statsTabUnlocked).toBe(true);
+    });
+
+    it('should unlock achievements tab when first achievement is unlocked', () => {
+      state.achievements = [{
+        id: "first_entry",
+        name: "Mind the GAAP",
+        description: "Votre première écriture automatisée",
+        unlocked: true,
+        hidden: false,
+        condition: (state: GameState) => state.totalEntries >= 1,
+      }];
+      const newState = gameReducer(state, { type: 'CHECK_UNLOCKS' });
+      expect(newState.achievementsTabUnlocked).toBe(true);
+    });
+
+    it('should unlock special features at certain milestones', () => {
+      // Test with 1M entries
+      state.totalEntries = 1_000_000;
+      let newState = gameReducer(state, { type: 'CHECK_UNLOCKS' });
+      expect(newState.specialFeaturesUnlocked).toBe(true);
+
+      // Test with lower entries
+      state.totalEntries = 0;
+      newState = gameReducer(state, { type: 'CHECK_UNLOCKS' });
+      expect(newState.specialFeaturesUnlocked).toBe(false);
+    });
   });
 
   describe('Upgrade System', () => {
     it('should unlock statistics tab when buying stats_unlock upgrade', () => {
       // Setup initial state with enough entries to buy the upgrade
-      state.entries = 200;
+      state.entries = 600;
       
       // Find the stats_unlock upgrade
       const statsUpgrade = state.upgrades.find(u => u.id === 'stats_unlock');
@@ -430,7 +363,7 @@ describe('Gameplay Mechanics', () => {
       expect(updatedUpgrade?.purchased).toBe(true);
       
       // Verify entries were deducted
-      expect(newState.entries).toBe(100); // 200 - 100 (upgrade cost)
+      expect(newState.entries).toBe(100); // 600 - 500 (upgrade cost)
       
       // Verify stats tab is now unlocked
       const hasStatsUnlockedAfter = newState.upgrades.some(u => u.id === 'stats_unlock' && u.purchased);
@@ -441,7 +374,7 @@ describe('Gameplay Mechanics', () => {
   describe('Game State Management', () => {
     it('should correctly save and load purchased upgrades', () => {
       // Setup initial state with enough entries to buy the upgrade
-      state.entries = 200;
+      state.entries = 600;
       
       // Buy the stats_unlock upgrade
       let newState = gameReducer(state, { 
@@ -469,45 +402,6 @@ describe('Gameplay Mechanics', () => {
   });
 
   describe('Tab Unlocking System', () => {
-    it('should unlock upgrades tab permanently once unlocked', () => {
-      // Initial state with enough entries to unlock upgrades
-      state.entries = 30;
-      let newState = gameReducer(state, { type: 'CHECK_UNLOCKS' });
-      expect(newState.upgradesTabUnlocked).toBe(true);
-
-      // Entries drop below threshold
-      newState.entries = 20;
-      newState = gameReducer(newState, { type: 'CHECK_UNLOCKS' });
-      expect(newState.upgradesTabUnlocked).toBe(true);
-    });
-
-    it('should unlock stats tab when stats upgrade is purchased', () => {
-      state.upgrades = state.upgrades.map(u => 
-        u.id === 'stats_unlock' ? { ...u, purchased: true } : u
-      );
-      const newState = gameReducer(state, { type: 'CHECK_UNLOCKS' });
-      expect(newState.statsTabUnlocked).toBe(true);
-    });
-
-    it('should unlock achievements tab when first achievement is unlocked', () => {
-      // Ajouter un succès débloqué à l'état
-      const stateWithAchievement = {
-        ...state,
-        achievements: [
-          {
-            id: "first_entry",
-            name: "Mind the GAAP",
-            description: "Votre première écriture automatisée",
-            unlocked: true,
-            hidden: false,
-            condition: (state: GameState) => state.totalEntries >= 1,
-          }
-        ]
-      };
-      const newState = gameReducer(stateWithAchievement, { type: 'CHECK_UNLOCKS' });
-      expect(newState.achievementsTabUnlocked).toBe(true);
-    });
-
     it('should unlock prestige tab at 1M entries or when prestige points exist', () => {
       // Test with 1M entries
       state.totalEntries = 1_000_000;

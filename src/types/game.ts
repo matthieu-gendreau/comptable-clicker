@@ -205,6 +205,7 @@ export interface GameState {
   statsTabUnlocked: boolean;
   achievementsTabUnlocked: boolean;
   prestigeTabUnlocked: boolean;
+  specialFeaturesUnlocked: boolean;
 }
 
 export type GameAction =

@@ -479,27 +479,28 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         return state;
       }
 
-      // Ensure state has all required properties before applying effect
-      const stateWithDefaults = {
+      // Update state with purchased upgrade
+      const updatedState = {
         ...state,
         entries: state.entries - upgrade.cost,
         upgrades: state.upgrades.map((u, i) =>
           i === upgradeIndex ? { ...u, purchased: true } : u
         ),
-        prestige: {
-          ...initialGameState.prestige,
-          ...state.prestige
-        }
+        statsTabUnlocked: state.statsTabUnlocked || (upgrade.id === 'stats_unlock')
       };
 
-      const updatedState = upgrade.effect(stateWithDefaults);
+      // Apply upgrade effect
+      const stateAfterEffect = upgrade.effect(updatedState);
 
-      const updatedAchievements = checkAchievements(state, updatedState);
+      // Check achievements
+      const updatedAchievements = checkAchievements(state, stateAfterEffect);
 
       return {
-        ...updatedState,
-        entriesPerSecond: calculateEntriesPerSecond(updatedState),
-        achievements: updatedAchievements,
+        ...stateAfterEffect,
+        upgrades: updatedState.upgrades,
+        statsTabUnlocked: updatedState.statsTabUnlocked,
+        entriesPerSecond: calculateEntriesPerSecond(stateAfterEffect),
+        achievements: updatedAchievements
       };
     }
 
@@ -847,7 +848,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           const condition = conditionMap.get(achievement.id);
           if (!condition) {
             console.error(`No condition found for achievement: ${achievement.id}`);
-            // Return the achievement with a default condition that always returns false
             return {
               ...achievement,
               condition: () => false
@@ -862,7 +862,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           const effect = effectMap.get(upgrade.id);
           if (!effect) {
             console.error(`No effect found for upgrade: ${upgrade.id}`);
-            // Return the upgrade with a default effect that returns the state unchanged
             return {
               ...upgrade,
               effect: (state: GameState) => state
@@ -870,16 +869,30 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           }
           return {
             ...upgrade,
-            effect
+            effect,
+            purchased: upgrade.purchased || false
           };
-        })
+        }),
+        // Preserve all unlocked states
+        statsTabUnlocked: action.state.statsTabUnlocked || action.state.upgrades.some(u => u.id === 'stats_unlock' && u.purchased),
+        upgradesTabUnlocked: action.state.upgradesTabUnlocked,
+        achievementsTabUnlocked: action.state.achievementsTabUnlocked,
+        prestigeTabUnlocked: action.state.prestigeTabUnlocked,
+        specialFeaturesUnlocked: action.state.specialFeaturesUnlocked
       };
+
+      // Ensure stats tab is unlocked if stats_unlock upgrade is purchased
+      if (loadedState.upgrades.some(u => u.id === 'stats_unlock' && u.purchased)) {
+        loadedState.statsTabUnlocked = true;
+      }
+
       return loadedState;
     }
 
     case "RESET_GAME":
       return {
         ...initialGameState,
+        achievements: state.achievements, // Keep achievements after reset
         gameStartedAt: Date.now(),
         lastSavedAt: Date.now(),
         lastTickAt: Date.now(),
@@ -956,7 +969,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         // L'onglet des succès est déverrouillé quand au moins un succès est débloqué
         achievementsTabUnlocked: state.achievementsTabUnlocked || state.achievements.some(a => a.unlocked),
         // L'onglet de prestige est déverrouillé à 1M d'entrées ou quand des points de prestige existent
-        prestigeTabUnlocked: state.prestigeTabUnlocked || state.totalEntries >= 1_000_000 || state.prestige.points > 0
+        prestigeTabUnlocked: state.prestigeTabUnlocked || state.totalEntries >= 1_000_000 || state.prestige.points > 0,
+        // Special features are unlocked at 1M total entries
+        specialFeaturesUnlocked: state.specialFeaturesUnlocked || state.totalEntries >= 1_000_000
       };
     }
 

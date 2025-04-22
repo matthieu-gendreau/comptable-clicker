@@ -1357,9 +1357,9 @@ export const initialGameState: GameState = {
     multiplier: 1,
     cost: 1e6,
     totalResets: 0,
-    upgrades: [],
-    specializations: [],
-    objectives: [],
+    upgrades: initialPrestigeUpgrades,
+    specializations: fiscalSpecializations,
+    objectives: fiscalObjectives,
     currentSeason: fiscalSeasons[0]!
   },
   famousAccountants: famousAccountants,
@@ -1387,5 +1387,6 @@ export const initialGameState: GameState = {
   upgradesTabUnlocked: false,
   statsTabUnlocked: false,
   achievementsTabUnlocked: false,
-  prestigeTabUnlocked: false
+  prestigeTabUnlocked: false,
+  specialFeaturesUnlocked: false
 };
