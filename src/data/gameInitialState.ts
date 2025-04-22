@@ -1153,7 +1153,7 @@ export const initialAchievements: Achievement[] = [
     description: "Vous avez survécu à la période fiscale ! Votre CERFA préféré est le 2058-A, avouez-le.",
     unlocked: false,
     hidden: true,
-    condition: (state) => state.clickCount >= 10000,
+    condition: (state) => state.debugMode ? state.clickCount >= 100 : state.clickCount >= 10000,
   },
   {
     id: "calculator_master",
