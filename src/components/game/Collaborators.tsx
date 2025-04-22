@@ -39,7 +39,7 @@ const Collaborators: React.FC = () => {
                       </div>
                       <p className="text-xs text-comptableClicker-gray">{collaborator.description}</p>
                       <div className="text-sm mt-1">
-                        <span className="font-medium">{collaborator.count}</span> possédés
+                        <span className="font-medium">{collaborator.count}</span> embauchés
                         {output > 0 && (
                           <span className="ml-2 text-[#003d3d]">
                             {formatEntriesPerSecond(output)} écritures/sec
