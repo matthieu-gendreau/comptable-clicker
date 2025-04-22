@@ -93,6 +93,18 @@ describe('Gameplay Mechanics', () => {
       expect(newState.clickCount).toBe(1);
     });
 
+    it('should handle empty specializations array gracefully', () => {
+      const stateWithEmptySpecializations = {
+        ...state,
+        prestige: {
+          ...state.prestige,
+          specializations: []
+        }
+      };
+      const newState = gameReducer(stateWithEmptySpecializations, { type: 'CLICK' });
+      expect(newState.entries).toBe(state.entriesPerClick);
+    });
+
     it('should apply click multiplier from specializations', () => {
       state.entriesPerClick = 2;
       state.prestige.specializations = [{

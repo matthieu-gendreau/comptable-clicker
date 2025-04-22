@@ -1,9 +1,11 @@
 import type { GameState } from "./game";
 
-export type FeatureId = "taxOptimizer" | "autoFiling" | "linkedinPremium";
+export type FeatureId = "autoSave" | "darkMode";
+
+export type FeatureRequirementType = "entries" | "clicks" | "collaborators" | "upgrades" | "achievements";
 
 export interface FeatureRequirement {
-  type: "totalEntries" | "prestigePoints" | "achievements";
+  type: FeatureRequirementType;
   value: number;
 }
 
@@ -13,35 +15,36 @@ export interface Feature {
   description: string;
   unlocked: boolean;
   active: boolean;
-  requirements: FeatureRequirement[];
-  effects: {
-    type: "multiplier" | "bonus" | "automation";
-    value: number;
-  }[];
+  requirement?: FeatureRequirement;
+  effect?: (state: GameState) => GameState;
 }
 
 export interface FeaturesState {
   features: Record<FeatureId, Feature>;
 }
 
-export interface FeatureAction {
-  type: "UNLOCK_FEATURE" | "ACTIVATE_FEATURE" | "DEACTIVATE_FEATURE";
-  featureId: FeatureId;
-}
+export type FeatureAction =
+  | { type: "UNLOCK_FEATURE"; featureId: FeatureId }
+  | { type: "ACTIVATE_FEATURE"; featureId: FeatureId }
+  | { type: "DEACTIVATE_FEATURE"; featureId: FeatureId };
 
 export const checkFeatureRequirements = (state: GameState, feature: Feature): boolean => {
-  return feature.requirements.every(requirement => {
-    switch (requirement.type) {
-      case "totalEntries":
-        return state.totalEntries >= requirement.value;
-      case "prestigePoints":
-        return state.prestige.points >= requirement.value;
-      case "achievements":
-        return state.achievements.filter(a => a.unlocked).length >= requirement.value;
-      default:
-        return false;
-    }
-  });
+  if (!feature.requirement) return true;
+
+  switch (feature.requirement.type) {
+    case "entries":
+      return state.entries >= feature.requirement.value;
+    case "clicks":
+      return state.clickCount >= feature.requirement.value;
+    case "collaborators":
+      return Object.keys(state.collaborators).length >= feature.requirement.value;
+    case "upgrades":
+      return Object.values(state.upgrades).filter(u => u.unlocked).length >= feature.requirement.value;
+    case "achievements":
+      return Object.values(state.achievements).filter(a => a.unlocked).length >= feature.requirement.value;
+    default:
+      return false;
+  }
 };
 
 export type GameAction =

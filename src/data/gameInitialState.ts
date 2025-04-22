@@ -1,5 +1,5 @@
 import type { GameCollaborator, Upgrade, Achievement, GameState, MiniGame, FamousAccountant, FiscalSeason, FiscalObjective, FiscalSpecialization } from "@/types/game";
-import { initialFeaturesState } from "@/reducers/features/featureReducer";
+import { initialFeatures } from "@/reducers/features/featureReducer";
 
 // Configuration du joueur débutant
 export const playerProgression = {
@@ -1380,7 +1380,7 @@ export const initialGameState: GameState = {
   },
   activePowerUps: [],
   features: Object.fromEntries(
-    Object.values(initialFeaturesState).map(feature => [feature.id, feature])
+    Object.values(initialFeatures).map(feature => [feature.id, feature])
   ),
   cabinetUnlocked: false,
   miniGames: miniGames,

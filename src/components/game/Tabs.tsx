@@ -6,12 +6,10 @@ import Stats from "./Stats";
 import Collaborators from "./Collaborators";
 import Upgrades from "./Upgrades";
 import Achievements from "./Achievements";
-import { Prestige } from "./Prestige";
 import FamousAccountants from "./FamousAccountants";
 import AccountantShop from "./AccountantShop";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { calculatePrestigePoints } from "@/reducers/gameReducer";
 import type { FamousAccountant } from "@/types/game";
 
 const GameTabs: React.FC = () => {
@@ -21,9 +19,6 @@ const GameTabs: React.FC = () => {
   const availableUpgrades = state.upgrades.filter(
     u => u.unlocked && !u.purchased && state.entries >= u.cost
   ).length;
-
-  // Vérifie si on peut faire un prestige
-  const canPrestige = calculatePrestigePoints(state.totalEntries, state.prestige.objectives) > state.prestige.points;
 
   // Vérifie si des Légendes de la Compta sont disponibles
   const availableAccountants = state.famousAccountants.filter((a: FamousAccountant) => a.unlocked && !a.purchased).length;
@@ -41,19 +36,14 @@ const GameTabs: React.FC = () => {
     if (!state.achievementsTabUnlocked && state.totalEntries >= 500) {
       dispatch({ type: "UNLOCK_TAB", id: "achievements" });
     }
-    if (!state.prestigeTabUnlocked && (state.totalEntries >= 500_000 || state.prestige.points > 0)) {
-      dispatch({ type: "UNLOCK_TAB", id: "prestige" });
-    }
   }, [
     state.entries,
     state.upgrades,
     state.achievements,
     state.totalEntries,
-    state.prestige.points,
     state.upgradesTabUnlocked,
     state.statsTabUnlocked,
     state.achievementsTabUnlocked,
-    state.prestigeTabUnlocked,
     dispatch
   ]);
 
@@ -121,25 +111,6 @@ const GameTabs: React.FC = () => {
         </div>
       ),
       unlocked: state.statsTabUnlocked,
-    },
-    {
-      id: "prestige",
-      label: (
-        <div className="flex items-center gap-2">
-          Cabinet
-          {canPrestige && (
-            <Badge variant="secondary" className="h-5 px-1.5 bg-green-500/10 text-green-500">
-              ✨
-            </Badge>
-          )}
-        </div>
-      ),
-      content: (
-        <div className="max-w-4xl mx-auto">
-          <Prestige />
-        </div>
-      ),
-      unlocked: state.prestigeTabUnlocked,
     },
     {
       id: "achievements",

@@ -229,4 +229,6 @@ export type GameAction =
   | { type: "ACTIVATE_FEATURE"; featureId: FeatureId }
   | { type: "DEACTIVATE_FEATURE"; featureId: FeatureId }
   | { type: "UNLOCK_TAB"; id: "upgrades" | "stats" | "achievements" | "prestige" }
-  | { type: "CHECK_UNLOCKS" };
+  | { type: "CHECK_UNLOCKS" }
+  | { type: "FEATURE_ACTION"; featureAction: { type: "TOGGLE_FEATURE"; id: FeatureId } }
+  | { type: "TICK"; timestamp: number };

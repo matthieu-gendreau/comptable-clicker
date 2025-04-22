@@ -25,7 +25,12 @@ export const checkAchievements = (state: GameState, updates: Partial<GameState>)
       ...updates,
       totalEntries: updates.totalEntries ?? state.totalEntries,
       entries: updates.entries ?? state.entries,
-      clickCount: updates.clickCount ?? state.clickCount
+      clickCount: updates.clickCount ?? state.clickCount,
+      prestige: {
+        ...initialGameState.prestige,
+        ...state.prestige,
+        ...updates.prestige
+      }
     };
 
     try {
@@ -163,6 +168,11 @@ const checkFamousAccountantUnlock = (state: GameState): GameState["famousAccount
 export const calculateClickMultiplier = (state: GameState): number => {
   const baseMultiplier = 1;
   
+  // Si prestige ou specializations n'existe pas, retourner le multiplicateur de base
+  if (!state.prestige?.specializations) {
+    return baseMultiplier;
+  }
+  
   // Multiplicateur des spécialisations de type "click"
   const clickSpecializationMultiplier = state.prestige.specializations
     .filter(spec => spec.purchased && spec.type === "click")
@@ -228,28 +238,8 @@ export const calculateComboMultiplier = (state: GameState): number => {
 };
 
 const applyFeatureEffects = (state: GameState): GameState => {
-  let updatedState = { ...state };
-  
-  Object.values(state.features).forEach(feature => {
-    if (!feature.active) return;
-    
-    feature.effects.forEach(effect => {
-      switch (effect.type) {
-        case "multiplier":
-          updatedState = {
-            ...updatedState,
-            entriesPerClick: updatedState.entriesPerClick * effect.value,
-            entriesPerSecond: updatedState.entriesPerSecond * effect.value
-          };
-          break;
-        case "automation":
-          // L'automation est gérée via cabinetUnlocked
-          break;
-      }
-    });
-  });
-  
-  return updatedState;
+  const activeFeatures = Object.values(state.features).filter(f => f.active && f.effect);
+  return activeFeatures.reduce((acc, feature) => feature.effect ? feature.effect(acc) : acc, state);
 };
 
 const checkCollaboratorUnlock = (state: GameState): GameCollaborator[] => {
@@ -489,13 +479,20 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         return state;
       }
 
-      const updatedState = upgrade.effect({
+      // Ensure state has all required properties before applying effect
+      const stateWithDefaults = {
         ...state,
         entries: state.entries - upgrade.cost,
         upgrades: state.upgrades.map((u, i) =>
           i === upgradeIndex ? { ...u, purchased: true } : u
         ),
-      });
+        prestige: {
+          ...initialGameState.prestige,
+          ...state.prestige
+        }
+      };
+
+      const updatedState = upgrade.effect(stateWithDefaults);
 
       const updatedAchievements = checkAchievements(state, updatedState);
 
@@ -907,24 +904,19 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return newState;
     }
 
-    case "ACTIVATE_FEATURE": {
-      const updatedFeatures = featureReducer(state.features, action);
+    case "FEATURE_ACTION": {
+      const updatedFeatures = featureReducer(state, action.featureAction);
       let updatedState = {
         ...state,
-        features: updatedFeatures
+        features: updatedFeatures.features
       };
-      
-      updatedState = applyFeatureEffects(updatedState);
-      
-      return updatedState;
-    }
 
-    case "DEACTIVATE_FEATURE":
-    case "UNLOCK_FEATURE": {
-      return {
-        ...state,
-        features: featureReducer(state.features, action)
-      };
+      // Apply feature effects if needed
+      if (action.featureAction.type === "TOGGLE_FEATURE") {
+        updatedState = applyFeatureEffects(updatedState);
+      }
+
+      return updatedState;
     }
 
     case "UNLOCK_TAB": {

@@ -1,115 +1,88 @@
-import type { Feature, FeatureAction, FeatureId } from "@/types/features";
-import { toast } from "sonner";
+import type { GameState } from "@/types/game";
+import type { Feature, FeatureId } from "@/types/features";
 
-export const initialFeaturesState: Record<FeatureId, Feature> = {
-  linkedinPremium: {
-    id: "linkedinPremium",
-    name: "LinkedIn Premium",
-    description: "Débloque le Cabinet de Recrutement et permet d'embaucher des Légendes de la Compta",
-    unlocked: false,
-    active: false,
-    requirements: [
-      { type: "totalEntries", value: 1000 }
-    ],
-    effects: [
-      { type: "multiplier", value: 1.5 },
-      { type: "bonus", value: 100 },
-      { type: "automation", value: 1 }
-    ]
+export const initialFeatures: Record<FeatureId, Feature> = {
+  autoSave: {
+    id: "autoSave",
+    name: "Sauvegarde Automatique",
+    description: "Sauvegarde automatiquement votre progression",
+    unlocked: true,
+    active: true,
+    requirement: {
+      type: "entries",
+      value: 0
+    }
   },
-  taxOptimizer: {
-    id: "taxOptimizer",
-    name: "Optimisateur Fiscal",
-    description: "Optimise automatiquement vos déclarations fiscales",
-    unlocked: false,
+  darkMode: {
+    id: "darkMode",
+    name: "Mode Sombre",
+    description: "Pour les comptables nocturnes",
+    unlocked: true,
     active: false,
-    requirements: [
-      { type: "prestigePoints", value: 10 },
-      { type: "achievements", value: 5 }
-    ],
-    effects: [
-      { type: "automation", value: 1 },
-      { type: "bonus", value: 50 }
-    ]
-  },
-  autoFiling: {
-    id: "autoFiling",
-    name: "Auto-Archivage",
-    description: "Archive automatiquement vos documents",
-    unlocked: false,
-    active: false,
-    requirements: [
-      { type: "totalEntries", value: 500000 }
-    ],
-    effects: [
-      { type: "automation", value: 1 }
-    ]
+    requirement: {
+      type: "entries",
+      value: 0
+    }
   }
 };
 
-export const featureReducer = (
-  state: Record<FeatureId, Feature>,
-  action: FeatureAction
-): Record<FeatureId, Feature> => {
-  const feature = state[action.featureId];
-  if (!feature) return state;
-
+export const featureReducer = (state: GameState, action: { type: string; id?: FeatureId }): GameState => {
   switch (action.type) {
-    case "UNLOCK_FEATURE": {
-      if (feature.unlocked) return state;
-      
-      if (feature.id === "linkedinPremium") {
-        toast.success(`🎉 LinkedIn Premium disponible !`, {
-          description: "Vous pouvez maintenant activer LinkedIn Premium pour débloquer le Cabinet de Recrutement"
-        });
-      } else {
-        toast.success(`🎉 Nouvelle fonctionnalité débloquée : ${feature.name}`, {
-          description: feature.description
-        });
-      }
-      
+    case "TOGGLE_FEATURE": {
+      if (!action.id) return state;
+      const feature = state.features[action.id];
+      if (!feature) return state;
+
       return {
         ...state,
-        [action.featureId]: {
-          ...feature,
-          unlocked: true
+        features: {
+          ...state.features,
+          [action.id]: {
+            ...feature,
+            active: !feature.active
+          }
         }
       };
     }
 
-    case "ACTIVATE_FEATURE": {
-      if (!feature.unlocked || feature.active) return state;
+    case "CHECK_FEATURE_UNLOCKS": {
+      const updatedFeatures = { ...state.features };
       
-      if (feature.id === "linkedinPremium") {
-        toast.success("💼 LinkedIn Premium activé !", {
-          description: "Le Cabinet de Recrutement est maintenant disponible. Vous pouvez recruter des Légendes de la Compta !"
-        });
-      } else {
-        toast.success(`✨ Fonctionnalité activée : ${feature.name}`);
-      }
-      
-      return {
-        ...state,
-        [action.featureId]: {
-          ...feature,
-          active: true
+      Object.values(state.features).forEach(feature => {
+        if (!feature.unlocked && checkFeatureRequirement(state, feature)) {
+          updatedFeatures[feature.id] = {
+            ...feature,
+            unlocked: true
+          };
         }
-      };
-    }
+      });
 
-    case "DEACTIVATE_FEATURE": {
-      if (!feature.active) return state;
-      
       return {
         ...state,
-        [action.featureId]: {
-          ...feature,
-          active: false
-        }
+        features: updatedFeatures
       };
     }
 
     default:
       return state;
+  }
+};
+
+export const checkFeatureRequirement = (state: GameState, feature: Feature): boolean => {
+  if (!feature.requirement) return false;
+
+  switch (feature.requirement.type) {
+    case "entries":
+      return state.entries >= feature.requirement.value;
+    case "clicks":
+      return state.clickCount >= feature.requirement.value;
+    case "collaborators":
+      return Object.keys(state.collaborators).length >= feature.requirement.value;
+    case "upgrades":
+      return Object.values(state.upgrades).filter(u => u.unlocked).length >= feature.requirement.value;
+    case "achievements":
+      return Object.values(state.achievements).filter(a => a.unlocked).length >= feature.requirement.value;
+    default:
+      return false;
   }
 }; 
