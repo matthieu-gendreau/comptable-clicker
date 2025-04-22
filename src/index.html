@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Comptable Clicker</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Fonction pour activer/désactiver le mode debug
+      window.toggleDebug = () => {
+        const gameState = JSON.parse(localStorage.getItem("gameState"));
+        if (gameState) {
+          gameState.debugMode = !gameState.debugMode;
+          localStorage.setItem("gameState", JSON.stringify(gameState));
+          location.reload();
+        }
+      }
+    </script>
+  </body>
+</html> 
