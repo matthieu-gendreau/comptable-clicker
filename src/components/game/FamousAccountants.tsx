@@ -153,7 +153,7 @@ const FamousAccountants: React.FC = () => {
                     Multiplie {accountant.power.type === "click" ? "la valeur de vos clics" : 
                              accountant.power.type === "generator" ? "votre production par seconde" : 
                              accountant.power.type === "global" ? "tous vos gains" :
-                             accountant.power.type === "cost" ? "réduit le coût des générateurs" :
+                             accountant.power.type === "cost" ? "réduit le coût des collaborateurs" :
                              "l'efficacité des améliorations"} par {accountant.power.multiplier}x pendant {accountant.power.duration} secondes
                   </p>
                   <p className="text-xs text-slate-400 italic mt-1">

@@ -1126,7 +1126,7 @@ export const initialAchievements: Achievement[] = [
   {
     id: "automation_master",
     name: "Expert-Comptable en Herbe",
-    description: "Tous les générateurs débloqués ! Même l'Ordre des Experts-Comptables est impressionné.",
+    description: "Tous les collaborateurs débloqués ! Même l'Ordre des Experts-Comptables est impressionné.",
     unlocked: false,
     hidden: false,
     condition: (state) => state.collaborators?.every(g => g.count > 0) || false,
