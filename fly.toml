@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for pennylane-clicker on 2025-04-22T20:25:41Z
+# fly.toml app configuration file generated for comptable-clicker on 2025-04-22T20:25:41Z
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'pennylane-clicker'
+app = 'comptable-clicker'
 primary_region = 'cdg'
 
 [build]
