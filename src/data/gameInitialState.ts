@@ -114,7 +114,7 @@ export const initialCollaborators: GameCollaborator[] = [
   {
     id: "ai_assistant",
     name: "Cabinet Comptable",
-    description: "Un cabinet entier qui pense que 'travail/vie personnelle' est une notion de débutant. Efficacité maximale !",
+    description: "Un cabinet si efficace qu'il a réussi à amortir une DeLorean en 1.21 gigawatts d'écritures comptables. Même le fisc n'ose pas remonter dans le temps pour les contrôler !",
     baseCost: 5000000,
     baseOutput: 10000,
     count: 0,
